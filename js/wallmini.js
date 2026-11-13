@@ -15,15 +15,25 @@ function getImg(src, onload) {
   if (!e.ok && onload) e.waiters.push(onload);
   return e.ok ? e.img : null;
 }
-export function drawMini(cv, items, { bg = '#ffffff', redraw } = {}) {
+export function drawMini(cv, items, { bg = '#ffffff', redraw, fit } = {}) {
   const ctx = cv.getContext('2d');
   const W = cv.width, H = cv.height;
-  const s = Math.min(W / WORLD.w, H / WORLD.h);
-  const ox = (W - WORLD.w * s) / 2, oy = (H - WORLD.h * s) / 2;
+  // view box in world units: the whole wall, or (fit: 'content') the part that has things on it
+  let bx = 0, by = 0, bw = WORLD.w, bh = WORLD.h;
+  if (fit === 'content' && items.length) {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const it of items) { x0 = Math.min(x0, it.x); y0 = Math.min(y0, it.y); x1 = Math.max(x1, it.x + it.w); y1 = Math.max(y1, it.y + it.h); }
+    const pad = 80; x0 -= pad; y0 -= pad; x1 += pad; y1 += pad;
+    bw = Math.max(x1 - x0, 900); bh = Math.max(y1 - y0, 900 * H / W);
+    if (bw / bh > W / H) bh = bw * H / W; else bw = bh * W / H;
+    bx = (x0 + x1) / 2 - bw / 2; by = (y0 + y1) / 2 - bh / 2;
+  }
+  const s = Math.min(W / bw, H / bh);
+  const ox = (W - bw * s) / 2 - bx * s, oy = (H - bh * s) / 2 - by * s;
   ctx.clearRect(0, 0, W, H);
   ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
   let pending = false;
-  const again = () => { if (!pending) { pending = true; requestAnimationFrame(() => drawMini(cv, items, { bg, redraw })); } };
+  const again = () => { if (!pending) { pending = true; requestAnimationFrame(() => drawMini(cv, items, { bg, redraw, fit })); } };
   for (const it of [...items].sort((a, b) => a.z - b.z)) {
     ctx.save();
     ctx.translate(ox + (it.x + it.w / 2) * s, oy + (it.y + it.h / 2) * s);
