@@ -1,0 +1,108 @@
+/* ВИДЕОПРОКАТ: VHS sleeves standing on black shelves */
+.films-page .page-head .btn { align-self: flex-end; }
+.films-page { overflow-x: clip; }
+.films-local { max-width: 760px; }
+.films-bar { display: flex; flex-wrap: wrap; gap: 10px 28px; margin: 0 0 clamp(26px, 4vw, 44px); }
+.films-seg { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.vhs-shelf { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); column-gap: 0; row-gap: clamp(34px, 5vw, 56px); }
+.vhs-slot { padding: 0 clamp(10px, 1.4vw, 18px); display: flex; flex-direction: column; min-width: 0; }
+
+/* the sleeve */
+.vhs {
+  --tilt: 0deg;
+  position: relative; display: flex; flex-direction: column; width: 100%; aspect-ratio: 7 / 10; padding: 0; margin: 0;
+  container-type: inline-size; overflow: visible; text-align: left; color: var(--sink); cursor: pointer;
+  background: var(--sbg); border: 2px solid var(--ink); border-radius: 7px 7px 3px 3px;
+  box-shadow: 5px 5px 0 rgba(0, 0, 0, .9);
+  transform: rotate(var(--tilt)); transform-origin: 50% 100%;
+  transition: transform .22s cubic-bezier(.3, 1.4, .5, 1), box-shadow .22s;
+}
+.vhs:hover, .vhs:focus-visible { transform: translateY(-12px) rotate(0deg); box-shadow: 7px 14px 0 rgba(0, 0, 0, .9); }
+.vhs:focus-visible { outline: 3px solid var(--cobalt); outline-offset: 4px; }
+.vhs__top { display: flex; justify-content: space-between; gap: 4cqw; padding: 3.6cqw 6cqw 3.2cqw; background: var(--ink); color: var(--sart); font-weight: 700; font-size: 7cqw; line-height: 1; border-radius: 4px 4px 0 0; }
+.vhs__art { position: relative; flex: 1 1 auto; min-height: 30cqw; margin: 6cqw 6cqw 4cqw; border-radius: 3px; }
+.vhs__title { font-family: var(--font-display); font-weight: 400; font-size: var(--fs, 12cqw); line-height: .98; text-transform: uppercase; padding: 0 7cqw; overflow-wrap: anywhere; }
+.vhs__genre { font-family: var(--font-hand); font-weight: 700; font-size: var(--gs, 10cqw); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1; padding: 2.5cqw 7cqw 0; opacity: .85; }
+.vhs__tape { display: block; height: 6.5cqw; margin-top: 5cqw; flex: 0 0 auto; border-top: 2px solid var(--ink);
+  background: linear-gradient(90deg, var(--cobalt) 0 25%, var(--yellow) 25% 50%, var(--red) 50% 75%, var(--pink) 75%); border-radius: 0 0 2px 2px; }
+
+/* generated cover art, one of six patterns in the sleeve's accent colour */
+.vhs__art--sun { background: radial-gradient(circle at 62% 46%, var(--sart) 0 34%, transparent 34.6%); }
+.vhs__art--sun::after { content: ""; position: absolute; left: 0; right: 0; bottom: 14%; height: 9%; background: var(--sart); }
+.vhs__art--stripes { background: repeating-linear-gradient(-32deg, var(--sart) 0 9cqw, transparent 9cqw 18cqw); }
+.vhs__art--dots { background: radial-gradient(circle, var(--sart) 0 38%, transparent 40%) 0 0 / 11cqw 11cqw; }
+.vhs__art--half { background: linear-gradient(90deg, var(--sart) 0 50%, transparent 50%); }
+.vhs__art--half::after { content: ""; position: absolute; width: 46%; aspect-ratio: 1; left: 27%; top: 50%; transform: translateY(-50%); border-radius: 50%; background: var(--sbg); border: 1.4cqw solid var(--sart); }
+.vhs__art--rings { background: repeating-radial-gradient(circle at 24% 78%, var(--sart) 0 3.6cqw, transparent 3.6cqw 8cqw); }
+.vhs__art--grid { background: conic-gradient(var(--sart) 25%, transparent 0 50%, var(--sart) 0 75%, transparent 0) 0 0 / 22cqw 22cqw; }
+
+/* owner pick sticker, pending tape, demo badge */
+.vhs__pick { position: absolute; top: 10cqw; right: -6cqw; width: 40cqw; aspect-ratio: 1; display: grid; place-items: center; text-align: center;
+  background: var(--paper); color: var(--red); border: 2px solid var(--ink); border-radius: 50%; font-family: var(--font-hand); font-weight: 700; font-size: 7.4cqw; line-height: .92;
+  transform: rotate(14deg); box-shadow: 2px 2px 0 var(--ink); }
+.vhs__pending { position: absolute; left: -4%; right: -4%; top: 40%; padding: 2.4cqw 0; background: var(--yellow); color: var(--ink); border: 2px solid var(--ink);
+  text-align: center; font-weight: 700; font-size: 7.4cqw; transform: rotate(-9deg); }
+.vhs__demo { position: absolute; left: 4cqw; top: 15cqw; padding: 1cqw 3cqw 1.4cqw; background: var(--paper); color: var(--ink); border: 1.5px solid var(--ink); border-radius: 999px; font-size: 6cqw; font-weight: 600; }
+.is-pending .vhs { border-style: dashed; }
+
+/* the shelf board doubles as the top edge of the caption, so neighbouring slots form one long shelf */
+.vhs-cap { margin: 0 calc(-1 * clamp(10px, 1.4vw, 18px)); padding: 12px clamp(10px, 1.4vw, 18px) 0; border-top: 9px solid var(--ink);
+  display: flex; flex-direction: column; gap: 2px; min-height: 52px; }
+.vhs-cap b, .vhs-cap span { font-family: var(--font-hand); font-weight: 700; font-size: 23px; line-height: 1.05; color: var(--cobalt); overflow-wrap: anywhere; }
+.vhs-cap b { color: var(--red); }
+.vhs-cap small { font-size: 13px; color: var(--muted); }
+
+.vhs-empty { grid-column: 1 / -1; max-width: 560px; display: grid; gap: 10px; justify-items: start; font-size: 17px; line-height: 1.45; padding: 28px; border: 2px dashed var(--line); border-radius: 18px; background: var(--paper); }
+.vhs-empty b { font-family: var(--font-display); font-weight: 400; font-size: 26px; line-height: 1.05; }
+.films-page .linkbtn { background: none; border: 0; padding: 0; font: inherit; color: var(--cobalt); text-decoration: underline; text-underline-offset: 3px; }
+.vhs-slot.is-skeleton .vhs { --sbg: var(--soft); border-color: var(--line); box-shadow: none; animation: vhsPulse 1.2s ease-in-out infinite alternate; }
+@keyframes vhsPulse { to { opacity: .45; } }
+
+/* detail card */
+.rec__head { background: var(--sbg); color: var(--sink); border: 2px solid var(--ink); border-left: 16px solid var(--sart); border-radius: 16px; padding: clamp(18px, 3vw, 28px); margin: 40px 0 18px; box-shadow: 5px 5px 0 var(--ink); }
+.rec__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin: 0 0 12px; font-weight: 600; font-size: 15px; }
+.rec__meta .chip--static { border-color: currentColor; padding: 4px 12px 5px; font-size: 14px; pointer-events: none; }
+.rec__title { font-family: var(--font-display); font-weight: 400; font-size: clamp(30px, 5vw, 52px); line-height: .98; margin: 0; overflow-wrap: anywhere; }
+.rec__who { font-family: var(--font-hand); font-weight: 700; font-size: 26px; margin: 10px 0 0; }
+.rec__note p { font-size: 18px; line-height: 1.55; margin: 0 0 12px; max-width: 62ch; }
+.rec__watch h3 { font-size: 15px; font-weight: 700; margin: 18px 0 10px; }
+.rec__links { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+.rec__links .btn { gap: 10px; }
+.rec__links .btn svg { width: 18px; height: 18px; }
+.rec__links small { font-weight: 400; font-size: 13px; opacity: .78; }
+.rec__hint { color: var(--muted); font-size: 14px; margin: 10px 0 0; }
+.rec__actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.rec__actions:empty { display: none; }
+
+/* suggestion form */
+#rf .seg { display: flex; gap: 8px; }
+#rf-links { display: grid; gap: 8px; margin: 6px 0 4px; }
+.lrow { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+#rf-addl { justify-self: start; margin-top: 4px; }
+#rf-addl[hidden] { display: none; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+@media (max-width: 720px) {
+  .films-bar { gap: 10px; flex-direction: column; }
+  .films-seg { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 calc(-1 * var(--gutter)); padding: 2px var(--gutter); }
+  .films-seg::-webkit-scrollbar { display: none; }
+  .films-seg .chip { flex: 0 0 auto; padding: 6px 11px 7px; font-size: 14px; }
+  .films-seg { gap: 6px; }
+  .vhs__pick { right: -4cqw; }
+  .vhs-shelf { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 34px; }
+  .vhs-slot { padding: 0 10px; }
+  .vhs-cap { margin: 0 -10px; padding: 10px 10px 0; min-height: 44px; }
+  .vhs-cap b, .vhs-cap span { font-size: 20px; }
+  .vhs { box-shadow: 4px 4px 0 rgba(0, 0, 0, .9); }
+  .vhs:hover { transform: rotate(var(--tilt)); box-shadow: 4px 4px 0 rgba(0, 0, 0, .9); }
+  .lrow { grid-template-columns: minmax(0, 1fr) auto; }
+  .lrow [data-k="label"] { grid-column: 1; grid-row: 2; }
+  .lrow .iconbtn { grid-row: 1 / span 2; grid-column: 2; }
+  .films-page .page-head .btn { width: 100%; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vhs { transition: none; }
+  .vhs:hover, .vhs:focus-visible { transform: rotate(var(--tilt)); }
+  .vhs-slot.is-skeleton .vhs { animation: none; }
+}

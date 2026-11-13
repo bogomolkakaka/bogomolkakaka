@@ -1,15 +1,15 @@
 {
- "note": "Demo content. Shown until the site is connected to Supabase.",
+ "note": "Демо-контент. Показывается, пока сайт не подключён к Supabase.",
  "objects": [
   {
-   "name": "Monday Pug",
-   "nick": "has opinions about your kerning",
+   "name": "Мопс Понедельник",
+   "nick": "имеет мнение о твоём кернинге",
    "num": "001",
    "status": "soon",
    "price": "",
-   "story": "A tiny pug head in a frilled collar, fresh off the printer and still waiting for paint.\n\nHe frowns at every brief, every font pairing and every Monday.",
+   "story": "Крошечная голова мопса в рюшевом воротнике — только что с принтера и ещё ждёт краски.\n\nОн хмурится на каждый бриф, каждую шрифтовую пару и каждый понедельник.",
    "height": "",
-   "material": "Grey PLA, unpainted for now",
+   "material": "Серый PLA, пока без покраски",
    "edition": "",
    "printTime": "",
    "photos": [
@@ -24,16 +24,16 @@
    "id": "obj-pug"
   },
   {
-   "name": "Bun-bun",
-   "nick": "the softest critic in the studio",
+   "name": "Зайка",
+   "nick": "самый мягкий критик в студии",
    "num": "002",
    "status": "available",
    "price": "3 900 ₽",
-   "story": "Bun-bun listens to every idea with both ears up and has never once said “make it pop”.\n\nPrinted in matte PLA, sanded and painted by hand, with blushing cheeks on every piece.",
-   "height": "9 cm",
-   "material": "PLA, acrylic paint",
-   "edition": "10 pieces",
-   "printTime": "7 h",
+   "story": "Зайка слушает каждую идею, подняв оба уха, и ни разу не сказала «сделай поярче».\n\nНапечатана из матового PLA, отшлифована и раскрашена вручную, у каждой — румяные щёки.",
+   "height": "9 см",
+   "material": "PLA, акрил",
+   "edition": "10 штук",
+   "printTime": "7 ч",
    "photos": [
     "assets/objects/bunny-pink-1.jpg",
     "assets/objects/bunny-pink-2.jpg",
@@ -42,17 +42,17 @@
    ],
    "colors": [
     {
-     "name": "Pink",
+     "name": "Розовый",
      "hex": "#ff9cc8",
      "photo": "assets/objects/bunny-pink-1.jpg"
     },
     {
-     "name": "Cobalt",
+     "name": "Кобальт",
      "hex": "#244ee7",
      "photo": "assets/objects/bunny-cobalt.jpg"
     },
     {
-     "name": "Milk",
+     "name": "Молочный",
      "hex": "#f6f3ec",
      "photo": "assets/objects/bunny-milk.jpg"
     }
@@ -64,16 +64,16 @@
    "id": "obj-bunbun"
   },
   {
-   "name": "Shroomie",
-   "nick": "grows best at 2 a.m. before a deadline",
+   "name": "Грибочек",
+   "nick": "лучше всего растёт в 2 ночи перед дедлайном",
    "num": "003",
    "status": "soldout",
    "price": "4 200 ₽",
-   "story": "A small mushroom with a big hat and a quiet stare. The first batch has found good homes.",
-   "height": "8 cm",
-   "material": "PLA, acrylic paint",
-   "edition": "6 pieces",
-   "printTime": "5 h",
+   "story": "Маленький гриб с большой шляпой и тихим взглядом. Первая партия уже нашла хорошие дома.",
+   "height": "8 см",
+   "material": "PLA, акрил",
+   "edition": "6 штук",
+   "printTime": "5 ч",
    "photos": [
     "assets/objects/shroom-red-1.jpg",
     "assets/objects/shroom-red-2.jpg",
@@ -81,12 +81,12 @@
    ],
    "colors": [
     {
-     "name": "Red cap",
+     "name": "Красная шляпка",
      "hex": "#f0332a",
      "photo": "assets/objects/shroom-red-1.jpg"
     },
     {
-     "name": "Yellow cap",
+     "name": "Жёлтая шляпка",
      "hex": "#ffc21a",
      "photo": "assets/objects/shroom-yellow.jpg"
     }
@@ -98,23 +98,23 @@
    "id": "obj-shroomie"
   },
   {
-   "name": "Ghostie",
-   "nick": "haunts unsaved files",
+   "name": "Призрачок",
+   "nick": "обитает в несохранённых файлах",
    "num": "004",
    "status": "available",
    "price": "2 900 ₽",
-   "story": "Ghostie floats around the desk and quietly reminds you to press save. Fear-free and very polite.",
-   "height": "7 cm",
-   "material": "PLA, acrylic paint",
-   "edition": "12 pieces",
-   "printTime": "4 h",
+   "story": "Призрачок летает над столом и тихонько напоминает нажать «сохранить». Совсем не страшный и очень вежливый.",
+   "height": "7 см",
+   "material": "PLA, акрил",
+   "edition": "12 штук",
+   "printTime": "4 ч",
    "photos": [
     "assets/objects/ghost-1.jpg",
     "assets/objects/ghost-2.jpg"
    ],
    "colors": [
     {
-     "name": "Sky",
+     "name": "Небесный",
      "hex": "#cfe2ff",
      "photo": ""
     }
@@ -126,15 +126,15 @@
    "id": "obj-ghostie"
   },
   {
-   "name": "Cube Cat",
-   "nick": "fits perfectly in any grid",
+   "name": "Кот-кубик",
+   "nick": "идеально встаёт в любую сетку",
    "num": "005",
    "status": "soon",
    "price": "",
-   "story": "A cat who finally fits in the box, because he is the box. Still on the printer bed, trying out a new matte finish.",
-   "height": "6 cm",
-   "material": "PLA, acrylic paint",
-   "edition": "8 pieces",
+   "story": "Кот, который наконец поместился в коробку, потому что он сам коробка. Пока ещё на столе принтера — пробует новую матовую отделку.",
+   "height": "6 см",
+   "material": "PLA, акрил",
+   "edition": "8 штук",
    "printTime": "",
    "photos": [
     "assets/objects/cat-cobalt-1.jpg",
@@ -143,12 +143,12 @@
    ],
    "colors": [
     {
-     "name": "Cobalt",
+     "name": "Кобальт",
      "hex": "#244ee7",
      "photo": "assets/objects/cat-cobalt-2.jpg"
     },
     {
-     "name": "Milk",
+     "name": "Молочный",
      "hex": "#f6f3ec",
      "photo": "assets/objects/cat-milk.jpg"
     }
@@ -163,11 +163,11 @@
  "works": [
   {
    "id": "w-bigger",
-   "title": "Make It Bigger",
+   "title": "Сделай крупнее",
    "category": "posters",
    "year": "2026",
-   "summary": "A poster about the most popular client request.",
-   "body": "Four words, four sizes. The type grows until it nearly falls off the paper, the way every logo does after the third round of feedback.\n\nRiso print, A2, cobalt and yellow.",
+   "summary": "Постер о самой популярной просьбе клиентов.",
+   "body": "Три слова, четыре строки. Шрифт растёт, пока почти не падает с листа, — как любой логотип после третьего круга правок.\n\nРизография, A2, кобальт и жёлтый.",
    "images": [
     "assets/works/bigger-1.jpg",
     "assets/works/bigger-2.jpg"
@@ -177,11 +177,11 @@
   },
   {
    "id": "w-soft",
-   "title": "Soft Objects",
+   "title": "Мягкие объекты",
    "category": "3d",
    "year": "2026",
-   "summary": "Small creatures modelled with signed distance fields.",
-   "body": "A study for future figurines: every character is built from rounded boxes and blobs, lit like a studio photo and printed later.",
+   "summary": "Маленькие существа, смоделированные через SDF.",
+   "body": "Этюд для будущих фигурок: каждый персонаж собран из скруглённых коробок и капель, освещён как в фотостудии и потом напечатан.",
    "images": [
     "assets/works/soft-1.jpg",
     "assets/works/soft-2.jpg"
@@ -191,11 +191,11 @@
   },
   {
    "id": "w-zine",
-   "title": "Grid Zine №3",
+   "title": "Зин «Сетка» №3",
    "category": "graphic",
    "year": "2025",
-   "summary": "Twelve pages about columns, margins and breaking them.",
-   "body": "A small zine made on a kitchen table. Each spread takes one rule of layout and plays with it until it breaks.",
+   "summary": "Двенадцать страниц о колонках, полях и о том, как их ломать.",
+   "body": "Маленький зин, сделанный на кухонном столе. Каждый разворот берёт одно правило вёрстки и играет с ним, пока оно не сломается.",
    "images": [
     "assets/works/zine-1.jpg",
     "assets/works/zine-2.jpg"
@@ -205,11 +205,11 @@
   },
   {
    "id": "w-weather",
-   "title": "Pink Weather",
+   "title": "Розовая погода",
    "category": "posters",
    "year": "2025",
-   "summary": "A halftone forecast for a soft, warm day.",
-   "body": "Halftone dots grow towards the centre like a sun that cannot decide on its colour.",
+   "summary": "Растровый прогноз на мягкий тёплый день.",
+   "body": "Точки растра растут к центру, как солнце, которое никак не выберет свой цвет.",
    "images": [
     "assets/works/weather-1.jpg"
    ],
@@ -218,11 +218,11 @@
   },
   {
    "id": "w-sounds",
-   "title": "Desk Sounds",
+   "title": "Звуки стола",
    "category": "personal",
    "year": "2025",
-   "summary": "46 recordings from my desk, drawn as one line.",
-   "body": "Keyboards, mugs, scissors and a stapler, recorded for a week and turned into bars. The red ones are the stapler.",
+   "summary": "46 записей с моего стола, нарисованные одной линией.",
+   "body": "Клавиатуры, кружки, ножницы и степлер — записывала неделю и превратила в столбики. Красные — это степлер.",
    "images": [
     "assets/works/sounds-1.jpg"
    ],
@@ -231,11 +231,11 @@
   },
   {
    "id": "w-coffee",
-   "title": "26 Mornings",
+   "title": "26 утр",
    "category": "random",
    "year": "2024",
-   "summary": "One sheet of paper under one mug for a month.",
-   "body": "Random stuff. Every morning the mug went down somewhere new.",
+   "summary": "Один лист бумаги под одной кружкой целый месяц.",
+   "body": "Разное. Каждое утро кружка вставала на новое место.",
    "images": [
     "assets/works/coffee-1.jpg"
    ],
@@ -244,16 +244,16 @@
   }
  ],
  "prompts": [
-  "What made you smile today?",
-  "Leave something for a stranger.",
-  "Draw your mood.",
-  "Something you couldn’t say.",
-  "What is on your mind?",
-  "Your favourite colour today?",
-  "Draw the view from your window.",
-  "A tiny compliment for whoever reads this.",
-  "What are you working on?",
-  "Draw a creature that lives in your desk."
+  "Что тебя сегодня порадовало?",
+  "Оставь что-нибудь незнакомцу.",
+  "Нарисуй своё настроение.",
+  "То, что ты не смог(ла) сказать.",
+  "О чём ты сейчас думаешь?",
+  "Твой любимый цвет сегодня?",
+  "Нарисуй вид из своего окна.",
+  "Маленький комплимент тому, кто это прочитает.",
+  "Над чем ты сейчас работаешь?",
+  "Нарисуй существо, которое живёт в твоём столе."
  ],
  "archive": [
   {
@@ -278,7 +278,7 @@
      "h": 90,
      "rot": -4.481467463009023,
      "data": {
-      "text": "you are doing great"
+      "text": "у тебя всё получается"
      }
     },
     {
@@ -289,7 +289,7 @@
      "h": 200,
      "rot": 0.7001737477748868,
      "data": {
-      "text": "tea > coffee",
+      "text": "чай > кофе",
       "color": "yellow"
      }
     },
@@ -312,7 +312,7 @@
      "h": 200,
      "rot": -7.971602204759446,
      "data": {
-      "text": "first!",
+      "text": "первый!",
       "color": "pink"
      }
     },
@@ -346,7 +346,7 @@
      "h": 200,
      "rot": -5.66876944734908,
      "data": {
-      "text": "my cat walked on the keyboard",
+      "text": "кот прошёлся по клавиатуре",
       "color": "blue"
      }
     },
@@ -358,7 +358,7 @@
      "h": 200,
      "rot": 2.8469479927630594,
      "data": {
-      "text": "this is so cute",
+      "text": "как же мило",
       "color": "yellow"
      }
     },
@@ -370,7 +370,7 @@
      "h": 200,
      "rot": -2.9473103064568953,
      "data": {
-      "text": "love the pug",
+      "text": "обожаю мопса",
       "color": "white"
      }
     },
@@ -420,7 +420,7 @@
      "h": 200,
      "rot": 4.409648235183925,
      "data": {
-      "text": "deadline survived",
+      "text": "пережили дедлайн",
       "color": "yellow"
      }
     },
@@ -443,7 +443,7 @@
      "h": 200,
      "rot": -5.6288698506403545,
      "data": {
-      "text": "I made a poster today",
+      "text": "сегодня сделала постер",
       "color": "pink"
      }
     },
@@ -482,7 +482,7 @@
      "h": 200,
      "rot": -0.709358376149364,
      "data": {
-      "text": "sunny here",
+      "text": "тут солнечно",
       "color": "pink"
      }
     },
@@ -494,7 +494,7 @@
      "h": 200,
      "rot": -0.10297282526668461,
      "data": {
-      "text": "more pop pls",
+      "text": "поярче плиз",
       "color": "pink"
      }
     },
@@ -573,7 +573,7 @@
      "h": 200,
      "rot": 5.515742352085807,
      "data": {
-      "text": "who else is up at 2am",
+      "text": "кто ещё не спит в 2 ночи",
       "color": "pink"
      }
     },
@@ -585,7 +585,7 @@
      "h": 200,
      "rot": 7.616121115946095,
      "data": {
-      "text": "remember to save",
+      "text": "не забудь сохранить",
       "color": "white"
      }
     },
@@ -608,7 +608,7 @@
      "h": 200,
      "rot": 2.031439535277425,
      "data": {
-      "text": "love the pug",
+      "text": "обожаю мопса",
       "color": "blue"
      }
     }
@@ -625,7 +625,7 @@
      "h": 200,
      "rot": 5.878188908436833,
      "data": {
-      "text": "kerning is self-care",
+      "text": "кернинг — это забота о себе",
       "color": "yellow"
      }
     },
@@ -726,7 +726,7 @@
      "h": 200,
      "rot": -3.621038262493732,
      "data": {
-      "text": "who else is up at 2am",
+      "text": "кто ещё не спит в 2 ночи",
       "color": "yellow"
      }
     },
@@ -749,7 +749,7 @@
      "h": 200,
      "rot": 3.013391309950835,
      "data": {
-      "text": "kerning is self-care",
+      "text": "кернинг — это забота о себе",
       "color": "blue"
      }
     },
@@ -772,7 +772,7 @@
      "h": 200,
      "rot": -1.3338660989014208,
      "data": {
-      "text": "sunny here",
+      "text": "тут солнечно",
       "color": "blue"
      }
     }
@@ -878,7 +878,7 @@
      "h": 200,
      "rot": -7.429479191840915,
      "data": {
-      "text": "remember to save",
+      "text": "не забудь сохранить",
       "color": "blue"
      }
     },
@@ -890,7 +890,7 @@
      "h": 200,
      "rot": -4.194457445381257,
      "data": {
-      "text": "kerning is self-care",
+      "text": "кернинг — это забота о себе",
       "color": "yellow"
      }
     },
@@ -902,7 +902,7 @@
      "h": 200,
      "rot": 5.862419857391647,
      "data": {
-      "text": "kerning is self-care",
+      "text": "кернинг — это забота о себе",
       "color": "yellow"
      }
     },
@@ -1070,7 +1070,7 @@
      "h": 200,
      "rot": 1.842688624790144,
      "data": {
-      "text": "drink water",
+      "text": "пей воду",
       "color": "blue"
      }
     },
@@ -1093,7 +1093,7 @@
      "h": 200,
      "rot": 5.679432858675392,
      "data": {
-      "text": "you are doing great",
+      "text": "у тебя всё получается",
       "color": "yellow"
      }
     },
@@ -1116,7 +1116,7 @@
      "h": 200,
      "rot": -6.049823801510472,
      "data": {
-      "text": "remember to save",
+      "text": "не забудь сохранить",
       "color": "pink"
      }
     }
@@ -1133,7 +1133,7 @@
      "h": 200,
      "rot": -0.3152545055669975,
      "data": {
-      "text": "I made a poster today",
+      "text": "сегодня сделала постер",
       "color": "pink"
      }
     },
@@ -1212,7 +1212,7 @@
      "h": 90,
      "rot": -0.07736037611681379,
      "data": {
-      "text": "love the pug"
+      "text": "обожаю мопса"
      }
     },
     {
@@ -1234,7 +1234,7 @@
      "h": 200,
      "rot": -3.2508453451066046,
      "data": {
-      "text": "first!",
+      "text": "первый!",
       "color": "white"
      }
     },
@@ -1246,7 +1246,7 @@
      "h": 200,
      "rot": -5.880326266714464,
      "data": {
-      "text": "first!",
+      "text": "первый!",
       "color": "blue"
      }
     },
@@ -1280,7 +1280,7 @@
      "h": 90,
      "rot": 1.8232820072696647,
      "data": {
-      "text": "more pop pls"
+      "text": "поярче плиз"
      }
     },
     {
@@ -1291,7 +1291,7 @@
      "h": 90,
      "rot": -1.9634986790807076,
      "data": {
-      "text": "first!"
+      "text": "первый!"
      }
     },
     {
@@ -1318,7 +1318,7 @@
      "h": 200,
      "rot": -2.7082079007691426,
      "data": {
-      "text": "drink water",
+      "text": "пей воду",
       "color": "white"
      }
     },
@@ -1352,7 +1352,7 @@
      "h": 200,
      "rot": 2.331798770946193,
      "data": {
-      "text": "deadline survived",
+      "text": "пережили дедлайн",
       "color": "pink"
      }
     },
@@ -1364,7 +1364,7 @@
      "h": 90,
      "rot": -0.6202959902785725,
      "data": {
-      "text": "you are doing great"
+      "text": "у тебя всё получается"
      }
     },
     {
@@ -1397,7 +1397,7 @@
      "h": 90,
      "rot": -1.8543038006516968,
      "data": {
-      "text": "love the pug"
+      "text": "обожаю мопса"
      }
     },
     {
@@ -1408,9 +1408,105 @@
      "h": 200,
      "rot": -7.107980473252253,
      "data": {
-      "text": "who else is up at 2am",
+      "text": "кто ещё не спит в 2 ночи",
       "color": "pink"
      }
+    }
+   ]
+  }
+ ],
+ "recs": [
+  {
+   "kind": "film",
+   "title": "Отель «Гранд Будапешт»",
+   "year": "2014",
+   "genre": "комедия",
+   "by_owner": true,
+   "author": "",
+   "note": "Каждый кадр выстроен по сетке — живой учебник по композиции, симметрии и цвету. И при этом очень смешно.",
+   "links": [
+    {
+     "url": "https://www.kinopoisk.ru/index.php?kp_query=%D0%9E%D1%82%D0%B5%D0%BB%D1%8C%20%D0%93%D1%80%D0%B0%D0%BD%D0%B4%20%D0%91%D1%83%D0%B4%D0%B0%D0%BF%D0%B5%D1%88%D1%82",
+     "label": "Кинопоиск"
+    },
+    {
+     "url": "https://www.imdb.com/find/?q=The%20Grand%20Budapest%20Hotel",
+     "label": "IMDb"
+    }
+   ]
+  },
+  {
+   "kind": "series",
+   "title": "Абстракция: Искусство дизайна",
+   "year": "2017",
+   "genre": "документальный",
+   "by_owner": true,
+   "author": "",
+   "note": "Документальный сериал о дизайнерах самых разных профессий. Серия про Пола Шера и типографику — моя любимая.",
+   "links": [
+    {
+     "url": "https://www.kinopoisk.ru/index.php?kp_query=%D0%90%D0%B1%D1%81%D1%82%D1%80%D0%B0%D0%BA%D1%86%D0%B8%D1%8F%3A%20%D0%98%D1%81%D0%BA%D1%83%D1%81%D1%81%D1%82%D0%B2%D0%BE%20%D0%B4%D0%B8%D0%B7%D0%B0%D0%B9%D0%BD%D0%B0",
+     "label": "Кинопоиск"
+    }
+   ]
+  },
+  {
+   "kind": "film",
+   "title": "Амели",
+   "year": "2001",
+   "genre": "мелодрама",
+   "by_owner": true,
+   "author": "",
+   "note": "Красный, зелёный и жёлтый, которые хочется унести в палитру. Пересматриваю, когда нужно вспомнить, зачем вообще замечать мелочи.",
+   "links": [
+    {
+     "url": "https://www.kinopoisk.ru/index.php?kp_query=%D0%90%D0%BC%D0%B5%D0%BB%D0%B8%202001",
+     "label": "Кинопоиск"
+    }
+   ]
+  },
+  {
+   "kind": "film",
+   "title": "Унесённые призраками",
+   "year": "2001",
+   "genre": "анимация",
+   "by_owner": false,
+   "author": "Миша",
+   "note": "Можно поставить на паузу любой кадр и повесить на стену.",
+   "links": [
+    {
+     "url": "https://www.kinopoisk.ru/index.php?kp_query=%D0%A3%D0%BD%D0%B5%D1%81%D1%91%D0%BD%D0%BD%D1%8B%D0%B5%20%D0%BF%D1%80%D0%B8%D0%B7%D1%80%D0%B0%D0%BA%D0%B0%D0%BC%D0%B8",
+     "label": "Кинопоиск"
+    }
+   ]
+  },
+  {
+   "kind": "film",
+   "title": "Гельветика",
+   "year": "2007",
+   "genre": "документальный",
+   "by_owner": true,
+   "author": "",
+   "note": "Целый фильм про один шрифт. Звучит странно, а смотрится на одном дыхании.",
+   "links": [
+    {
+     "url": "https://www.imdb.com/find/?q=Helvetica%202007",
+     "label": "IMDb"
+    }
+   ]
+  },
+  {
+   "kind": "series",
+   "title": "Удивительная миссис Мейзел",
+   "year": "2017",
+   "genre": "комедия",
+   "by_owner": false,
+   "author": "Лиза",
+   "note": "Костюмы и цвета пятидесятых — сплошное вдохновение для палитры.",
+   "links": [
+    {
+     "url": "https://www.kinopoisk.ru/index.php?kp_query=%D0%A3%D0%B4%D0%B8%D0%B2%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%D0%BD%D0%B0%D1%8F%20%D0%BC%D0%B8%D1%81%D1%81%D0%B8%D1%81%20%D0%9C%D0%B5%D0%B9%D0%B7%D0%B5%D0%BB",
+     "label": "Кинопоиск"
     }
    ]
   }

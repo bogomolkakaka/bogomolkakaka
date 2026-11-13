@@ -11,9 +11,10 @@ const VIEWS = {
   run: () => import('./views/run.js'),
   objects: () => import('./views/objects.js'),
   stuff: () => import('./views/stuff.js'),
+  films: () => import('./views/films.js'),
   admin: () => import('./views/admin.js')
 };
-const TITLES = { desk: '', admin: 'Studio admin', ...Object.fromEntries(SECTIONS.map(s => [s.id, s.name])) };
+const TITLES = { desk: '', admin: 'Админка студии', ...Object.fromEntries(SECTIONS.map(s => [s.id, s.name])) };
 
 let current = { id: null, mod: null, cleanup: null, token: 0 };
 
@@ -38,7 +39,7 @@ async function route() {
   const main = $('#main');
   let mod;
   try { mod = await VIEWS[id](); }
-  catch (e) { console.error(e); main.innerHTML = `<p class="boot">This room did not open. Reload the page to try again.</p>`; return; }
+  catch (e) { console.error(e); main.innerHTML = `<p class="boot">Эта комната не открылась. Обнови страницу и попробуй ещё раз.</p>`; return; }
   if (token !== current.token) return;
   main.innerHTML = '';
   const root = h(`<div class="view view--${id}"></div>`);
@@ -48,7 +49,7 @@ async function route() {
   renderTaskbar();
   window.scrollTo(0, 0);
   try { current.cleanup = await mod.mount(root, params, { go }) || null; }
-  catch (e) { console.error(e); root.innerHTML = `<div class="page"><p class="notice">Something broke while opening this room: ${esc(e.message || e)}. Reload the page to try again.</p></div>`; }
+  catch (e) { console.error(e); root.innerHTML = `<div class="page"><p class="notice">Что-то сломалось при открытии комнаты: ${esc(e.message || e)}. Обнови страницу и попробуй ещё раз.</p></div>`; }
   if (token === current.token && id !== 'desk' && !params.length) main.focus({ preventScroll: true });
 }
 
@@ -56,13 +57,13 @@ async function route() {
 function renderTaskbar() {
   const bar = $('#taskbar');
   const id = current.id || parseRoute().id;
-  const tabs = [{ id: 'desk', name: 'Desk', icon: 'desk' }, ...SECTIONS];
+  const tabs = [{ id: 'desk', name: 'Стол', icon: 'desk' }, ...SECTIONS];
   bar.innerHTML = `
     <button class="tb-start" id="tb-start" type="button" aria-expanded="false" aria-controls="startmenu">${ICON.logo}<b>${esc(CONFIG.SITE_NAME)}</b></button>
-    <div class="tb-tabs">${tabs.map(t => `<a class="tb-tab" href="#/${t.id === 'desk' ? '' : t.id}" ${t.id === id ? 'aria-current="page"' : ''} title="${esc(t.name)}">${ICON[t.icon]}<span>${esc(t.name)}</span></a>`).join('')}</div>
+    <div class="tb-tabs">${tabs.map(t => `<a class="tb-tab" href="#/${t.id === 'desk' ? '' : t.id}" ${t.id === id ? 'aria-current="page"' : ''} title="${esc(t.name)}">${ICON[t.icon]}<span>${esc(t.short || t.name)}</span></a>`).join('')}</div>
     <div class="tb-right">
-      <button class="tb-icon" id="tb-sound" type="button" aria-pressed="${!sound.muted}" aria-label="${sound.muted ? 'Turn sounds on' : 'Turn sounds off'}" title="${sound.muted ? 'Sounds off' : 'Sounds on'}">${sound.muted ? ICON.mute : ICON.sound}</button>
-      <span class="tb-clock" id="tb-clock" title="Studio time (${esc(CONFIG.TIMEZONE)})"></span>
+      <button class="tb-icon" id="tb-sound" type="button" aria-pressed="${!sound.muted}" aria-label="${sound.muted ? 'Включить звук' : 'Выключить звук'}" title="${sound.muted ? 'Звук выключен' : 'Звук включён'}">${sound.muted ? ICON.mute : ICON.sound}</button>
+      <span class="tb-clock" id="tb-clock" title="Время студии (${esc(CONFIG.TIMEZONE)})"></span>
     </div>`;
   tick();
 }
@@ -77,10 +78,10 @@ setInterval(tick, 15000);
 function openMenu() {
   if ($('#startmenu')) { closeMenu(); return; }
   sound.play('open');
-  const m = h(`<div class="startmenu" id="startmenu" role="menu" aria-label="All rooms">
-    <div class="startmenu__head"><b>${esc(CONFIG.SITE_NAME)}</b><span>a tiny studio on the internet</span></div>
-    <ul>${[{ id: '', name: 'The desk', hint: 'Back to where everything lies', icon: 'desk' }, ...SECTIONS].map(s => `<li><a role="menuitem" href="#/${s.id}">${ICON[s.icon]}<span><b>${esc(s.name)}</b><small>${esc(s.hint)}</small></span></a></li>`).join('')}</ul>
-    <div class="startmenu__foot"><a role="menuitem" href="#/admin">${ICON.admin}<span><b>Studio admin</b><small>${state.admin ? 'You are signed in' : 'For the owner'}</small></span></a></div>
+  const m = h(`<div class="startmenu" id="startmenu" role="menu" aria-label="Все комнаты">
+    <div class="startmenu__head"><b>${esc(CONFIG.SITE_NAME)}</b><span>маленькая студия в интернете</span></div>
+    <ul>${[{ id: '', name: 'Рабочий стол', hint: 'Туда, где всё лежит', icon: 'desk' }, ...SECTIONS].map(s => `<li><a role="menuitem" href="#/${s.id}">${ICON[s.icon]}<span><b>${esc(s.name)}</b><small>${esc(s.hint)}</small></span></a></li>`).join('')}</ul>
+    <div class="startmenu__foot"><a role="menuitem" href="#/admin">${ICON.admin}<span><b>Админка</b><small>${state.admin ? 'Ты вошла' : 'Для хозяйки студии'}</small></span></a></div>
   </div>`);
   document.body.appendChild(m);
   $('#tb-start').setAttribute('aria-expanded', 'true');
@@ -94,7 +95,7 @@ function closeMenu() {
 }
 document.addEventListener('click', e => {
   if (e.target.closest('#tb-start')) { openMenu(); return; }
-  if (e.target.closest('#tb-sound')) { sound.toggle(); renderTaskbar(); toast(sound.muted ? 'Sounds off' : 'Sounds on'); return; }
+  if (e.target.closest('#tb-sound')) { sound.toggle(); renderTaskbar(); toast(sound.muted ? 'Звук выключен' : 'Звук включён'); return; }
   if ($('#startmenu') && !e.target.closest('#startmenu')) closeMenu();
   const a = e.target.closest('a[href^="#/"]');
   if (a && !e.defaultPrevented) sound.play('click');
@@ -113,7 +114,7 @@ document.addEventListener('keydown', e => {
   if (keys.join() === KONAMI.join()) { keys = []; stickerRain(); }
   if (e.key.length === 1) {
     typed = (typed + e.key.toLowerCase()).slice(-12);
-    if (typed.endsWith('kerning')) { typed = ''; kerning(); }
+    if (typed.endsWith('kerning') || typed.endsWith('кернинг')) { typed = ''; kerning(); }
   }
 });
 export function stickerRain(n = 34) {
@@ -138,7 +139,7 @@ function kerning() {
   const els = $$('.page-title, .desk-title, h1');
   els.forEach(el => el.animate([{ letterSpacing: '0em' }, { letterSpacing: '.35em' }, { letterSpacing: '-.04em' }, { letterSpacing: '0em' }], { duration: reducedMotion() ? 1 : 1600, easing: 'cubic-bezier(.3,.7,.3,1)' }));
   sound.play('power');
-  toast('Kerning fixed. You are welcome.');
+  toast('Кернинг исправлен. Не благодари.');
 }
 
 /* ---------- boot ---------- */

@@ -1,7 +1,7 @@
 // Studio admin: sign in, moderate the wall, manage prompts, stickers, booth frames and settings.
 import { CONFIG } from '../config.js';
 import { $, $$, esc, h, ICON, toast, confirmBox, todayKey, fmtDay, resizeToBlob } from '../util.js';
-import { state, onAuth, admin, prompts, stickers, config, upload } from '../store.js';
+import { state, onAuth, admin, prompts, stickers, config, upload, recs } from '../store.js';
 import { FRAMES } from '../booth-strip.js';
 import { stickerURL, medalSVG, svgURL } from '../stickers.js';
 
@@ -16,14 +16,14 @@ export async function mount(root) {
 function render() {
   if (!R) return;
   if (state.mode !== 'cloud') {
-    R.innerHTML = `<div class="page admin"><a class="back" href="#/">${ICON.back}Back to the desk</a><h1 class="page-title">Studio admin</h1>
+    R.innerHTML = `<div class="page admin"><a class="back" href="#/">${ICON.back}На рабочий стол</a><h1 class="page-title">Студия</h1>
       <div class="admin-card"><h2>Сайт пока работает в демо-режиме</h2>
       <p>Всё открывается и работает, но стена, архив и запросы хранятся только в браузере посетителя, а фигурки и работы берутся из демо-файла. Чтобы стена стала общей, а ты могла редактировать контент, подключи бесплатную базу Supabase. Пошаговая инструкция лежит в файле <b>README.md</b> в репозитории (займёт минут 15).</p>
       <ol class="admin-steps"><li>Создать проект на supabase.com.</li><li>Запустить файл <code>supabase/schema.sql</code> в SQL Editor.</li><li>Включить гостевой вход (Anonymous sign-ins).</li><li>Создать свой аккаунт и сделать его администратором.</li><li>Вписать адрес и ключ проекта в <code>js/config.js</code>.</li></ol></div></div>`;
     return;
   }
   if (!state.admin) {
-    R.innerHTML = `<div class="page admin"><a class="back" href="#/">${ICON.back}Back to the desk</a><h1 class="page-title">Studio admin</h1>
+    R.innerHTML = `<div class="page admin"><a class="back" href="#/">${ICON.back}На рабочий стол</a><h1 class="page-title">Студия</h1>
       <form class="admin-card admin-login" id="login"><h2>Вход для хозяйки студии</h2>
       ${state.email ? `<p class="notice">Ты вошла как ${esc(state.email)}, но этот аккаунт не отмечен как администратор. Выполни шаг 4 из README.</p>` : ''}
       <div class="field"><label for="a-email">Почта</label><input id="a-email" type="email" autocomplete="username" required></div>
@@ -38,16 +38,16 @@ function render() {
     const o = $('#a-out', R); if (o) o.addEventListener('click', () => admin.signOut());
     return;
   }
-  const tabs = [['moderation', 'Модерация'], ['prompts', 'Вопросы дня'], ['stickers', 'Стикеры'], ['frames', 'Рамки'], ['settings', 'Настройки']];
-  R.innerHTML = `<div class="page admin"><a class="back" href="#/">${ICON.back}Back to the desk</a>
-    <div class="page-head"><div><h1 class="page-title">Studio admin</h1><p class="page-sub">hello, boss</p></div>
+  const tabs = [['moderation', 'Модерация'], ['films', 'Видеопрокат'], ['prompts', 'Вопросы дня'], ['stickers', 'Стикеры'], ['frames', 'Рамки'], ['settings', 'Настройки']];
+  R.innerHTML = `<div class="page admin"><a class="back" href="#/">${ICON.back}На рабочий стол</a>
+    <div class="page-head"><div><h1 class="page-title">Студия</h1><p class="page-sub">привет, хозяйка</p></div>
       <div class="admin-who"><span>${esc(state.email)}</span><button class="btn btn--ghost btn--small" type="button" id="a-out">Выйти</button></div></div>
-    <p class="notice notice--blue">Фигурки и работы редактируются прямо на их страницах: открой <a href="#/objects">Little Objects</a> или <a href="#/stuff">My Stuff</a> и нажми «Студия».</p>
+    <p class="notice notice--blue">Фигурки и работы редактируются прямо на их страницах: открой <a href="#/objects">Маленькие объекты</a> или <a href="#/stuff">Мои работы</a> и нажми «Студия». Свои советы фильмов добавляй прямо в <a href="#/films">Видеопрокате</a>.</p>
     <div class="admin-tabs" role="tablist">${tabs.map(([k, n]) => `<button class="chip" role="tab" type="button" data-tab="${k}" aria-selected="${tab === k}" aria-pressed="${tab === k}">${n}</button>`).join('')}</div>
     <div id="a-body" class="admin-body"><p>Загружаю…</p></div></div>`;
   $('#a-out', R).addEventListener('click', () => admin.signOut());
   $$('[data-tab]', R).forEach(b => b.addEventListener('click', () => { tab = b.dataset.tab; render(); }));
-  ({ moderation, prompts: promptsTab, stickers: stickersTab, frames: framesTab, settings: settingsTab })[tab]();
+  ({ moderation, films: filmsTab, prompts: promptsTab, stickers: stickersTab, frames: framesTab, settings: settingsTab })[tab]();
 }
 
 function preview(it) {
@@ -58,7 +58,7 @@ function preview(it) {
   if (it.kind === 'drawing') return `<div class="mod-note">рисунок (${(d.paths || []).length} линий)</div>`;
   return `<img src="${esc(d.src || '')}" alt="">`;
 }
-const KIND = { note: 'записка', whisper: 'шёпот', sticker: 'стикер', image: 'картинка', strip: 'фотополоска', drawing: 'рисунок', medal: 'медаль' };
+const KIND = { note: 'записка', whisper: 'шёпот', sticker: 'стикер', image: 'картинка', strip: 'фотолента', drawing: 'рисунок', medal: 'медаль' };
 function itemRow(it, reasons) {
   return `<li class="mod-item${it.hidden ? ' is-hidden' : ''}" data-id="${esc(it.id)}"><div class="mod-prev">${preview(it)}</div>
     <div class="mod-info"><b>${KIND[it.kind] || it.kind}</b> · ${esc(fmtDay(it.day, { day: 'numeric', month: 'short', year: 'numeric' }))}${it.hidden ? ' · <span class="mod-flag">скрыто</span>' : ''}
@@ -98,12 +98,54 @@ async function moderation() {
   $('#m-load', R).addEventListener('click', loadDay);
   loadReports(); loadDay();
 }
+const host = u => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (e) { return u; } };
+function recRow(r, reasons) {
+  const meta = [r.kind === 'series' ? 'сериал' : 'фильм', r.year, r.genre].filter(Boolean).map(esc).join(' · ');
+  return `<li class="mod-item rec-item" data-id="${esc(r.id)}"><div class="mod-prev"><div class="mod-note"><b>${esc(r.title)}</b><br><small>${meta}</small></div></div>
+    <div class="mod-info"><b>${r.author ? esc(r.author) : 'гость без имени'}</b> · ${esc(r.created_at ? fmtDay(r.created_at.slice(0, 10), { day: 'numeric', month: 'short' }) : '')}${r.status !== 'approved' ? ` · <span class="mod-flag">${r.status === 'rejected' ? 'отклонено' : 'ждёт проверки'}</span>` : ''}
+      ${r.note ? `<p class="rec-note">${esc(r.note)}</p>` : ''}
+      ${r.links.length ? `<p class="rec-links">${r.links.map(l => `<a href="${esc(l.url)}" target="_blank" rel="noopener noreferrer nofollow">${l.label ? esc(l.label) + ': ' : ''}${esc(l.url.length > 72 ? l.url.slice(0, 72) + '…' : l.url)}</a>`).join('<br>')}</p>` : ''}
+      ${reasons ? `<p class="mod-reasons">Жалобы (${reasons.length}): ${esc([...new Set(reasons)].join(', '))}</p>` : ''}</div>
+    <div class="mod-btns">${r.status !== 'approved' ? `<button class="btn btn--primary btn--small" data-r="approve">${ICON.check || ''}Одобрить</button>` : `<button class="btn btn--ghost btn--small" data-r="hide">${ICON.eyeOff}Снять с полки</button>`}
+      ${r.status === 'pending' ? '<button class="btn btn--ghost btn--small" data-r="reject">Отклонить</button>' : ''}
+      ${reasons ? '<button class="btn btn--ghost btn--small" data-r="ok">Жалобы сняты</button>' : ''}<button class="btn btn--danger btn--small" data-r="del">${ICON.trash}Удалить</button></div></li>`;
+}
+async function filmsTab() {
+  const body = $('#a-body', R);
+  body.innerHTML = `<section class="admin-card"><h2>Ждут проверки</h2><p>Советы гостей появляются в Видеопрокате только после одобрения. Проверь ссылки, прежде чем одобрять.</p><ul class="mod-list" id="r-pend"><li>Загружаю…</li></ul></section>
+    <section class="admin-card"><h2>Жалобы на советы</h2><p>После трёх жалоб совет гостя сам уходит на проверку.</p><ul class="mod-list" id="r-rep"><li>Загружаю…</li></ul></section>
+    <section class="admin-card"><h2>Свои советы</h2><p>Добавлять и править свои фильмы удобнее прямо на полке: <a href="#/films">открыть Видеопрокат</a>.</p></section>`;
+  const load = async () => {
+    try {
+      const list = await recs.pending();
+      $('#r-pend', R).innerHTML = list.length ? list.map(r => recRow(r)).join('') : '<li class="mod-empty">Новых советов нет.</li>';
+    } catch (er) { $('#r-pend', R).innerHTML = `<li class="mod-empty">${esc(er.message)}</li>`; }
+    try {
+      const { reports, items } = await recs.reports();
+      const by = new Map(); reports.forEach(r => { if (!by.has(r.rec_id)) by.set(r.rec_id, []); by.get(r.rec_id).push(r.reason || '—'); });
+      $('#r-rep', R).innerHTML = items.length ? items.map(it => recRow(it, by.get(it.id))).join('') : '<li class="mod-empty">Жалоб нет.</li>';
+    } catch (er) { $('#r-rep', R).innerHTML = `<li class="mod-empty">${esc(er.message)}</li>`; }
+  };
+  body.addEventListener('click', async e => {
+    const b = e.target.closest('[data-r]'); if (!b) return;
+    const id = b.closest('.mod-item').dataset.id;
+    try {
+      if (b.dataset.r === 'approve') { await recs.setStatus(id, 'approved'); toast('Одобрено: совет уже на полке'); }
+      if (b.dataset.r === 'reject') { await recs.setStatus(id, 'rejected'); toast('Отклонено'); }
+      if (b.dataset.r === 'hide') { await recs.setStatus(id, 'pending'); toast('Снято с полки и отправлено на проверку'); }
+      if (b.dataset.r === 'ok') { await recs.clearReports(id); toast('Жалобы сняты'); }
+      if (b.dataset.r === 'del') { if (!(await confirmBox('Удалить совет?', 'Он пропадёт из Видеопроката навсегда.', 'Удалить', 'Отмена'))) return; await recs.remove(id); toast('Удалено'); }
+      load();
+    } catch (er) { toast(er.message, true); }
+  });
+  load();
+}
 async function promptsTab() {
   const body = $('#a-body', R);
   let list = [];
   try { list = await prompts.list(); } catch (e) { toast(e.message, true); }
   body.innerHTML = `<section class="admin-card"><h2>Вопросы дня</h2><p>Каждый день стена берёт один активный вопрос. Можно привязать вопрос к конкретной дате.</p>
-    <form class="admin-row" id="p-add"><input class="input" id="p-text" maxlength="140" placeholder="Например: Draw your breakfast" required><input class="input" type="date" id="p-day" style="width:auto" aria-label="Дата (необязательно)"><button class="btn btn--primary btn--small" type="submit">${ICON.plus}Добавить</button></form>
+    <form class="admin-row" id="p-add"><input class="input" id="p-text" maxlength="140" placeholder="Например: Нарисуй свой завтрак" required><input class="input" type="date" id="p-day" style="width:auto" aria-label="Дата (необязательно)"><button class="btn btn--primary btn--small" type="submit">${ICON.plus}Добавить</button></form>
     <ul class="p-list">${list.map(p => `<li data-id="${p.id}"><label class="check"><input type="checkbox" ${p.active !== false ? 'checked' : ''} data-p="toggle">${esc(p.text)}</label>${p.day ? `<span class="p-day">${esc(fmtDay(p.day, { day: 'numeric', month: 'short' }))}</span>` : ''}<button class="iconbtn" type="button" data-p="del" aria-label="Удалить вопрос">${ICON.trash}</button></li>`).join('')}</ul></section>`;
   $('#p-add', R).addEventListener('submit', async e => { e.preventDefault(); try { await prompts.add($('#p-text', R).value.trim(), $('#p-day', R).value || null); toast('Вопрос добавлен'); promptsTab(); } catch (er) { toast(er.message, true); } });
   $('.p-list', R).addEventListener('click', async e => {
@@ -120,7 +162,7 @@ async function stickersTab() {
   let list = [];
   try { list = await stickers.list(true); } catch (e) { toast(e.message, true); }
   body.innerHTML = `<section class="admin-card"><h2>Свои стикеры</h2><p>Появляются в фотобудке и на стене рядом со встроенными. Лучше всего PNG или SVG с прозрачным фоном.</p>
-    <div class="admin-row"><input class="input" id="s-name" maxlength="40" placeholder="Название, например pug face" style="max-width:280px"><label class="btn btn--primary btn--small">${ICON.upload}Загрузить стикер<input type="file" id="s-file" accept="image/png,image/svg+xml,image/webp,image/jpeg" hidden></label></div>
+    <div class="admin-row"><input class="input" id="s-name" maxlength="40" placeholder="Название, например мордочка мопса" style="max-width:280px"><label class="btn btn--primary btn--small">${ICON.upload}Загрузить стикер<input type="file" id="s-file" accept="image/png,image/svg+xml,image/webp,image/jpeg" hidden></label></div>
     <ul class="s-list">${list.map(s => `<li data-id="${esc(s.id)}"><img src="${esc(s.url)}" alt=""><span>${esc(s.name || 'стикер')}</span><label class="check"><input type="checkbox" ${s.active ? 'checked' : ''} data-s="toggle">виден</label><button class="iconbtn" type="button" data-s="del" aria-label="Удалить стикер">${ICON.trash}</button></li>`).join('') || '<li class="mod-empty">Пока только встроенные стикеры.</li>'}</ul></section>`;
   $('#s-file', R).addEventListener('change', async e => {
     const f = e.target.files[0]; e.target.value = ''; if (!f) return;
@@ -160,7 +202,7 @@ async function settingsTab() {
     <section class="admin-card"><h2>Часовой пояс студии</h2><p>Стена меняется в полночь по этому поясу для всех. Сейчас в базе: <b>${esc(String(cfg.timezone || 'Europe/Moscow'))}</b>, на сайте: <b>${esc(CONFIG.TIMEZONE)}</b>. Если меняешь здесь, поменяй и <code>TIMEZONE</code> в <code>js/config.js</code>.</p>
       <div class="admin-row"><input class="input" id="tz" value="${esc(String(cfg.timezone || CONFIG.TIMEZONE))}" style="max-width:260px" aria-label="Часовой пояс, например Europe/Moscow"><button class="btn btn--ink btn--small" id="tz-save" type="button">Сохранить пояс</button></div></section>
     <section class="admin-card"><h2>Тексты</h2>
-      <div class="field"><label for="t-obj">Вступление на Little Objects</label><textarea id="t-obj" rows="3" maxlength="600">${esc(cfg.objects_intro || '')}</textarea></div>
+      <div class="field"><label for="t-obj">Вступление на «Маленьких объектах»</label><textarea id="t-obj" rows="3" maxlength="600">${esc(cfg.objects_intro || '')}</textarea></div>
       <button class="btn btn--primary btn--small" id="t-save" type="button">Сохранить тексты</button></section>`;
   const run = async (fn, msg) => { try { await fn(); toast(msg); } catch (er) { toast(er.message, true); } };
   $('#c-save', R).addEventListener('click', () => run(() => config.set('contacts', { email: $('#c-email', R).value.trim(), telegram: $('#c-tg', R).value.trim(), instagram: $('#c-ig', R).value.trim() }), 'Контакты сохранены'));
