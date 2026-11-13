@@ -1,0 +1,83 @@
+// Level data for DESIGNER RUN, built with a tiny builder so the jumps stay fair.
+export const T = 16, ROWS = 17, GROUND = 14;
+export const EDITS = ['MAKE IT BIGGER!', 'MORE POP!', 'CAN YOU DO IT FOR FREE?', 'JUST ONE MORE CHANGE', 'URGENT!!!', 'MY COUSIN IS A DESIGNER', 'CAN YOU MAKE THE LOGO BIGGER?'];
+export const SKILLS = {
+  typography: { name: 'TYPOGRAPHY', note: '+500 points', color: '#000000' },
+  color: { name: 'COLOR THEORY', note: 'shield for 8 s', color: '#E8291F' },
+  figma: { name: 'FIGMA', note: 'speed boost', color: '#244EE7' },
+  creativity: { name: 'CREATIVITY', note: '+1 life', color: '#FFB8D9' },
+  composition: { name: 'COMPOSITION', note: 'coin magnet', color: '#FFD84A' },
+  deadline: { name: 'DEADLINE MASTER', note: 'edits slow down', color: '#7FB2FF' }
+};
+
+class Builder {
+  constructor(cols) { this.cols = cols; this.grid = Array.from({ length: ROWS }, () => new Array(cols).fill('.')); this.coins = []; this.skills = []; this.enemies = []; this.signs = []; this.checkpoints = []; this.goal = null; this.start = { x: 2, y: GROUND - 2 }; }
+  fill(x0, x1, y0, y1, ch = '#') { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (x >= 0 && x < this.cols && y >= 0 && y < ROWS) this.grid[y][x] = ch; return this; }
+  ground(x0, x1, top = GROUND) { return this.fill(x0, x1, top, ROWS - 1, '#'); }
+  step(x0, x1, height) { return this.fill(x0, x1, GROUND - height, GROUND - 1, '#'); }
+  plat(x0, len, y, ch = '=') { return this.fill(x0, x0 + len - 1, y, y, ch); }
+  block(x0, len, y0, y1) { return this.fill(x0, x0 + len - 1, y0, y1, 'B'); }
+  coin(x, y) { this.coins.push({ x: x * T + 8, y: y * T + 8 }); return this; }
+  coinRow(x0, n, y, dx = 1) { for (let i = 0; i < n; i++) this.coin(x0 + i * dx, y); return this; }
+  coinArc(x0, n, y, hgt = 2) { for (let i = 0; i < n; i++) { const t = n > 1 ? i / (n - 1) : .5; this.coins.push({ x: (x0 + i) * T + 8, y: (y - Math.sin(t * Math.PI) * hgt) * T + 8 }); } return this; }
+  skill(x, y, type) { this.skills.push({ x: x * T + 8, y: y * T + 8, type }); return this; }
+  patrol(x0, x1, y, text, speed = .6) { this.enemies.push({ type: 'patrol', x0: x0 * T, x1: x1 * T, y: y * T, text, speed }); return this; }
+  bob(x, y, amp, text, speed = .03) { this.enemies.push({ type: 'bob', x0: x * T, y: y * T, amp: amp * T, text, speed }); return this; }
+  flyer(x, y, text, speed = 1.2, loop = false) { this.enemies.push({ type: 'fly', x0: x * T, y: y * T, text, speed, loop }); return this; }
+  sign(x, y, text) { this.signs.push({ x: x * T, y: y * T, text }); return this; }
+  check(x) { this.checkpoints.push({ x: x * T + 8, y: (GROUND) * T }); return this; }
+  done(meta) { return { ...meta, cols: this.cols, rows: ROWS, grid: this.grid.map(r => r.join('')), coins: this.coins, skills: this.skills, enemies: this.enemies, signs: this.signs, checkpoints: this.checkpoints, goal: this.goal, start: this.start }; }
+}
+
+function level1() {
+  const b = new Builder(132);
+  b.ground(0, 40).sign(2, 9, '← → or A D: walk').coinRow(6, 5, 12)
+    .step(15, 16, 2).coinRow(15, 2, 10).sign(13, 7, 'SPACE: jump')
+    .patrol(21, 29, GROUND - 2, 'MAKE IT BIGGER!', .45).sign(24, 7, 'jump ON edits to pop them')
+    .plat(32, 5, 10).skill(34, 8, 'typography').coinRow(32, 2, 12)
+    .coinArc(40, 4, 11, 2)
+    .ground(43, 72).plat(47, 4, 11).coinRow(47, 4, 10).plat(53, 4, 8).coinRow(53, 4, 7)
+    .patrol(58, 67, GROUND - 2, 'MORE POP!', .55).plat(61, 4, 9).skill(63, 7, 'color')
+    .coinArc(72, 5, 11, 2.5).check(76)
+    .ground(76, 131).step(82, 86, 2).coinRow(82, 5, 10).patrol(90, 101, GROUND - 3, 'CAN YOU DO IT FOR FREE?', .6)
+    .plat(104, 4, 10).coinRow(104, 4, 9).step(110, 111, 3).coinRow(113, 6, 12).sign(118, 8, 'the brief is that way →');
+  b.goal = { x: 126 * T, y: GROUND * T, label: 'BRIEF OK' };
+  return b.done({ id: 1, name: 'THE BRIEF', sub: 'learn the ropes, grab the first coins', theme: 'brief', time: 0 });
+}
+function level2() {
+  const b = new Builder(176);
+  b.ground(0, 22).coinRow(4, 4, 12).patrol(9, 18, GROUND - 2, 'URGENT!!!', .8)
+    .ground(26, 50).coinArc(22, 4, 11, 2).plat(29, 4, 10).skill(31, 8, 'figma').coinRow(35, 6, 12)
+    .flyer(46, 10, 'JUST ONE MORE CHANGE', 1.3).patrol(38, 48, GROUND - 2, 'MORE POP!', .9)
+    .plat(51, 3, 11).plat(56, 3, 9).plat(61, 3, 11).coinRow(51, 3, 10).coinRow(56, 3, 8).coinRow(61, 3, 10)
+    .bob(58, 11, 2.2, 'MAKE IT BIGGER!', .04)
+    .ground(65, 100).check(66).step(70, 72, 2).coinRow(70, 3, 10).patrol(74, 86, GROUND - 2, 'MY COUSIN IS A DESIGNER', 1)
+    .plat(84, 5, 9).skill(86, 7, 'composition').coinRow(88, 8, 12).flyer(98, 9, 'URGENT!!!', 1.6)
+    .coinArc(100, 4, 11, 2.2).ground(104, 132).block(108, 2, 11, 13).coinRow(108, 2, 10).block(114, 2, 10, 13).coinRow(114, 2, 9)
+    .patrol(117, 128, GROUND - 2, 'CAN YOU DO IT FOR FREE?', 1.05).check(122)
+    .plat(133, 3, 11).skill(134, 9, 'deadline').coinRow(129, 3, 12).ground(136, 175)
+    .flyer(150, 11, 'MAKE IT BIGGER!', 1.7).flyer(162, 8, 'JUST ONE MORE CHANGE', 1.5).bob(146, 10, 2.5, 'MORE POP!', .05)
+    .coinRow(140, 5, 12).coinRow(155, 6, 12).step(158, 160, 2);
+  b.goal = { x: 170 * T, y: GROUND * T, label: 'DEADLINE MET' };
+  return b.done({ id: 2, name: 'THE DEADLINE', sub: 'more edits, less time', theme: 'deadline', time: 150 });
+}
+function level3() {
+  const b = new Builder(214);
+  b.ground(0, 26).coinRow(4, 6, 12).patrol(12, 24, GROUND - 2, 'CAN YOU MAKE THE LOGO BIGGER?', 1.05)
+    .flyer(30, 9, 'URGENT!!!', 1.8, true)
+    .plat(27, 3, 11).plat(32, 3, 9).plat(37, 3, 11).coinRow(27, 3, 10).coinRow(32, 3, 8).coinRow(37, 3, 10)
+    .ground(41, 70).skill(44, 11, 'creativity').bob(52, 9, 3, 'MORE POP!', .06).patrol(55, 68, GROUND - 2, 'MY COUSIN IS A DESIGNER', 1.2)
+    .flyer(66, 11, 'JUST ONE MORE CHANGE', 2, true).coinRow(58, 8, 12).check(72)
+    .ground(72, 104).step(78, 81, 2).step(84, 87, 3).coinRow(84, 4, 9).patrol(89, 102, GROUND - 2, 'MAKE IT BIGGER!', 1.3)
+    .plat(96, 5, 9).skill(98, 7, 'color').flyer(110, 10, 'URGENT!!!', 2.1, true)
+    .coinArc(104, 4, 11, 2.5).ground(108, 140).bob(115, 10, 3, 'CAN YOU DO IT FOR FREE?', .05).block(120, 3, 11, 13).coinRow(120, 3, 10)
+    .patrol(124, 138, GROUND - 2, 'JUST ONE MORE CHANGE', 1.35).check(142)
+    .plat(141, 3, 11).plat(146, 3, 9).plat(151, 3, 7).skill(152, 5, 'deadline').plat(156, 3, 9).plat(161, 2, 11)
+    .bob(149, 11, 2, 'MORE POP!', .07).bob(159, 7, 2, 'URGENT!!!', .06)
+    .ground(164, 213).flyer(178, 9, 'MAKE IT BIGGER!', 2.2, true).flyer(190, 11, 'CAN YOU MAKE THE LOGO BIGGER?', 1.9, true)
+    .patrol(168, 182, GROUND - 2, 'MORE POP!', 1.4).patrol(186, 200, GROUND - 2, 'MY COUSIN IS A DESIGNER', 1.5)
+    .coinRow(166, 10, 12).coinRow(186, 10, 12).step(202, 203, 2).sign(196, 6, 'one last thing →');
+  b.goal = { x: 208 * T, y: GROUND * T, label: 'SEND', send: true };
+  return b.done({ id: 3, name: 'FINAL FINAL V7', sub: 'chaos mode. ship it.', theme: 'final', time: 0 });
+}
+export const LEVELS = [level1(), level2(), level3()];

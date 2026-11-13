@@ -1,0 +1,1418 @@
+{
+ "note": "Demo content. Shown until the site is connected to Supabase.",
+ "objects": [
+  {
+   "name": "Monday Pug",
+   "nick": "has opinions about your kerning",
+   "num": "001",
+   "status": "soon",
+   "price": "",
+   "story": "A tiny pug head in a frilled collar, fresh off the printer and still waiting for paint.\n\nHe frowns at every brief, every font pairing and every Monday.",
+   "height": "",
+   "material": "Grey PLA, unpainted for now",
+   "edition": "",
+   "printTime": "",
+   "photos": [
+    "assets/objects/pug-1.jpg",
+    "assets/objects/pug-2.jpg"
+   ],
+   "colors": [],
+   "draft": false,
+   "demo": false,
+   "order": 10,
+   "createdAt": 1762977000000,
+   "id": "obj-pug"
+  },
+  {
+   "name": "Bun-bun",
+   "nick": "the softest critic in the studio",
+   "num": "002",
+   "status": "available",
+   "price": "3 900 ₽",
+   "story": "Bun-bun listens to every idea with both ears up and has never once said “make it pop”.\n\nPrinted in matte PLA, sanded and painted by hand, with blushing cheeks on every piece.",
+   "height": "9 cm",
+   "material": "PLA, acrylic paint",
+   "edition": "10 pieces",
+   "printTime": "7 h",
+   "photos": [
+    "assets/objects/bunny-pink-1.jpg",
+    "assets/objects/bunny-pink-2.jpg",
+    "assets/objects/bunny-cobalt.jpg",
+    "assets/objects/bunny-milk.jpg"
+   ],
+   "colors": [
+    {
+     "name": "Pink",
+     "hex": "#ff9cc8",
+     "photo": "assets/objects/bunny-pink-1.jpg"
+    },
+    {
+     "name": "Cobalt",
+     "hex": "#244ee7",
+     "photo": "assets/objects/bunny-cobalt.jpg"
+    },
+    {
+     "name": "Milk",
+     "hex": "#f6f3ec",
+     "photo": "assets/objects/bunny-milk.jpg"
+    }
+   ],
+   "draft": false,
+   "demo": true,
+   "order": 20,
+   "createdAt": 1762977000001,
+   "id": "obj-bunbun"
+  },
+  {
+   "name": "Shroomie",
+   "nick": "grows best at 2 a.m. before a deadline",
+   "num": "003",
+   "status": "soldout",
+   "price": "4 200 ₽",
+   "story": "A small mushroom with a big hat and a quiet stare. The first batch has found good homes.",
+   "height": "8 cm",
+   "material": "PLA, acrylic paint",
+   "edition": "6 pieces",
+   "printTime": "5 h",
+   "photos": [
+    "assets/objects/shroom-red-1.jpg",
+    "assets/objects/shroom-red-2.jpg",
+    "assets/objects/shroom-yellow.jpg"
+   ],
+   "colors": [
+    {
+     "name": "Red cap",
+     "hex": "#f0332a",
+     "photo": "assets/objects/shroom-red-1.jpg"
+    },
+    {
+     "name": "Yellow cap",
+     "hex": "#ffc21a",
+     "photo": "assets/objects/shroom-yellow.jpg"
+    }
+   ],
+   "draft": false,
+   "demo": true,
+   "order": 30,
+   "createdAt": 1762977000002,
+   "id": "obj-shroomie"
+  },
+  {
+   "name": "Ghostie",
+   "nick": "haunts unsaved files",
+   "num": "004",
+   "status": "available",
+   "price": "2 900 ₽",
+   "story": "Ghostie floats around the desk and quietly reminds you to press save. Fear-free and very polite.",
+   "height": "7 cm",
+   "material": "PLA, acrylic paint",
+   "edition": "12 pieces",
+   "printTime": "4 h",
+   "photos": [
+    "assets/objects/ghost-1.jpg",
+    "assets/objects/ghost-2.jpg"
+   ],
+   "colors": [
+    {
+     "name": "Sky",
+     "hex": "#cfe2ff",
+     "photo": ""
+    }
+   ],
+   "draft": false,
+   "demo": true,
+   "order": 40,
+   "createdAt": 1762977000003,
+   "id": "obj-ghostie"
+  },
+  {
+   "name": "Cube Cat",
+   "nick": "fits perfectly in any grid",
+   "num": "005",
+   "status": "soon",
+   "price": "",
+   "story": "A cat who finally fits in the box, because he is the box. Still on the printer bed, trying out a new matte finish.",
+   "height": "6 cm",
+   "material": "PLA, acrylic paint",
+   "edition": "8 pieces",
+   "printTime": "",
+   "photos": [
+    "assets/objects/cat-cobalt-1.jpg",
+    "assets/objects/cat-cobalt-2.jpg",
+    "assets/objects/cat-milk.jpg"
+   ],
+   "colors": [
+    {
+     "name": "Cobalt",
+     "hex": "#244ee7",
+     "photo": "assets/objects/cat-cobalt-2.jpg"
+    },
+    {
+     "name": "Milk",
+     "hex": "#f6f3ec",
+     "photo": "assets/objects/cat-milk.jpg"
+    }
+   ],
+   "draft": false,
+   "demo": true,
+   "order": 50,
+   "createdAt": 1762977000004,
+   "id": "obj-cubecat"
+  }
+ ],
+ "works": [
+  {
+   "id": "w-bigger",
+   "title": "Make It Bigger",
+   "category": "posters",
+   "year": "2026",
+   "summary": "A poster about the most popular client request.",
+   "body": "Four words, four sizes. The type grows until it nearly falls off the paper, the way every logo does after the third round of feedback.\n\nRiso print, A2, cobalt and yellow.",
+   "images": [
+    "assets/works/bigger-1.jpg",
+    "assets/works/bigger-2.jpg"
+   ],
+   "demo": true,
+   "order": 10
+  },
+  {
+   "id": "w-soft",
+   "title": "Soft Objects",
+   "category": "3d",
+   "year": "2026",
+   "summary": "Small creatures modelled with signed distance fields.",
+   "body": "A study for future figurines: every character is built from rounded boxes and blobs, lit like a studio photo and printed later.",
+   "images": [
+    "assets/works/soft-1.jpg",
+    "assets/works/soft-2.jpg"
+   ],
+   "demo": true,
+   "order": 20
+  },
+  {
+   "id": "w-zine",
+   "title": "Grid Zine №3",
+   "category": "graphic",
+   "year": "2025",
+   "summary": "Twelve pages about columns, margins and breaking them.",
+   "body": "A small zine made on a kitchen table. Each spread takes one rule of layout and plays with it until it breaks.",
+   "images": [
+    "assets/works/zine-1.jpg",
+    "assets/works/zine-2.jpg"
+   ],
+   "demo": true,
+   "order": 30
+  },
+  {
+   "id": "w-weather",
+   "title": "Pink Weather",
+   "category": "posters",
+   "year": "2025",
+   "summary": "A halftone forecast for a soft, warm day.",
+   "body": "Halftone dots grow towards the centre like a sun that cannot decide on its colour.",
+   "images": [
+    "assets/works/weather-1.jpg"
+   ],
+   "demo": true,
+   "order": 40
+  },
+  {
+   "id": "w-sounds",
+   "title": "Desk Sounds",
+   "category": "personal",
+   "year": "2025",
+   "summary": "46 recordings from my desk, drawn as one line.",
+   "body": "Keyboards, mugs, scissors and a stapler, recorded for a week and turned into bars. The red ones are the stapler.",
+   "images": [
+    "assets/works/sounds-1.jpg"
+   ],
+   "demo": true,
+   "order": 50
+  },
+  {
+   "id": "w-coffee",
+   "title": "26 Mornings",
+   "category": "random",
+   "year": "2024",
+   "summary": "One sheet of paper under one mug for a month.",
+   "body": "Random stuff. Every morning the mug went down somewhere new.",
+   "images": [
+    "assets/works/coffee-1.jpg"
+   ],
+   "demo": true,
+   "order": 60
+  }
+ ],
+ "prompts": [
+  "What made you smile today?",
+  "Leave something for a stranger.",
+  "Draw your mood.",
+  "Something you couldn’t say.",
+  "What is on your mind?",
+  "Your favourite colour today?",
+  "Draw the view from your window.",
+  "A tiny compliment for whoever reads this.",
+  "What are you working on?",
+  "Draw a creature that lives in your desk."
+ ],
+ "archive": [
+  {
+   "offset": -1,
+   "items": [
+    {
+     "kind": "sticker",
+     "x": 1686.2910024427072,
+     "y": 1279.213849045772,
+     "w": 179.19188597919447,
+     "h": 179.19188597919447,
+     "rot": 16.892999866616677,
+     "data": {
+      "sticker": "star"
+     }
+    },
+    {
+     "kind": "whisper",
+     "x": 1647.436306220148,
+     "y": 426.33476695596204,
+     "w": 260,
+     "h": 90,
+     "rot": -4.481467463009023,
+     "data": {
+      "text": "you are doing great"
+     }
+    },
+    {
+     "kind": "note",
+     "x": 1027.5194765199708,
+     "y": 423.28458412239127,
+     "w": 220,
+     "h": 200,
+     "rot": 0.7001737477748868,
+     "data": {
+      "text": "tea > coffee",
+      "color": "yellow"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 904.4651310485183,
+     "y": 343.95306644666783,
+     "w": 189.39672754152144,
+     "h": 189.39672754152144,
+     "rot": -4.422507536529242,
+     "data": {
+      "sticker": "smile"
+     }
+    },
+    {
+     "kind": "note",
+     "x": 1327.2540913415555,
+     "y": 275.84005603683175,
+     "w": 220,
+     "h": 200,
+     "rot": -7.971602204759446,
+     "data": {
+      "text": "first!",
+      "color": "pink"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 2019.4567424393492,
+     "y": 324.0034241457399,
+     "w": 133.31875818330357,
+     "h": 133.31875818330357,
+     "rot": -7.453945290601855,
+     "data": {
+      "sticker": "pop"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 1449.2175640461965,
+     "y": 371.8788028765652,
+     "w": 195.27808008703994,
+     "h": 195.27808008703994,
+     "rot": 7.62567764427633,
+     "data": {
+      "sticker": "coffee"
+     }
+    },
+    {
+     "kind": "note",
+     "x": 809.603668139216,
+     "y": 324.12595026958707,
+     "w": 220,
+     "h": 200,
+     "rot": -5.66876944734908,
+     "data": {
+      "text": "my cat walked on the keyboard",
+      "color": "blue"
+     }
+    },
+    {
+     "kind": "note",
+     "x": 1298.2821947634618,
+     "y": 124.16123683045882,
+     "w": 220,
+     "h": 200,
+     "rot": 2.8469479927630594,
+     "data": {
+      "text": "this is so cute",
+      "color": "yellow"
+     }
+    },
+    {
+     "kind": "note",
+     "x": 1733.406510787083,
+     "y": 711.3165795549479,
+     "w": 220,
+     "h": 200,
+     "rot": -2.9473103064568953,
+     "data": {
+      "text": "love the pug",
+      "color": "white"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 195.14187766229568,
+     "y": 1319.3724626674093,
+     "w": 121.82924506021766,
+     "h": 121.82924506021766,
+     "rot": 9.991800891650932,
+     "data": {
+      "sticker": "coffee"
+     }
+    }
+   ]
+  },
+  {
+   "offset": -2,
+   "items": [
+    {
+     "kind": "sticker",
+     "x": 926.0310216225135,
+     "y": 582.9294575123351,
+     "w": 187.29872763698006,
+     "h": 187.29872763698006,
+     "rot": -1.8871098617532525,
+     "data": {
+      "sticker": "wow"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 2007.8768417013719,
+     "y": 266.3952852007433,
+     "w": 139.6869432506891,
+     "h": 139.6869432506891,
+     "rot": 12.77972666682119,
+     "data": {
+      "sticker": "eye"
+     }
+    },
+    {
+     "kind": "note",
+     "x": 796.6822742169827,
+     "y": 765.3832394525376,
+     "w": 220,
+     "h": 200,
+     "rot": 4.409648235183925,
+     "data": {
+      "text": "deadline survived",
+      "color": "yellow"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 1690.3978887344922,
+     "y": 1177.4240126007235,
+     "w": 122.9305263954262,
+     "h": 122.9305263954262,
+     "rot": 17.83200740168735,
+     "data": {
+      "sticker": "smile"
+     }
+    },
+    {
+     "kind": "note",
+     "x": 1116.0177094777794,
+     "y": 566.0293484423104,
+     "w": 220,
+     "h": 200,
+     "rot": -5.6288698506403545,
+     "data": {
+      "text": "I made a poster today",
+      "color": "pink"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 711.149746072672,
+     "y": 509.6639823659539,
+     "w": 134.1982220403991,
+     "h": 134.1982220403991,
+     "rot": -16.87215071117706,
+     "data": {
+      "sticker": "flower"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 704.7932350142908,
+     "y": 715.0663419714662,
+     "w": 177.61030557665356,
+     "h": 177.61030557665356,
+     "rot": -16.761670712620287,
+     "data": {
+      "sticker": "coffee"
+     }
+    }
+   ]
+  },
+  {
+   "offset": -3,
+   "items": [
+    {
+     "kind": "note",
+     "x": 1279.7996458004598,
+     "y": 1136.3434795123108,
+     "w": 220,
+     "h": 200,
+     "rot": -0.709358376149364,
+     "data": {
+      "text": "sunny here",
+      "color": "pink"
+     }
+    },
+    {
+     "kind": "note",
+     "x": 1930.4600838528218,
+     "y": 160.24710056220923,
+     "w": 220,
+     "h": 200,
+     "rot": -0.10297282526668461,
+     "data": {
+      "text": "more pop pls",
+      "color": "pink"
+     }
+    },
+    {
+     "kind": "drawing",
+     "x": 1219.376175989159,
+     "y": 283.31569496833623,
+     "w": 240,
+     "h": 240,
+     "rot": 0,
+     "data": {
+      "paths": [
+       {
+        "p": [
+         0.85,
+         0.5,
+         0.931,
+         0.621,
+         0.833,
+         0.703,
+         0.683,
+         0.696,
+         0.627,
+         0.746,
+         0.582,
+         0.894,
+         0.47,
+         0.943,
+         0.387,
+         0.817,
+         0.356,
+         0.704,
+         0.249,
+         0.704,
+         0.098,
+         0.675,
+         0.091,
+         0.556,
+         0.216,
+         0.461,
+         0.26,
+         0.396,
+         0.208,
+         0.262,
+         0.241,
+         0.133,
+         0.378,
+         0.157,
+         0.483,
+         0.245,
+         0.561,
+         0.208,
+         0.695,
+         0.124,
+         0.795,
+         0.185,
+         0.765,
+         0.339,
+         0.743,
+         0.432,
+         0.85,
+         0.5
+        ],
+        "c": "#E8291F",
+        "s": 8,
+        "a": 1
+       }
+      ]
+     }
+    },
+    {
+     "kind": "note",
+     "x": 957.801485012883,
+     "y": 303.5717737845172,
+     "w": 220,
+     "h": 200,
+     "rot": 5.515742352085807,
+     "data": {
+      "text": "who else is up at 2am",
+      "color": "pink"
+     }
+    },
+    {
+     "kind": "note",
+     "x": 2098.5858951003256,
+     "y": 1168.2707851993039,
+     "w": 220,
+     "h": 200,
+     "rot": 7.616121115946095,
+     "data": {
+      "text": "remember to save",
+      "color": "white"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 721.7585495685468,
+     "y": 457.0637024786906,
+     "w": 157.60646605717506,
+     "h": 157.60646605717506,
+     "rot": 16.07441876724552,
+     "data": {
+      "sticker": "sparkle"
+     }
+    },
+    {
+     "kind": "note",
+     "x": 2076.5431548218335,
+     "y": 1300.5735366840463,
+     "w": 220,
+     "h": 200,
+     "rot": 2.031439535277425,
+     "data": {
+      "text": "love the pug",
+      "color": "blue"
+     }
+    }
+   ]
+  },
+  {
+   "offset": -5,
+   "items": [
+    {
+     "kind": "note",
+     "x": 630.066470955769,
+     "y": 1081.8833343994888,
+     "w": 220,
+     "h": 200,
+     "rot": 5.878188908436833,
+     "data": {
+      "text": "kerning is self-care",
+      "color": "yellow"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 1645.2941460796562,
+     "y": 974.3540018246001,
+     "w": 173.12147559780988,
+     "h": 173.12147559780988,
+     "rot": 10.385549457579579,
+     "data": {
+      "sticker": "pug"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 1429.9812406846966,
+     "y": 1147.335956524259,
+     "w": 141.18867562398162,
+     "h": 141.18867562398162,
+     "rot": 19.238264766598625,
+     "data": {
+      "sticker": "bolt"
+     }
+    },
+    {
+     "kind": "drawing",
+     "x": 766.9482461540263,
+     "y": 339.7387528733373,
+     "w": 240,
+     "h": 240,
+     "rot": 0,
+     "data": {
+      "paths": [
+       {
+        "p": [
+         0.85,
+         0.5,
+         0.931,
+         0.621,
+         0.833,
+         0.703,
+         0.683,
+         0.696,
+         0.627,
+         0.746,
+         0.582,
+         0.894,
+         0.47,
+         0.943,
+         0.387,
+         0.817,
+         0.356,
+         0.704,
+         0.249,
+         0.704,
+         0.098,
+         0.675,
+         0.091,
+         0.556,
+         0.216,
+         0.461,
+         0.26,
+         0.396,
+         0.208,
+         0.262,
+         0.241,
+         0.133,
+         0.378,
+         0.157,
+         0.483,
+         0.245,
+         0.561,
+         0.208,
+         0.695,
+         0.124,
+         0.795,
+         0.185,
+         0.765,
+         0.339,
+         0.743,
+         0.432,
+         0.85,
+         0.5
+        ],
+        "c": "#244EE7",
+        "s": 8,
+        "a": 1
+       }
+      ]
+     }
+    },
+    {
+     "kind": "note",
+     "x": 1642.908376055944,
+     "y": 520.8630677768647,
+     "w": 220,
+     "h": 200,
+     "rot": -3.621038262493732,
+     "data": {
+      "text": "who else is up at 2am",
+      "color": "yellow"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 1691.2044122835448,
+     "y": 547.8979448740708,
+     "w": 171.52504583929885,
+     "h": 171.52504583929885,
+     "rot": 9.51309410855626,
+     "data": {
+      "sticker": "ok"
+     }
+    },
+    {
+     "kind": "note",
+     "x": 1782.6167661577126,
+     "y": 1189.9908405272283,
+     "w": 220,
+     "h": 200,
+     "rot": 3.013391309950835,
+     "data": {
+      "text": "kerning is self-care",
+      "color": "blue"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 1149.2669631541798,
+     "y": 324.3923197265225,
+     "w": 186.92962250830465,
+     "h": 186.92962250830465,
+     "rot": 17.495267645673394,
+     "data": {
+      "sticker": "bun"
+     }
+    },
+    {
+     "kind": "note",
+     "x": 239.25019363885116,
+     "y": 945.1557080323599,
+     "w": 220,
+     "h": 200,
+     "rot": -1.3338660989014208,
+     "data": {
+      "text": "sunny here",
+      "color": "blue"
+     }
+    }
+   ]
+  },
+  {
+   "offset": -6,
+   "items": [
+    {
+     "kind": "sticker",
+     "x": 1366.4706701548862,
+     "y": 1006.1098037295094,
+     "w": 122.20976125931672,
+     "h": 122.20976125931672,
+     "rot": -13.59907728837484,
+     "data": {
+      "sticker": "eye"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 445.100354421564,
+     "y": 1053.5665004978134,
+     "w": 134.442651647845,
+     "h": 134.442651647845,
+     "rot": 8.73849333580187,
+     "data": {
+      "sticker": "bun"
+     }
+    },
+    {
+     "kind": "drawing",
+     "x": 414.80587414926924,
+     "y": 1216.9261270332192,
+     "w": 240,
+     "h": 240,
+     "rot": 0,
+     "data": {
+      "paths": [
+       {
+        "p": [
+         0.85,
+         0.5,
+         0.931,
+         0.621,
+         0.833,
+         0.703,
+         0.683,
+         0.696,
+         0.627,
+         0.746,
+         0.582,
+         0.894,
+         0.47,
+         0.943,
+         0.387,
+         0.817,
+         0.356,
+         0.704,
+         0.249,
+         0.704,
+         0.098,
+         0.675,
+         0.091,
+         0.556,
+         0.216,
+         0.461,
+         0.26,
+         0.396,
+         0.208,
+         0.262,
+         0.241,
+         0.133,
+         0.378,
+         0.157,
+         0.483,
+         0.245,
+         0.561,
+         0.208,
+         0.695,
+         0.124,
+         0.795,
+         0.185,
+         0.765,
+         0.339,
+         0.743,
+         0.432,
+         0.85,
+         0.5
+        ],
+        "c": "#244EE7",
+        "s": 8,
+        "a": 1
+       }
+      ]
+     }
+    },
+    {
+     "kind": "note",
+     "x": 446.7253706975054,
+     "y": 357.8329252036997,
+     "w": 220,
+     "h": 200,
+     "rot": -7.429479191840915,
+     "data": {
+      "text": "remember to save",
+      "color": "blue"
+     }
+    },
+    {
+     "kind": "note",
+     "x": 1315.8237804874293,
+     "y": 845.9022146565503,
+     "w": 220,
+     "h": 200,
+     "rot": -4.194457445381257,
+     "data": {
+      "text": "kerning is self-care",
+      "color": "yellow"
+     }
+    },
+    {
+     "kind": "note",
+     "x": 2003.255341221591,
+     "y": 1172.7013092067243,
+     "w": 220,
+     "h": 200,
+     "rot": 5.862419857391647,
+     "data": {
+      "text": "kerning is self-care",
+      "color": "yellow"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 688.792539920954,
+     "y": 483.1960387574259,
+     "w": 161.01181586943466,
+     "h": 161.01181586943466,
+     "rot": 18.04411637213714,
+     "data": {
+      "sticker": "bolt"
+     }
+    },
+    {
+     "kind": "drawing",
+     "x": 1733.4144395657083,
+     "y": 635.4953699064897,
+     "w": 240,
+     "h": 240,
+     "rot": 0,
+     "data": {
+      "paths": [
+       {
+        "p": [
+         0.85,
+         0.5,
+         0.931,
+         0.621,
+         0.833,
+         0.703,
+         0.683,
+         0.696,
+         0.627,
+         0.746,
+         0.582,
+         0.894,
+         0.47,
+         0.943,
+         0.387,
+         0.817,
+         0.356,
+         0.704,
+         0.249,
+         0.704,
+         0.098,
+         0.675,
+         0.091,
+         0.556,
+         0.216,
+         0.461,
+         0.26,
+         0.396,
+         0.208,
+         0.262,
+         0.241,
+         0.133,
+         0.378,
+         0.157,
+         0.483,
+         0.245,
+         0.561,
+         0.208,
+         0.695,
+         0.124,
+         0.795,
+         0.185,
+         0.765,
+         0.339,
+         0.743,
+         0.432,
+         0.85,
+         0.5
+        ],
+        "c": "#000000",
+        "s": 8,
+        "a": 1
+       }
+      ]
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 826.2742938421219,
+     "y": 294.79835929597766,
+     "w": 167.6750113861241,
+     "h": 167.6750113861241,
+     "rot": 2.554365538666037,
+     "data": {
+      "sticker": "pop"
+     }
+    },
+    {
+     "kind": "drawing",
+     "x": 1309.3919840714261,
+     "y": 551.872781143473,
+     "w": 240,
+     "h": 240,
+     "rot": 0,
+     "data": {
+      "paths": [
+       {
+        "p": [
+         0.85,
+         0.5,
+         0.931,
+         0.621,
+         0.833,
+         0.703,
+         0.683,
+         0.696,
+         0.627,
+         0.746,
+         0.582,
+         0.894,
+         0.47,
+         0.943,
+         0.387,
+         0.817,
+         0.356,
+         0.704,
+         0.249,
+         0.704,
+         0.098,
+         0.675,
+         0.091,
+         0.556,
+         0.216,
+         0.461,
+         0.26,
+         0.396,
+         0.208,
+         0.262,
+         0.241,
+         0.133,
+         0.378,
+         0.157,
+         0.483,
+         0.245,
+         0.561,
+         0.208,
+         0.695,
+         0.124,
+         0.795,
+         0.185,
+         0.765,
+         0.339,
+         0.743,
+         0.432,
+         0.85,
+         0.5
+        ],
+        "c": "#000000",
+        "s": 8,
+        "a": 1
+       }
+      ]
+     }
+    },
+    {
+     "kind": "note",
+     "x": 297.9950456217316,
+     "y": 815.9487765078666,
+     "w": 220,
+     "h": 200,
+     "rot": 1.842688624790144,
+     "data": {
+      "text": "drink water",
+      "color": "blue"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 1880.3891962757318,
+     "y": 582.2934138619682,
+     "w": 154.53470347921873,
+     "h": 154.53470347921873,
+     "rot": -10.946565421399415,
+     "data": {
+      "sticker": "bolt"
+     }
+    },
+    {
+     "kind": "note",
+     "x": 1510.7630447086444,
+     "y": 592.1866002842864,
+     "w": 220,
+     "h": 200,
+     "rot": 5.679432858675392,
+     "data": {
+      "text": "you are doing great",
+      "color": "yellow"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 1576.872969579553,
+     "y": 489.9873258207422,
+     "w": 140.08546257942422,
+     "h": 140.08546257942422,
+     "rot": -19.21314736629947,
+     "data": {
+      "sticker": "bolt"
+     }
+    },
+    {
+     "kind": "note",
+     "x": 658.5246715653587,
+     "y": 706.6309107038613,
+     "w": 220,
+     "h": 200,
+     "rot": -6.049823801510472,
+     "data": {
+      "text": "remember to save",
+      "color": "pink"
+     }
+    }
+   ]
+  },
+  {
+   "offset": -9,
+   "items": [
+    {
+     "kind": "note",
+     "x": 355.6092668335638,
+     "y": 602.6382861751322,
+     "w": 220,
+     "h": 200,
+     "rot": -0.3152545055669975,
+     "data": {
+      "text": "I made a poster today",
+      "color": "pink"
+     }
+    },
+    {
+     "kind": "drawing",
+     "x": 1659.4526214470054,
+     "y": 422.1620238784412,
+     "w": 240,
+     "h": 240,
+     "rot": 0,
+     "data": {
+      "paths": [
+       {
+        "p": [
+         0.85,
+         0.5,
+         0.931,
+         0.621,
+         0.833,
+         0.703,
+         0.683,
+         0.696,
+         0.627,
+         0.746,
+         0.582,
+         0.894,
+         0.47,
+         0.943,
+         0.387,
+         0.817,
+         0.356,
+         0.704,
+         0.249,
+         0.704,
+         0.098,
+         0.675,
+         0.091,
+         0.556,
+         0.216,
+         0.461,
+         0.26,
+         0.396,
+         0.208,
+         0.262,
+         0.241,
+         0.133,
+         0.378,
+         0.157,
+         0.483,
+         0.245,
+         0.561,
+         0.208,
+         0.695,
+         0.124,
+         0.795,
+         0.185,
+         0.765,
+         0.339,
+         0.743,
+         0.432,
+         0.85,
+         0.5
+        ],
+        "c": "#E8291F",
+        "s": 8,
+        "a": 1
+       }
+      ]
+     }
+    },
+    {
+     "kind": "whisper",
+     "x": 1537.3417042004087,
+     "y": 471.44620344505864,
+     "w": 260,
+     "h": 90,
+     "rot": -0.07736037611681379,
+     "data": {
+      "text": "love the pug"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 1824.2328332348504,
+     "y": 1203.2115470951205,
+     "w": 191.60022206197917,
+     "h": 191.60022206197917,
+     "rot": -19.353089403987326,
+     "data": {
+      "sticker": "flower"
+     }
+    },
+    {
+     "kind": "note",
+     "x": 1157.6657982931667,
+     "y": 533.4296241752279,
+     "w": 220,
+     "h": 200,
+     "rot": -3.2508453451066046,
+     "data": {
+      "text": "first!",
+      "color": "white"
+     }
+    },
+    {
+     "kind": "note",
+     "x": 1457.1581724653743,
+     "y": 1119.5446900031698,
+     "w": 220,
+     "h": 200,
+     "rot": -5.880326266714464,
+     "data": {
+      "text": "first!",
+      "color": "blue"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 1465.1804288586816,
+     "y": 252.34878221278564,
+     "w": 174.99365123843688,
+     "h": 174.99365123843688,
+     "rot": -12.352827783059922,
+     "data": {
+      "sticker": "ok"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 944.0176972872166,
+     "y": 828.0393970570811,
+     "w": 176.65449735717047,
+     "h": 176.65449735717047,
+     "rot": 5.289413824339043,
+     "data": {
+      "sticker": "bun"
+     }
+    },
+    {
+     "kind": "whisper",
+     "x": 1779.2248065669519,
+     "y": 705.1352593451351,
+     "w": 260,
+     "h": 90,
+     "rot": 1.8232820072696647,
+     "data": {
+      "text": "more pop pls"
+     }
+    },
+    {
+     "kind": "whisper",
+     "x": 1019.4710197794998,
+     "y": 1052.581974128237,
+     "w": 260,
+     "h": 90,
+     "rot": -1.9634986790807076,
+     "data": {
+      "text": "first!"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 954.296603917088,
+     "y": 472.2241293454567,
+     "w": 182.45833246257882,
+     "h": 182.45833246257882,
+     "rot": 16.427024695560533,
+     "data": {
+      "sticker": "flower"
+     }
+    }
+   ]
+  },
+  {
+   "offset": -12,
+   "items": [
+    {
+     "kind": "note",
+     "x": 1189.172585272445,
+     "y": 732.1487653009135,
+     "w": 220,
+     "h": 200,
+     "rot": -2.7082079007691426,
+     "data": {
+      "text": "drink water",
+      "color": "white"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 1719.8825420296134,
+     "y": 204.15575490251288,
+     "w": 138.40154067707348,
+     "h": 138.40154067707348,
+     "rot": 12.783749426959808,
+     "data": {
+      "sticker": "smile"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 131.6177482363896,
+     "y": 1008.7962604171298,
+     "w": 198.29487923902548,
+     "h": 198.29487923902548,
+     "rot": 19.933379115241266,
+     "data": {
+      "sticker": "bun"
+     }
+    },
+    {
+     "kind": "note",
+     "x": 1780.9665290054686,
+     "y": 389.6554944359009,
+     "w": 220,
+     "h": 200,
+     "rot": 2.331798770946193,
+     "data": {
+      "text": "deadline survived",
+      "color": "pink"
+     }
+    },
+    {
+     "kind": "whisper",
+     "x": 2087.9872424217738,
+     "y": 988.1019206280806,
+     "w": 260,
+     "h": 90,
+     "rot": -0.6202959902785725,
+     "data": {
+      "text": "you are doing great"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 916.1512218427056,
+     "y": 318.25126866020526,
+     "w": 169.79240370579888,
+     "h": 169.79240370579888,
+     "rot": -18.257484568503184,
+     "data": {
+      "sticker": "sparkle"
+     }
+    },
+    {
+     "kind": "sticker",
+     "x": 1585.9626582670803,
+     "y": 464.24061798155543,
+     "w": 165.68826650098305,
+     "h": 165.68826650098305,
+     "rot": -15.265837090510841,
+     "data": {
+      "sticker": "coffee"
+     }
+    },
+    {
+     "kind": "whisper",
+     "x": 351.35240346295507,
+     "y": 650.9547180866335,
+     "w": 260,
+     "h": 90,
+     "rot": -1.8543038006516968,
+     "data": {
+      "text": "love the pug"
+     }
+    },
+    {
+     "kind": "note",
+     "x": 1975.8467849003712,
+     "y": 580.2637923151079,
+     "w": 220,
+     "h": 200,
+     "rot": -7.107980473252253,
+     "data": {
+      "text": "who else is up at 2am",
+      "color": "pink"
+     }
+    }
+   ]
+  }
+ ]
+}
