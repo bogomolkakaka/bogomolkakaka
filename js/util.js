@@ -60,7 +60,7 @@ export function openModal(inner, { label = '', wide = false, onClose } = {}) {
   setTimeout(() => { const f = $('input, textarea, select, .btn', wrap.firstElementChild) || $('[data-close]', wrap); if (f) f.focus(); }, 30);
   return { el: wrap.firstElementChild, close };
 }
-export function closeTopModal() { const e = modalStack[modalStack.length - 1]; if (e) { e.close(); return true; } return false; }
+export function closeTopModal() { modalStack = modalStack.filter(m => m.wrap.isConnected); const e = modalStack[modalStack.length - 1]; if (e) { e.close(); return true; } return false; }
 export function confirmBox(title, text, yes = 'Да', no = 'Отмена', danger = true) {
   return new Promise(res => {
     let done = false;
@@ -197,7 +197,7 @@ export const ICON = {
 export const SECTIONS = [
   { id: 'booth', name: 'Фотобудка', short: 'Фотобудка', hint: 'Четыре кадра, восемь фильтров, одна полоска', icon: 'booth' },
   { id: 'wall', name: 'Стена дня', short: 'Стена', hint: 'Общий коллаж, каждый день с чистого листа', icon: 'wall' },
-  { id: 'run', name: 'Забег дизайнера', short: 'Забег', hint: 'Уворачивайся от правок, сдай проект', icon: 'run' },
+  { id: 'run', name: 'Игры', short: 'Игры', hint: 'Забег дизайнера, мемори, змейка и тренажёр', icon: 'run' },
   { id: 'objects', name: 'Маленькие объекты', short: 'Объекты', hint: 'Фигурки ручной работы с моей полки', icon: 'objects' },
   { id: 'films', name: 'Видеопрокат', short: 'Прокат', hint: 'Фильмы и сериалы, которые стоит посмотреть', icon: 'films' },
   { id: 'stuff', name: 'Мои работы', short: 'Работы', hint: 'Постеры, 3D и всякие эксперименты', icon: 'stuff' },

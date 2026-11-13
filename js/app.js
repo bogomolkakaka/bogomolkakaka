@@ -12,9 +12,13 @@ const VIEWS = {
   objects: () => import('./views/objects.js'),
   stuff: () => import('./views/stuff.js'),
   films: () => import('./views/films.js'),
+  memory: () => import('./views/memory.js'),
+  snake: () => import('./views/snake.js'),
+  quiz: () => import('./views/quiz.js'),
   admin: () => import('./views/admin.js')
 };
-const TITLES = { desk: '', admin: 'Админка студии', ...Object.fromEntries(SECTIONS.map(s => [s.id, s.name])) };
+const TITLES = { desk: '', admin: 'Админка студии', ...Object.fromEntries(SECTIONS.map(s => [s.id, s.name])), run: 'Забег дизайнера', memory: 'Мемори', snake: 'Змейка', quiz: 'Тренажёр' };
+const TAB_OF = { memory: 'run', snake: 'run', quiz: 'run' }; // the games share one taskbar tab
 
 let current = { id: null, mod: null, cleanup: null, token: 0 };
 
@@ -56,7 +60,7 @@ async function route() {
 /* ---------- taskbar ---------- */
 function renderTaskbar() {
   const bar = $('#taskbar');
-  const id = current.id || parseRoute().id;
+  const id0 = current.id || parseRoute().id, id = TAB_OF[id0] || id0;
   const tabs = [{ id: 'desk', name: 'Стол', icon: 'desk' }, ...SECTIONS];
   bar.innerHTML = `
     <button class="tb-start" id="tb-start" type="button" aria-expanded="false" aria-controls="startmenu">${ICON.logo}<b>${esc(CONFIG.SITE_NAME)}</b></button>
