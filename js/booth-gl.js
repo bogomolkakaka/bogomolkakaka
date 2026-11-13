@@ -1,14 +1,14 @@
 // WebGL filter engine for the photo booth. Same shaders run on the live preview and on the final strip.
 export const FILTERS = [
-  { id: 'digicam', num: '01', name: 'Digital Cam' },
-  { id: 'fisheye', num: '02', name: 'Fisheye' },
-  { id: 'pixel', num: '03', name: 'Pixel World' },
-  { id: 'dreamy', num: '04', name: 'Dreamy' },
-  { id: 'comic', num: '05', name: 'Comic Print' },
-  { id: 'glitch', num: '06', name: 'Glitch' },
-  { id: 'blueprint', num: '07', name: 'Blueprint' },
-  { id: 'bw', num: '08', name: 'Black & White' },
-  { id: 'plain', num: '00', name: 'No filter' }
+  { id: 'digicam', num: '01', name: 'Цифромыльница' },
+  { id: 'fisheye', num: '02', name: 'Рыбий глаз' },
+  { id: 'pixel', num: '03', name: 'Пиксели' },
+  { id: 'dreamy', num: '04', name: 'Мечта' },
+  { id: 'comic', num: '05', name: 'Комикс' },
+  { id: 'glitch', num: '06', name: 'Глитч' },
+  { id: 'blueprint', num: '07', name: 'Чертёж' },
+  { id: 'bw', num: '08', name: 'Чёрно-белый' },
+  { id: 'plain', num: '00', name: 'Без фильтра' }
 ];
 
 const VERT = `attribute vec2 a_pos; varying vec2 v_uv;

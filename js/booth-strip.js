@@ -3,14 +3,14 @@ import { BUILTIN, stickerURL } from './stickers.js';
 import { loadImg } from './util.js';
 
 export const FRAMES = [
-  { id: 'classic', name: 'Classic photostrip' },
-  { id: 'blue', name: 'Minimal blue' },
-  { id: 'vintage', name: 'Vintage photo booth' },
-  { id: 'stickers', name: 'Sticker explosion' },
-  { id: 'idcard', name: 'Designer ID card' },
-  { id: 'clear', name: 'Transparent border' }
+  { id: 'classic', name: 'Классическая лента' },
+  { id: 'blue', name: 'Синий минимализм' },
+  { id: 'vintage', name: 'Винтажная будка' },
+  { id: 'stickers', name: 'Взрыв стикеров' },
+  { id: 'idcard', name: 'Пропуск дизайнера' },
+  { id: 'clear', name: 'Прозрачная рамка' }
 ];
-const ROLES = ['Senior Pixel Pusher', 'Head of Kerning', 'Chief Sticker Officer', 'Gradient Whisperer', 'Lead Undo Engineer', 'Director of More Pop'];
+const ROLES = ['Двигатель пикселей', 'Глава кернинга', 'Директор по стикерам', 'Шептун градиентов', 'Инженер отмены', 'Отдел «Сделай ярче»'];
 
 function rr(ctx, x, y, w, h, r) {
   ctx.beginPath();
@@ -65,7 +65,7 @@ export async function composeStrip(frames, frame, opts = {}, scale = 1) {
     ctx.fillStyle = '#EDE3D1'; ctx.fillRect(0, 0, W, H);
     for (let i = 0; i < 900; i++) { ctx.fillStyle = `rgba(${rnd() > .5 ? '90,60,30' : '255,255,255'},${rnd() * .08})`; ctx.fillRect(rnd() * W, rnd() * H, 1 + rnd() * 2, 1 + rnd() * 2); }
     ctx.fillStyle = '#C8321F'; ctx.font = '30px "Dela Gothic One", "Arial Black", sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('PHOTO  ·  BOOTH', W / 2, 74);
+    ctx.fillText('ФОТО  ·  БУДКА', W / 2, 74);
     ctx.fillStyle = 'rgba(200,50,31,.6)'; for (let i = 0; i < 9; i++) { ctx.beginPath(); ctx.arc(W / 2 - 160 + i * 40, 96, 3.5, 0, 7); ctx.fill(); }
   }
   if (frame === 'stickers') {
@@ -78,7 +78,7 @@ export async function composeStrip(frames, frame, opts = {}, scale = 1) {
     ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = '#244EE7'; ctx.fillRect(0, 0, W, 118);
     ctx.fillStyle = '#FFD84A'; ctx.fillRect(0, 118, W, 10);
-    ctx.fillStyle = '#fff'; ctx.textAlign = 'left'; ctx.font = '50px "Dela Gothic One", "Arial Black", sans-serif'; ctx.fillText('DESIGNER ID', 56, 78);
+    ctx.fillStyle = '#fff'; ctx.textAlign = 'left'; ctx.font = '50px "Dela Gothic One", "Arial Black", sans-serif'; ctx.fillText('ДИЗАЙНЕР ID', 56, 78);
     ctx.textAlign = 'right'; ctx.font = '600 24px "Golos Text", Arial, sans-serif'; ctx.fillText(site, W - 56, 72);
     ctx.restore();
   }
@@ -110,12 +110,12 @@ export async function composeStrip(frames, frame, opts = {}, scale = 1) {
   }
   if (frame === 'vintage') {
     const y = G.slots[3].y + G.slots[3].h;
-    ctx.fillStyle = '#5a3b22'; ctx.font = '700 38px "Caveat", cursive'; ctx.fillText(caption || '4 poses, 1 strip', W / 2, y + 70);
+    ctx.fillStyle = '#5a3b22'; ctx.font = '700 38px "Caveat", cursive'; ctx.fillText(caption || '4 позы, 1 лента', W / 2, y + 70);
     ctx.font = '600 16px "Golos Text", Arial, sans-serif'; ctx.fillStyle = 'rgba(90,59,34,.75)'; ctx.fillText(date.toUpperCase(), W / 2, y + 102);
   }
   if (frame === 'stickers') {
     const y = G.slots[3].y + G.slots[3].h;
-    ctx.fillStyle = '#000'; ctx.font = '700 46px "Caveat", cursive'; ctx.fillText(caption || 'best day ever', W / 2, y + 96);
+    ctx.fillStyle = '#000'; ctx.font = '700 46px "Caveat", cursive'; ctx.fillText(caption || 'лучший день', W / 2, y + 96);
     ctx.font = '600 16px "Golos Text", Arial, sans-serif'; ctx.fillText(date, W / 2, y + 128);
     const ids = BUILTIN.map(b => b.id);
     const spots = [];
@@ -136,7 +136,7 @@ export async function composeStrip(frames, frame, opts = {}, scale = 1) {
   if (frame === 'idcard') {
     const x = 540;
     const role = ROLES[Math.floor(rnd() * ROLES.length)];
-    const rows = [['NAME', caption || 'Guest designer'], ['ROLE', role], ['KERNING', '★★★★☆'], ['ISSUED', date], ['VALID', 'until the next revision']];
+    const rows = [['ИМЯ', caption || 'Гость-дизайнер'], ['ДОЛЖНОСТЬ', role], ['КЕРНИНГ', '★★★★☆'], ['ВЫДАН', date], ['ДЕЙСТВУЕТ', 'до следующей правки']];
     ctx.textAlign = 'left';
     rows.forEach(([k, v], i) => {
       const y = 190 + i * 74;
@@ -148,7 +148,7 @@ export async function composeStrip(frames, frame, opts = {}, scale = 1) {
     ctx.fillStyle = '#000';
     let bx = x;
     for (let i = 0; i < 64 && bx < W - 60; i++) { const bw = 2 + Math.floor(rnd() * 5); if (rnd() > .35) ctx.fillRect(bx, 590, bw, 100); bx += bw + 2; }
-    ctx.fillStyle = '#244EE7'; ctx.font = '700 44px "Caveat", cursive'; ctx.save(); ctx.translate(W - 300, 720); ctx.rotate(-.06); ctx.fillText(caption ? caption.split(' ')[0] : 'signed', 0, 0); ctx.restore();
+    ctx.fillStyle = '#244EE7'; ctx.font = '700 44px "Caveat", cursive'; ctx.save(); ctx.translate(W - 300, 720); ctx.rotate(-.06); ctx.fillText(caption ? caption.split(' ')[0] : 'подпись', 0, 0); ctx.restore();
     ctx.strokeStyle = '#D3D8E3'; ctx.lineWidth = 2; rr(ctx, 1, 1, W - 2, H - 2, 40); ctx.stroke();
   }
 

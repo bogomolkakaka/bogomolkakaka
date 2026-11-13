@@ -1,5 +1,5 @@
 import { CONFIG } from '../config.js';
-import { $, $$, esc, h, ICON, sound, toast, sleep, clamp, todayKey, fmtDay, download, resizeToBlob, fileToImage, rand, reducedMotion } from '../util.js';
+import { $, $$, esc, h, ICON, sound, toast, sleep, clamp, todayKey, fmtDay, download, resizeToBlob, fileToImage, rand, reducedMotion, plural } from '../util.js';
 import { FilterEngine, FILTERS } from '../booth-gl.js';
 import { FRAMES, geometry, composeStrip, ensureFonts } from '../booth-strip.js';
 import { BUILTIN, stickerURL } from '../stickers.js';
@@ -15,33 +15,33 @@ export async function mount(root, params, { go }) {
 
   root.innerHTML = `<div class="page booth-page">
     <div class="page-head">
-      <div><a class="back" href="#/">${ICON.back}Back to the desk</a>
-        <h1 class="page-title">Photo Booth</h1>
-        <p class="page-sub">four snaps, one strip, zero retouching</p></div>
-      <p class="booth-privacy">Photos stay in your browser. Nothing leaves your device unless you put the strip on the wall.</p>
+      <div><a class="back" href="#/">${ICON.back}На рабочий стол</a>
+        <h1 class="page-title">Фотобудка</h1>
+        <p class="page-sub">четыре кадра, одна лента, ноль ретуши</p></div>
+      <p class="booth-privacy">Фото остаются в браузере. Ничего не покидает устройство, пока ты сама не повесишь ленту на стену.</p>
     </div>
     <div class="booth">
-      <div class="marquee" aria-hidden="true"><span>PHOTO</span><i></i><span>BOOTH</span></div>
+      <div class="marquee" aria-hidden="true"><span>ФОТО</span><i></i><span>БУДКА</span></div>
       <div class="booth__body">
         <div class="booth__screen-col">
           <div class="screen" id="screen">
-            <canvas id="live" width="${FW}" height="${FH}" aria-label="Camera preview"></canvas>
+            <canvas id="live" width="${FW}" height="${FH}" aria-label="Изображение с камеры"></canvas>
             <video id="video" playsinline muted autoplay></video>
             <div class="datestamp" id="datestamp" hidden></div>
             <div class="screen__idle" id="idle"></div>
             <div class="countdown" id="countdown" aria-live="assertive"></div>
             <div class="flash" id="flash"></div>
           </div>
-          <ol class="slots" id="slots" aria-label="Your four shots">${[0, 1, 2, 3].map(i => `<li class="slot"><span>${i + 1}</span></li>`).join('')}</ol>
+          <ol class="slots" id="slots" aria-label="Твои четыре кадра">${[0, 1, 2, 3].map(i => `<li class="slot"><span>${i + 1}</span></li>`).join('')}</ol>
         </div>
         <div class="panel" id="panel"></div>
       </div>
     </div>
     <div class="editor" id="editor" hidden></div>
     <div class="polaroids" aria-hidden="true">
-      <figure class="pola pola--1"><img src="assets/objects/pug-1.jpg" alt=""><figcaption>monday pug</figcaption></figure>
-      <figure class="pola pola--2"><img src="assets/objects/bunny-pink-1.jpg" alt=""><figcaption>bun-bun ♡</figcaption></figure>
-      <figure class="pola pola--3"><img src="assets/objects/ghost-1.jpg" alt=""><figcaption>boo</figcaption></figure>
+      <figure class="pola pola--1"><img src="assets/objects/pug-1.jpg" alt=""><figcaption>мопс понедельника</figcaption></figure>
+      <figure class="pola pola--2"><img src="assets/objects/bunny-pink-1.jpg" alt=""><figcaption>зайка ♡</figcaption></figure>
+      <figure class="pola pola--3"><img src="assets/objects/ghost-1.jpg" alt=""><figcaption>бу!</figcaption></figure>
     </div>
   </div>`;
 
@@ -65,21 +65,21 @@ export async function mount(root, params, { go }) {
     const shooting = B.stage === 'shooting';
     $('#panel', root).innerHTML = `
       <div class="panel__group">
-        <h2 class="panel__title" id="f-title">Filter</h2>
+        <h2 class="panel__title" id="f-title">Фильтр</h2>
         <div class="filters" role="radiogroup" aria-labelledby="f-title">${FILTERS.map(f => `<button class="fchip" type="button" role="radio" aria-checked="${B.filter === f.id}" data-filter="${f.id}" ${shooting ? 'disabled' : ''}><b>${f.num}</b>${esc(f.name)}</button>`).join('')}</div>
       </div>
       <div class="panel__group">
-        <h2 class="panel__title" id="fr-title">Frame</h2>
+        <h2 class="panel__title" id="fr-title">Рамка</h2>
         <div class="frames" role="radiogroup" aria-labelledby="fr-title">${frames().map(f => `<button class="frchip frchip--${f.id}" type="button" role="radio" aria-checked="${B.frame === f.id}" data-frame="${f.id}" ${shooting ? 'disabled' : ''}><i aria-hidden="true"></i>${esc(f.name)}</button>`).join('')}</div>
       </div>
       <div class="panel__row">
-        <label class="switch"><input type="checkbox" id="mirror" ${B.mirror ? 'checked' : ''} ${shooting ? 'disabled' : ''}><span aria-hidden="true"></span>Mirror</label>
-        ${B.cams > 1 && B.stream ? `<button class="btn btn--ghost btn--small" type="button" data-act="flip" ${shooting ? 'disabled' : ''}>${ICON.redo}Switch camera</button>` : ''}
+        <label class="switch"><input type="checkbox" id="mirror" ${B.mirror ? 'checked' : ''} ${shooting ? 'disabled' : ''}><span aria-hidden="true"></span>Зеркально</label>
+        ${B.cams > 1 && B.stream ? `<button class="btn btn--ghost btn--small" type="button" data-act="flip" ${shooting ? 'disabled' : ''}>${ICON.redo}Другая камера</button>` : ''}
       </div>
       <div class="panel__go">
-        ${B.stream ? `<button class="arcade arcade--red" type="button" data-act="shoot" ${shooting ? 'disabled' : ''}><span>${shooting ? 'Smile!' : 'Start shooting'}</span></button>`
-          : `<button class="arcade arcade--yellow" type="button" data-act="camera"><span>Start camera</span></button>`}
-        <label class="btn btn--text upload-link">${ICON.upload}Upload 1–4 photos instead<input type="file" id="upload" accept="image/*" multiple hidden></label>
+        ${B.stream ? `<button class="arcade arcade--red" type="button" data-act="shoot" ${shooting ? 'disabled' : ''}><span>${shooting ? 'Улыбку!' : 'Снимать'}</span></button>`
+          : `<button class="arcade arcade--yellow" type="button" data-act="camera"><span>Включить камеру</span></button>`}
+        <label class="btn btn--text upload-link">${ICON.upload}Или загрузить 1–4 фото<input type="file" id="upload" accept="image/*" multiple hidden></label>
       </div>`;
     $('#upload', root).addEventListener('change', e => { const files = [...e.target.files]; e.target.value = ''; if (files.length) fromFiles(files); });
     $('#mirror', root).addEventListener('change', e => { B.mirror = e.target.checked; sound.play('click'); });
@@ -88,10 +88,10 @@ export async function mount(root, params, { go }) {
     const idle = $('#idle', root);
     idle.hidden = !!B.stream;
     if (B.stream) return;
-    idle.innerHTML = `<div><p class="idle__big">Smile, you’re on the internet</p>
-      ${msg ? `<p class="idle__err" role="alert">${msg}</p>` : `<p class="idle__small">Press <b>Start camera</b> and allow access. The picture stays on this device.</p>`}
-      <div class="idle__btns"><button class="btn btn--yellow" type="button" data-act="camera">Start camera</button>
-      <label class="btn btn--ghost btn--onblue">${ICON.upload}Upload photos<input type="file" accept="image/*" multiple hidden class="idle-upload"></label></div></div>`;
+    idle.innerHTML = `<div><p class="idle__big">Улыбнись, ты в интернете</p>
+      ${msg ? `<p class="idle__err" role="alert">${msg}</p>` : `<p class="idle__small">Нажми <b>Включить камеру</b> и разреши доступ. Картинка остаётся на этом устройстве.</p>`}
+      <div class="idle__btns"><button class="btn btn--yellow" type="button" data-act="camera">Включить камеру</button>
+      <label class="btn btn--ghost btn--onblue">${ICON.upload}Загрузить фото<input type="file" accept="image/*" multiple hidden class="idle-upload"></label></div></div>`;
     $('.idle-upload', idle).addEventListener('change', e => { const files = [...e.target.files]; e.target.value = ''; if (files.length) fromFiles(files); });
   }
   function renderSlots() {
@@ -106,11 +106,11 @@ export async function mount(root, params, { go }) {
   /* ---------- camera ---------- */
   async function startCamera() {
     if (!window.isSecureContext || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      renderIdle('This browser can’t open the camera here. Open the site over https in Chrome, Safari or Firefox, or upload photos.');
+      renderIdle('Этот браузер не может открыть камеру здесь. Открой сайт по https в Chrome, Safari или Firefox — или загрузи фото.');
       return;
     }
     stopCamera();
-    $('#idle', root).innerHTML = '<div><p class="idle__big">Waking up the camera…</p></div>';
+    $('#idle', root).innerHTML = '<div><p class="idle__big">Будим камеру…</p></div>';
     try {
       let stream;
       try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: B.facing, width: { ideal: 1280 }, height: { ideal: 960 } }, audio: false }); }
@@ -126,11 +126,11 @@ export async function mount(root, params, { go }) {
       loop();
     } catch (e) {
       const msg = {
-        NotAllowedError: 'Camera access is blocked. Allow it in the address bar (the camera icon), then press Start camera again. Or upload photos.',
-        SecurityError: 'Camera access is blocked on this page. Upload photos instead.',
-        NotFoundError: 'No camera found on this device. Upload photos instead.',
-        NotReadableError: 'The camera is busy in another app. Close it and try again, or upload photos.'
-      }[e.name] || 'The camera did not start. Try again or upload photos.';
+        NotAllowedError: 'Доступ к камере запрещён. Разреши его в адресной строке (значок камеры) и снова нажми «Включить камеру». Или загрузи фото.',
+        SecurityError: 'На этой странице камера заблокирована. Загрузи фото.',
+        NotFoundError: 'На этом устройстве нет камеры. Загрузи фото.',
+        NotReadableError: 'Камера занята другим приложением. Закрой его и попробуй снова — или загрузи фото.'
+      }[e.name] || 'Камера не включилась. Попробуй ещё раз или загрузи фото.';
       B.stream = null; renderIdle(msg); renderPanel();
     }
   }
@@ -197,12 +197,12 @@ export async function mount(root, params, { go }) {
     for (const f of files.slice(0, 4)) {
       try { imgs.push(await fileToImage(f)); } catch (e) { /* skip */ }
     }
-    if (!imgs.length) { toast('These files are not pictures this browser can read. Try JPEG or PNG.', true); return; }
+    if (!imgs.length) { toast('Браузер не может прочитать эти файлы как картинки. Попробуй JPEG или PNG.', true); return; }
     B.raw = [0, 1, 2, 3].map(i => grabRaw(imgs[i % imgs.length], false));
     B.times = [1, 2, 3, 4];
     B.stage = 'edit';
     renderSlots();
-    if (imgs.length < 4) toast(`Got ${imgs.length} photo${imgs.length > 1 ? 's' : ''}: repeating to fill four slots.`);
+    if (imgs.length < 4) toast(`${imgs.length} ${plural(imgs.length, ['фото', 'фото', 'фото'])}: повторю, чтобы заполнить четыре кадра.`);
     openEditor();
   }
 
@@ -239,33 +239,33 @@ export async function mount(root, params, { go }) {
     $('.booth', root).hidden = true;
     const ed = $('#editor', root);
     ed.hidden = false;
-    const stickerBtns = [...BUILTIN.map(s => ({ id: s.id, src: stickerURL(s.id), name: s.name })), ...B.custom.map(s => ({ id: '', src: s.url, name: s.name || 'Sticker' }))];
+    const stickerBtns = [...BUILTIN.map(s => ({ id: s.id, src: stickerURL(s.id), name: s.name })), ...B.custom.map(s => ({ id: '', src: s.url, name: s.name || 'Стикер' }))];
     ed.innerHTML = `<div class="editor__grid">
       <div class="editor__preview">
-        <div class="strip-stage" id="strip-stage"><canvas id="strip-canvas" aria-label="Your photo strip"></canvas><div class="overlay" id="overlay" aria-label="Stickers on the strip"></div></div>
+        <div class="strip-stage" id="strip-stage"><canvas id="strip-canvas" aria-label="Твоя фотолента"></canvas><div class="overlay" id="overlay" aria-label="Стикеры на ленте"></div></div>
       </div>
       <div class="editor__tools">
-        <h2 class="editor__title">Decorate your strip</h2>
-        <p class="editor__hint">Drag stickers and words around. Use the round handles to turn and resize. Change the filter or frame any time.</p>
-        <div class="panel__group"><h3 class="panel__title">Filter</h3>
-          <div class="filters filters--small" role="radiogroup" aria-label="Filter">${FILTERS.map(f => `<button class="fchip" type="button" role="radio" aria-checked="${B.filter === f.id}" data-efilter="${f.id}"><b>${f.num}</b>${esc(f.name)}</button>`).join('')}</div></div>
-        <div class="panel__group"><h3 class="panel__title">Frame</h3>
-          <div class="frames" role="radiogroup" aria-label="Frame">${frames().map(f => `<button class="frchip frchip--${f.id}" type="button" role="radio" aria-checked="${B.frame === f.id}" data-eframe="${f.id}"><i aria-hidden="true"></i>${esc(f.name)}</button>`).join('')}</div></div>
-        <div class="field"><label for="caption">${B.frame === 'idcard' ? 'Name on the card' : 'Caption'}</label><input id="caption" maxlength="28" placeholder="${B.frame === 'idcard' ? 'Your name' : 'Write something short'}" value="${esc(B.caption)}"></div>
-        <div class="panel__group"><h3 class="panel__title">Stickers</h3>
-          <div class="tray" role="list">${stickerBtns.map(s => `<button class="tray__s" type="button" role="listitem" data-sticker="${esc(s.id)}" data-src="${esc(s.id ? '' : s.src)}" aria-label="Add sticker: ${esc(s.name)}" title="${esc(s.name)}"><img src="${esc(s.src)}" alt="" ${/^https?:/.test(s.src) ? 'crossorigin="anonymous"' : ''}></button>`).join('')}</div></div>
-        <div class="panel__group"><h3 class="panel__title">Words</h3>
-          <div class="textadd"><input class="input" id="t-text" maxlength="24" placeholder="hello!" aria-label="Text to add">
-          <button class="btn btn--ink btn--small" type="button" data-act="addtext">${ICON.plus}Add</button></div>
-          <div class="textopts"><div class="swatches" role="radiogroup" aria-label="Text colour">${TEXT_COLORS.map((c, i) => `<button type="button" role="radio" class="sw" style="--c:${c}" data-tcolor="${c}" aria-checked="${i === 0}" aria-label="Colour ${c}"></button>`).join('')}</div>
-          <div class="seg" role="radiogroup" aria-label="Lettering"><button type="button" class="chip" role="radio" aria-checked="true" data-tfont="hand">handwritten</button><button type="button" class="chip" role="radio" aria-checked="false" data-tfont="display">BOLD</button></div></div></div>
+        <h2 class="editor__title">Укрась ленту</h2>
+        <p class="editor__hint">Двигай стикеры и надписи. Круглые ручки поворачивают и меняют размер. Фильтр и рамку можно сменить в любой момент.</p>
+        <div class="panel__group"><h3 class="panel__title">Фильтр</h3>
+          <div class="filters filters--small" role="radiogroup" aria-label="Фильтр">${FILTERS.map(f => `<button class="fchip" type="button" role="radio" aria-checked="${B.filter === f.id}" data-efilter="${f.id}"><b>${f.num}</b>${esc(f.name)}</button>`).join('')}</div></div>
+        <div class="panel__group"><h3 class="panel__title">Рамка</h3>
+          <div class="frames" role="radiogroup" aria-label="Рамка">${frames().map(f => `<button class="frchip frchip--${f.id}" type="button" role="radio" aria-checked="${B.frame === f.id}" data-eframe="${f.id}"><i aria-hidden="true"></i>${esc(f.name)}</button>`).join('')}</div></div>
+        <div class="field"><label for="caption">${B.frame === 'idcard' ? 'Имя на карточке' : 'Подпись'}</label><input id="caption" maxlength="28" placeholder="${B.frame === 'idcard' ? 'Твоё имя' : 'Что-нибудь коротко'}" value="${esc(B.caption)}"></div>
+        <div class="panel__group"><h3 class="panel__title">Стикеры</h3>
+          <div class="tray" role="list">${stickerBtns.map(s => `<button class="tray__s" type="button" role="listitem" data-sticker="${esc(s.id)}" data-src="${esc(s.id ? '' : s.src)}" aria-label="Добавить стикер: ${esc(s.name)}" title="${esc(s.name)}"><img src="${esc(s.src)}" alt="" ${/^https?:/.test(s.src) ? 'crossorigin="anonymous"' : ''}></button>`).join('')}</div></div>
+        <div class="panel__group"><h3 class="panel__title">Надписи</h3>
+          <div class="textadd"><input class="input" id="t-text" maxlength="24" placeholder="привет!" aria-label="Текст для надписи">
+          <button class="btn btn--ink btn--small" type="button" data-act="addtext">${ICON.plus}Добавить</button></div>
+          <div class="textopts"><div class="swatches" role="radiogroup" aria-label="Цвет текста">${TEXT_COLORS.map((c, i) => `<button type="button" role="radio" class="sw" style="--c:${c}" data-tcolor="${c}" aria-checked="${i === 0}" aria-label="Цвет ${c}"></button>`).join('')}</div>
+          <div class="seg" role="radiogroup" aria-label="Шрифт"><button type="button" class="chip" role="radio" aria-checked="true" data-tfont="hand">от руки</button><button type="button" class="chip" role="radio" aria-checked="false" data-tfont="display">ЖИРНО</button></div></div></div>
         <div class="editor__actions">
-          <button class="btn btn--primary btn--big" type="button" data-act="download">${ICON.download}Download PNG</button>
-          ${navigator.canShare ? `<button class="btn btn--ghost" type="button" data-act="share">${ICON.share}Share</button>` : ''}
-          <button class="btn btn--yellow" type="button" data-act="publish">${ICON.plus}Put on today’s wall</button>
-          <button class="btn btn--ghost" type="button" data-act="retake">${ICON.redo}Retake</button>
+          <button class="btn btn--primary btn--big" type="button" data-act="download">${ICON.download}Скачать PNG</button>
+          ${navigator.canShare ? `<button class="btn btn--ghost" type="button" data-act="share">${ICON.share}Поделиться</button>` : ''}
+          <button class="btn btn--yellow" type="button" data-act="publish">${ICON.plus}Повесить на стену дня</button>
+          <button class="btn btn--ghost" type="button" data-act="retake">${ICON.redo}Переснять</button>
         </div>
-        <p class="editor__note">“Put on today’s wall” uploads a small copy of this strip so other visitors can see it today and in the archive.</p>
+        <p class="editor__note">Кнопка «Повесить на стену дня» загружает уменьшенную копию ленты, чтобы её увидели другие гости — сегодня и потом в архиве.</p>
       </div></div>`;
     $('#caption', ed).addEventListener('input', e => { B.caption = e.target.value; clearTimeout(B.capT); B.capT = setTimeout(recompose, 250); });
     $('#t-text', ed).addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addText(); } });
@@ -283,10 +283,10 @@ export async function mount(root, params, { go }) {
     const ov = $('#overlay', root);
     if (!ov) return;
     sizeOverlay();
-    ov.innerHTML = B.overlay.map((o, i) => `<div class="ov ov--${o.type === 'text' ? 'text' : 'img'}${B.sel === i ? ' is-sel' : ''}" tabindex="0" data-i="${i}" role="button" aria-label="${o.type === 'text' ? 'Text: ' + esc(o.text) : 'Sticker'}. Arrows move, plus and minus resize, Delete removes."
+    ov.innerHTML = B.overlay.map((o, i) => `<div class="ov ov--${o.type === 'text' ? 'text' : 'img'}${B.sel === i ? ' is-sel' : ''}" tabindex="0" data-i="${i}" role="button" aria-label="${o.type === 'text' ? 'Надпись: ' + esc(o.text) : 'Стикер'}. Стрелки двигают, плюс и минус меняют размер, Delete удаляет."
         style="left:${o.x * 100}%;top:${o.y * 100}%;--s:${o.size};transform:translate(-50%,-50%) rotate(${o.rot}deg)">
         ${o.type === 'text' ? `<span class="ov__t ov__t--${o.font}" style="color:${esc(o.color)}">${esc(o.text)}</span>` : `<img src="${esc(o.src || stickerURL(o.id))}" alt="" draggable="false">`}
-        <button type="button" class="ovh ovh--del" data-h="del" aria-label="Remove">${ICON.close}</button>
+        <button type="button" class="ovh ovh--del" data-h="del" aria-label="Удалить">${ICON.close}</button>
         <span class="ovh ovh--rot" data-h="rot" aria-hidden="true">${ICON.rotate}</span>
         <span class="ovh ovh--size" data-h="size" aria-hidden="true">${ICON.resize}</span>
       </div>`).join('');
@@ -297,7 +297,7 @@ export async function mount(root, params, { go }) {
   }
   function addText() {
     const inp = $('#t-text', root); const text = inp.value.trim();
-    if (!text) { inp.focus(); toast('Type a word first.'); return; }
+    if (!text) { inp.focus(); toast('Сначала напиши слово.'); return; }
     B.overlay.push({ type: 'text', text, color: B.tcolor, font: B.tfont, x: .5, y: rand(.3, .7), size: .09, rot: rand(-8, 8) });
     inp.value = ''; B.sel = B.overlay.length - 1; renderOverlay(); sound.play('pop');
   }
@@ -357,31 +357,31 @@ export async function mount(root, params, { go }) {
       const { blob } = await finalStrip(1.5, 'image/png');
       if (!blob) throw new Error('png');
       download(blob, `${CONFIG.SITE_NAME}-strip-${todayKey()}.png`);
-      sound.play('win'); toast('Strip saved as PNG');
-    } catch (e) { toast('The strip could not be saved. Try again, or remove custom stickers.', true); }
+      sound.play('win'); toast('Лента сохранена в PNG');
+    } catch (e) { toast('Не получилось сохранить ленту. Попробуй ещё раз или убери свои стикеры.', true); }
     B.busy = false;
   }
   async function doShare() {
     try {
       const { blob } = await finalStrip(1.5, 'image/png');
       const file = new File([blob], `${CONFIG.SITE_NAME}-strip.png`, { type: 'image/png' });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ files: [file], title: 'My photo strip' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ files: [file], title: 'Моя фотолента' });
       else doDownload();
-    } catch (e) { if (e && e.name !== 'AbortError') toast('Sharing did not work here. Use Download PNG.', true); }
+    } catch (e) { if (e && e.name !== 'AbortError') toast('Поделиться отсюда не вышло. Нажми «Скачать PNG».', true); }
   }
   async function doPublish(btn) {
-    if (B.busy) return; B.busy = true; btn.disabled = true; const label = btn.innerHTML; btn.textContent = 'Posting…';
+    if (B.busy) return; B.busy = true; btn.disabled = true; const label = btn.innerHTML; btn.textContent = 'Вешаю…';
     try {
       const { blob, w, h: hh } = await finalStrip(.6, 'image/jpeg', .84);
       const url = await upload('wall', blob, 'jpg');
       const ww = B.frame === 'idcard' ? 420 : 230, wh = Math.round(ww * hh / w);
       await wall.add({ day: todayKey(), kind: 'strip', x: rand(300, WORLD.w - ww - 300), y: rand(120, Math.max(130, WORLD.h - wh - 80)), w: ww, h: wh, rot: rand(-7, 7), z: Math.floor(Date.now() / 1000) % 1e9, data: { src: url } });
       sound.play('win');
-      btn.textContent = 'On the wall ✓';
-      toast('Your strip is on today’s wall');
-      const a = h(`<a class="btn btn--ink" href="#/wall">See it on the wall</a>`); btn.after(a);
+      btn.textContent = 'На стене ✓';
+      toast('Твоя лента висит на стене дня');
+      const a = h(`<a class="btn btn--ink" href="#/wall">Посмотреть на стене</a>`); btn.after(a);
       B.busy = false; return;
-    } catch (e) { toast(e.message || 'Posting did not work. Try again.', true); btn.innerHTML = label; btn.disabled = false; }
+    } catch (e) { toast(e.message || 'Повесить не получилось. Попробуй ещё раз.', true); btn.innerHTML = label; btn.disabled = false; }
     B.busy = false;
   }
 
@@ -392,7 +392,7 @@ export async function mount(root, params, { go }) {
     const ef = t.closest('[data-efilter]'); if (ef) { B.filter = ef.dataset.efilter; $$('[data-efilter]', root).forEach(b => b.setAttribute('aria-checked', String(b === ef))); sound.play('click'); recompose(); renderSlots(); return; }
     const efr = t.closest('[data-eframe]'); if (efr) {
       B.frame = efr.dataset.eframe; $$('[data-eframe]', root).forEach(b => b.setAttribute('aria-checked', String(b === efr)));
-      const lab = $('label[for="caption"]', root); if (lab) lab.textContent = B.frame === 'idcard' ? 'Name on the card' : 'Caption';
+      const lab = $('label[for="caption"]', root); if (lab) lab.textContent = B.frame === 'idcard' ? 'Имя на карточке' : 'Подпись';
       sound.play('click'); recompose(); return;
     }
     const st = t.closest('[data-sticker]'); if (st) { addSticker(st.dataset.sticker, st.dataset.src || ''); return; }
@@ -418,7 +418,7 @@ export async function mount(root, params, { go }) {
   window.addEventListener('resize', onResize);
 
   renderPanel(); renderIdle(); renderSlots();
-  if (!engine.ok) toast('This browser has no WebGL, so filters are simplified.');
+  if (!engine.ok) toast('В этом браузере нет WebGL, поэтому фильтры упрощены.');
 
   return () => {
     alive = false; stopCamera();

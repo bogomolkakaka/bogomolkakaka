@@ -1,21 +1,20 @@
 import { CONFIG } from '../config.js';
-import { $, $$, esc, h, ICON, sound, lsGet, lsSet, zoned, todayKey, reducedMotion, pick } from '../util.js';
+import { $, $$, esc, h, ICON, sound, lsGet, lsSet, zoned, todayKey, reducedMotion, pick, plural, MONTHS } from '../util.js';
 import { wall } from '../store.js';
 import { drawMini } from '../wallmini.js';
 
 const PHRASES = [
-  'Ctrl+S is a love language.', 'Make the logo bigger. Just kidding.', 'Kerning is self-care.', 'final_final_v7.png',
-  'Trust the grid. Then break it.', 'There is always room for one more sticker.', 'Lorem ipsum is not a personality.',
-  'Every pixel has feelings.', 'Undo is the best thing ever invented.', 'This note has been here since 2004.',
-  'Leave the desk messier than you found it.', 'Type “kerning” anywhere. Trust me.', '↑ ↑ ↓ ↓ ← → ← → B A',
-  'Somebody’s cousin is a designer.', 'Comic Sans is someone’s favourite.', 'Today’s mood: 60% coffee, 40% gradients.'
+  'Ctrl+S — мой язык любви.', 'Сделай логотип побольше. Шучу.', 'Кернинг — это забота о себе.', 'final_final_v7.png',
+  'Верь сетке. Потом нарушай её.', 'Для ещё одного стикера место всегда найдётся.', 'Lorem ipsum — это не характер.',
+  'У каждого пикселя есть чувства.', 'Отмена — лучшее изобретение человечества.', 'Эта записка висит тут с 2004 года.',
+  'Оставь стол чуть веселее, чем он был.', 'Набери «кернинг» где угодно. Поверь.', '↑ ↑ ↓ ↓ ← → ← → B A',
+  'У кого-то кузен — дизайнер.', 'Для кого-то Comic Sans — любимый шрифт.', 'Настроение дня: 60% кофе, 40% градиентов.'
 ];
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 export async function mount(root) {
   const z = zoned();
-  const wd = new Intl.DateTimeFormat('en-GB', { weekday: 'long', timeZone: CONFIG.TIMEZONE }).format(new Date());
-  root.innerHTML = `<section class="desk" aria-label="The desk">
+  const wd = new Intl.DateTimeFormat('ru-RU', { weekday: 'long', timeZone: CONFIG.TIMEZONE }).format(new Date());
+  root.innerHTML = `<section class="desk" aria-label="Рабочий стол">
     <div class="mat" aria-hidden="true">
       <div class="mat__ruler">${Array.from({ length: 10 }, (_, i) => `<span>${i * 10}</span>`).join('')}</div>
       <div class="mat__ruler mat__ruler--side">${Array.from({ length: 6 }, (_, i) => `<span>${i * 10}</span>`).join('')}</div>
@@ -23,24 +22,25 @@ export async function mount(root) {
     </div>
     <div class="desk-hero">
       <h1 class="desk-title">${esc(CONFIG.SITE_NAME)}</h1>
-      <p class="desk-sub">a tiny studio on the internet.<br>touch things, make things.</p>
+      <p class="desk-sub">маленькая студия в интернете.<br>трогай вещи, оставляй след.</p>
     </div>
-    <a class="thing thing--booth" href="#/booth" data-thing="booth"><img src="assets/desk/camera.png" alt="Photo Booth: a blue camera" width="441" height="391"><span class="thing__label">Photo Booth</span></a>
+    <a class="thing thing--booth" href="#/booth" data-thing="booth"><img src="assets/desk/camera.png" alt="Фотобудка: синий фотоаппарат" width="441" height="391"><span class="thing__label">Фотобудка</span></a>
     <a class="thing thing--wall" href="#/wall" data-thing="wall"><div class="deskboard"><span class="tape" aria-hidden="true"></span><canvas width="640" height="400" aria-hidden="true"></canvas>
-      <div class="board__cap"><b>Today’s Wall</b><span id="desk-count">…</span></div></div><span class="thing__label">Make something together</span></a>
-    <a class="thing thing--capsule" href="#/capsule" data-thing="capsule"><div class="cal"><div class="cal__top">${MONTHS[z.m - 1].toUpperCase()}</div><div class="cal__day">${z.d}</div><div class="cal__wd">${esc(wd)}</div></div><span class="thing__label">Time Capsule</span></a>
-    <a class="thing thing--run" href="#/run" data-thing="run"><span class="console"><img src="assets/desk/console.png" alt="Designer Run: a yellow game console" width="489" height="523"><canvas class="console-screen" width="96" height="76" aria-hidden="true"></canvas></span><span class="thing__label">Designer Run</span></a>
-    <a class="thing thing--objects" href="#/objects" data-thing="objects"><img src="assets/desk/toys.png" alt="Little Objects: three small figures" width="639" height="351"><span class="thing__label">Little Objects</span></a>
+      <div class="board__cap"><b>Стена дня</b><span id="desk-count">…</span></div></div><span class="thing__label">Сделаем что-то вместе</span></a>
+    <a class="thing thing--capsule" href="#/capsule" data-thing="capsule"><div class="cal"><div class="cal__top">${MONTHS[z.m - 1].toUpperCase()}</div><div class="cal__day">${z.d}</div><div class="cal__wd">${esc(wd)}</div></div><span class="thing__label">Капсула времени</span></a>
+    <a class="thing thing--run" href="#/run" data-thing="run"><span class="console"><img src="assets/desk/console.png" alt="Забег дизайнера: жёлтая игровая консоль" width="489" height="523"><canvas class="console-screen" width="96" height="76" aria-hidden="true"></canvas></span><span class="thing__label">Забег дизайнера</span></a>
+    <a class="thing thing--objects" href="#/objects" data-thing="objects"><img src="assets/desk/toys.png" alt="Маленькие объекты: три фигурки" width="639" height="351"><span class="thing__label">Маленькие объекты</span></a>
+    <a class="thing thing--films" href="#/films" data-thing="films"><span class="dvhs-stack" aria-hidden="true"><span class="dvhs dvhs--1"><b>СЕРИАЛЫ</b></span><span class="dvhs dvhs--2"><b>ЛЮБИМОЕ</b></span><span class="dvhs dvhs--3"><b>КИНО</b></span></span><span class="thing__label">Видеопрокат</span></a>
     <a class="thing thing--stuff" href="#/stuff" data-thing="stuff"><div class="folders" aria-hidden="true">
-      <div class="folder folder--1" data-tab="random"></div><div class="folder folder--2" data-tab="3D"></div><div class="folder__paper"></div>
-      <div class="folder folder--3" data-tab="posters"><span class="folder__label">My Stuff</span></div></div><span class="thing__label">My Stuff</span></a>
-    <button class="note-phrase" type="button" id="phrase" aria-live="polite"><span>${esc(pick(PHRASES))}</span><small>tap for another one</small></button>
+      <div class="folder folder--1" data-tab="разное"></div><div class="folder folder--2" data-tab="3D"></div><div class="folder__paper"></div>
+      <div class="folder folder--3" data-tab="постеры"><span class="folder__label">Мои работы</span></div></div><span class="thing__label">Мои работы</span></a>
+    <button class="note-phrase" type="button" id="phrase" aria-live="polite"><span>${esc(pick(PHRASES))}</span><small>нажми, чтобы сменить</small></button>
     <span class="decor pencil" aria-hidden="true"></span>
     <span class="decor ring" aria-hidden="true"></span>
     <span class="decor eraser" aria-hidden="true"></span>
     <span class="decor clip" aria-hidden="true"></span>
-    <p class="hint-move">psst: you can move things around the desk</p>
-    <button class="btn btn--ghost btn--small desk-reset" type="button" id="desk-reset" hidden>Tidy the desk</button>
+    <p class="hint-move">пссс: вещи на столе можно двигать</p>
+    <button class="btn btn--ghost btn--small desk-reset" type="button" id="desk-reset" hidden>Прибрать стол</button>
   </section>`;
 
   const desk = $('.desk', root);
@@ -128,14 +128,14 @@ export async function mount(root) {
       const items = await wall.list(todayKey());
       if (!alive) return;
       drawMini(cv, items, { bg: '#fafbfd', redraw: true, fit: 'content' });
-      $('#desk-count').textContent = items.length ? `${items.length} thing${items.length === 1 ? '' : 's'} today` : 'empty, be first';
-    } catch (e) { $('#desk-count').textContent = 'open it'; }
+      $('#desk-count').textContent = items.length ? `${items.length} ${plural(items.length, ['штука', 'штуки', 'штук'])} сегодня` : 'пока пусто';
+    } catch (e) { $('#desk-count').textContent = 'открыть'; }
   })();
 
   // tiny game on the console screen
   const sc = $('.console-screen', root), g = sc.getContext('2d');
   let frame = 0, raf = 0, last = 0;
-  const words = ['MORE POP', 'URGENT', 'BIGGER', 'v7'];
+  const words = ['ЯРЧЕ', 'СРОЧНО', 'КРУПНЕЕ', 'v7'];
   const drawScreen = t => {
     raf = requestAnimationFrame(drawScreen);
     if (t - last < 90) return; last = t; frame++;

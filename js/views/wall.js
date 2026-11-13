@@ -1,10 +1,11 @@
 import { CONFIG } from '../config.js';
-import { $, $$, esc, h, ICON, sound, toast, clamp, rand, todayKey, fmtDay, msToNextDay, addDays, openModal, confirmBox, resizeToBlob, lsGet, lsSet } from '../util.js';
+import { $, $$, esc, h, ICON, sound, toast, clamp, rand, todayKey, fmtDay, msToNextDay, addDays, openModal, confirmBox, resizeToBlob, lsGet, lsSet, plural } from '../util.js';
 import { wall, upload, prompts, stickers as stickerStore, state } from '../store.js';
 import { BUILTIN, stickerURL, medalSVG, svgURL } from '../stickers.js';
 import { WORLD, NOTE_COLORS } from '../wallmini.js';
 
-const BRUSHES = { pen: { s: 6, a: 1, name: 'Pen' }, marker: { s: 16, a: 1, name: 'Marker' }, glow: { s: 30, a: .4, name: 'Highlighter' } };
+const BRUSHES = { pen: { s: 6, a: 1, name: 'Ручка' }, marker: { s: 16, a: 1, name: 'Маркер' }, glow: { s: 30, a: .4, name: 'Выделитель' } };
+const COLOR_NAMES = { yellow: 'жёлтая', pink: 'розовая', blue: 'голубая', white: 'белая', red: 'красная', cobalt: 'синяя' };
 const INKS = ['#000000', '#244EE7', '#E8291F', '#FFD84A', '#FF7AB6', '#7FB2FF', '#ffffff'];
 
 export async function mount(root) { return mountBoard(root, { day: todayKey(), live: true }); }
@@ -19,30 +20,30 @@ export async function mountBoard(root, { day, live, back }) {
   root.innerHTML = `<div class="wallpage${readonly() ? ' is-archive' : ''}">
     <header class="wallhead">
       <div class="wallhead__l">
-        ${back ? `<a class="back" href="${back.href}">${ICON.back}${esc(back.label)}</a>` : `<a class="back" href="#/">${ICON.back}Back to the desk</a>`}
-        <h1 class="page-title wall-title">${readonly() ? esc(fmtDay(day, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })) : 'Today’s Wall'}</h1>
-        <p class="page-sub">${readonly() ? 'an archived wall · look only' : 'Today we are making something together.'}</p>
+        ${back ? `<a class="back" href="${back.href}">${ICON.back}${esc(back.label)}</a>` : `<a class="back" href="#/">${ICON.back}На рабочий стол</a>`}
+        <h1 class="page-title wall-title">${readonly() ? esc(fmtDay(day, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })) : 'Стена дня'}</h1>
+        <p class="page-sub">${readonly() ? 'стена из архива · только смотреть' : 'Сегодня мы делаем что-то вместе.'}</p>
       </div>
       <div class="wallhead__r">
         <p class="wallhead__stats" id="stats" aria-live="polite"></p>
         ${live ? `<p class="wallhead__clock" id="closes"></p>` : ''}
-        ${state.mode === 'local' && live ? `<p class="wallhead__local">Demo mode: the wall is saved in this browser only until the studio connects its database.</p>` : ''}
+        ${state.mode === 'local' && live ? `<p class="wallhead__local">Демо-режим: стена хранится только в этом браузере, пока студия не подключит базу данных.</p>` : ''}
       </div>
     </header>
     <div class="board-wrap">
-      <div class="viewport" id="viewport" tabindex="-1" aria-label="${readonly() ? 'Archived wall' : 'Shared wall. Drag empty space to move around, pinch or use the zoom buttons to zoom.'}">
+      <div class="viewport" id="viewport" tabindex="-1" aria-label="${readonly() ? 'Стена из архива' : 'Общая стена. Тяни пустое место, чтобы двигаться; щипок или кнопки — масштаб.'}">
         <div class="world" id="world" style="width:${WORLD.w}px;height:${WORLD.h}px">
-          <div class="prompt-card" id="prompt" aria-live="polite"><span>Today’s question</span><b>…</b></div>
+          <div class="prompt-card" id="prompt" aria-live="polite"><span>Вопрос дня</span><b>…</b></div>
           <svg class="draft" id="draft" viewBox="0 0 ${WORLD.w} ${WORLD.h}" width="${WORLD.w}" height="${WORLD.h}" aria-hidden="true"></svg>
         </div>
         <div class="empty-hint" id="empty" hidden></div>
       </div>
-      <div class="zoombar" role="group" aria-label="Zoom">
-        <button class="iconbtn" type="button" data-act="zin" aria-label="Zoom in">${ICON.zoomIn}</button>
-        <button class="iconbtn" type="button" data-act="zout" aria-label="Zoom out">${ICON.zoomOut}</button>
-        <button class="iconbtn" type="button" data-act="zfit" aria-label="See the whole wall">${ICON.target}</button>
+      <div class="zoombar" role="group" aria-label="Масштаб">
+        <button class="iconbtn" type="button" data-act="zin" aria-label="Приблизить">${ICON.zoomIn}</button>
+        <button class="iconbtn" type="button" data-act="zout" aria-label="Отдалить">${ICON.zoomOut}</button>
+        <button class="iconbtn" type="button" data-act="zfit" aria-label="Показать всю стену">${ICON.target}</button>
       </div>
-      ${live ? `<div class="dock" id="dock" role="toolbar" aria-label="Add to the wall"></div>` : ''}
+      ${live ? `<div class="dock" id="dock" role="toolbar" aria-label="Добавить на стену"></div>` : ''}
       <div class="drawbar" id="drawbar" hidden></div>
     </div>
   </div>`;
@@ -95,12 +96,12 @@ export async function mountBoard(root, { day, live, back }) {
         const t = String(d.text || ''); const fs = t.length < 30 ? 40 : t.length < 70 ? 32 : t.length < 140 ? 26 : 21;
         return `<span class="tape" aria-hidden="true"></span><p class="wi__text" style="font-size:${fs}px">${esc(t)}</p>`;
       }
-      case 'whisper': return `<span class="wi__psst" aria-hidden="true">psst</span><p class="wi__text">${esc(d.text || '')}</p>`;
-      case 'sticker': return `<img src="${esc(d.src || stickerURL(d.sticker))}" alt="${esc(d.name || 'sticker')}" draggable="false">`;
-      case 'image': return `<img src="${esc(d.src)}" alt="A picture someone pinned" draggable="false" loading="lazy">`;
-      case 'strip': return `<img src="${esc(d.src)}" alt="A photo strip from the booth" draggable="false" loading="lazy">`;
-      case 'medal': return `<img src="${esc(svgURL(medalSVG(d)))}" alt="Designer Run medal: ${esc(d.title || '')}" draggable="false">`;
-      case 'drawing': return `<svg viewBox="0 0 ${it.w} ${it.h}" preserveAspectRatio="none" aria-label="A drawing">${(d.paths || []).map(p => {
+      case 'whisper': return `<span class="wi__psst" aria-hidden="true">пссс</span><p class="wi__text">${esc(d.text || '')}</p>`;
+      case 'sticker': return `<img src="${esc(d.src || stickerURL(d.sticker))}" alt="${esc(d.name || 'стикер')}" draggable="false">`;
+      case 'image': return `<img src="${esc(d.src)}" alt="Картинка, которую кто-то приколол" draggable="false" loading="lazy">`;
+      case 'strip': return `<img src="${esc(d.src)}" alt="Фотолента из фотобудки" draggable="false" loading="lazy">`;
+      case 'medal': return `<img src="${esc(svgURL(medalSVG(d)))}" alt="Медаль «Забега дизайнера»: ${esc(d.title || '')}" draggable="false">`;
+      case 'drawing': return `<svg viewBox="0 0 ${it.w} ${it.h}" preserveAspectRatio="none" aria-label="Рисунок">${(d.paths || []).map(p => {
         const pts = p.p || []; let dd = '';
         for (let i = 0; i < pts.length; i += 2) dd += (i ? 'L' : 'M') + (pts[i] * it.w).toFixed(1) + ' ' + (pts[i + 1] * it.h).toFixed(1);
         if (pts.length === 2) dd += 'l.1 0';
@@ -109,7 +110,7 @@ export async function mountBoard(root, { day, live, back }) {
     }
     return '';
   }
-  const LABEL = { note: 'Note', whisper: 'Anonymous message', sticker: 'Sticker', image: 'Picture', strip: 'Photo strip', drawing: 'Drawing', medal: 'Medal' };
+  const LABEL = { note: 'Записка', whisper: 'Анонимное сообщение', sticker: 'Стикер', image: 'Картинка', strip: 'Фотолента', drawing: 'Рисунок', medal: 'Медаль' };
   function itemEl(it) {
     const el = document.createElement('div');
     el.className = `wi wi--${it.kind}`;
@@ -125,9 +126,9 @@ export async function mountBoard(root, { day, live, back }) {
     el.style.transform = `rotate(${it.rot}deg)`; el.style.zIndex = 10 + Math.max(0, Math.min(it.z | 0, 2e9));
     if (it.kind === 'note' || it.kind === 'whisper') el.style.setProperty('--paper', NOTE_COLORS[it.data.color] || (it.kind === 'whisper' ? '#fff' : NOTE_COLORS.yellow));
     if (it.kind === 'note') el.classList.toggle('is-dark', it.data.color === 'cobalt');
-    el.setAttribute('aria-label', `${LABEL[it.kind] || 'Item'}${it.data && it.data.text ? ': ' + it.data.text : ''}${mine ? '. Yours: arrows move it, Delete removes it.' : ''}`);
-    el.innerHTML = contentHTML(it) + (mine ? `<div class="wi__h" aria-hidden="true"><button type="button" class="hd hd--del" data-h="del" tabindex="-1" title="Remove">${ICON.close}</button><span class="hd hd--rot" data-h="rot" title="Turn">${ICON.rotate}</span><span class="hd hd--size" data-h="size" title="Resize">${ICON.resize}</span></div>`
-      : (live ? `<button type="button" class="wi__flag" data-act="report" title="Report" aria-label="Report this ${LABEL[it.kind] || 'item'}">${ICON.flag}</button>` : ''));
+    el.setAttribute('aria-label', `${LABEL[it.kind] || 'Объект'}${it.data && it.data.text ? ': ' + it.data.text : ''}${mine ? '. Твоё: стрелки двигают, Delete удаляет.' : ''}`);
+    el.innerHTML = contentHTML(it) + (mine ? `<div class="wi__h" aria-hidden="true"><button type="button" class="hd hd--del" data-h="del" tabindex="-1" title="Удалить">${ICON.close}</button><span class="hd hd--rot" data-h="rot" title="Повернуть">${ICON.rotate}</span><span class="hd hd--size" data-h="size" title="Размер">${ICON.resize}</span></div>`
+      : (live ? `<button type="button" class="wi__flag" data-act="report" title="Пожаловаться" aria-label="Пожаловаться: ${(LABEL[it.kind] || 'объект').toLowerCase()}">${ICON.flag}</button>` : ''));
   }
   function upsert(it) {
     if (S.hidden.has(it.id)) return;
@@ -144,10 +145,10 @@ export async function mountBoard(root, { day, live, back }) {
   }
   function stats() {
     const n = S.items.size, people = new Set([...S.items.values()].map(i => i.owner)).size;
-    $('#stats', root).textContent = n ? `${n} thing${n === 1 ? '' : 's'} from ${people} ${people === 1 ? 'person' : 'people'}` : (S.live ? 'Nothing here yet. You could be first.' : 'Nobody left anything this day.');
+    $('#stats', root).textContent = n ? `${n} ${plural(n, ['штука', 'штуки', 'штук'])} от ${people} ${plural(people, ['человека', 'человек', 'человек'])}` : (S.live ? 'Пока пусто. Ты можешь быть первым.' : 'В этот день никто ничего не оставил.');
     const empty = $('#empty', root);
     empty.hidden = !!n || !S.live;
-    if (!n && S.live) empty.innerHTML = `<p>The wall is empty.<br>Leave the first note?</p>`;
+    if (!n && S.live) empty.innerHTML = `<p>Стена пустая.<br>Оставишь первую записку?</p>`;
   }
   async function load() {
     try {
@@ -157,13 +158,13 @@ export async function mountBoard(root, { day, live, back }) {
       [...S.items.keys()].forEach(id => { if (!ids.has(id) && !(drag && drag.id === id)) removeLocal(id); });
       list.forEach(it => { if (!(drag && drag.id === it.id)) upsert(it); });
       stats();
-    } catch (e) { toast(e.message || 'The wall did not load. Check the connection.', true); }
+    } catch (e) { toast(e.message || 'Стена не загрузилась. Проверь соединение.', true); }
   }
 
   /* ---------- prompt ---------- */
   const promptReady = (async () => {
     try { const list = await prompts.list(); $('#prompt b', root).textContent = prompts.pick(S.day, list); }
-    catch (e) { $('#prompt b', root).textContent = 'Leave something for a stranger.'; }
+    catch (e) { $('#prompt b', root).textContent = 'Оставь что-нибудь незнакомцу.'; }
   })();
 
   /* ---------- adding ---------- */
@@ -178,40 +179,40 @@ export async function mountBoard(root, { day, live, back }) {
       upsert(it); stats(); sound.play('pop');
       const el = $(`.wi[data-id="${CSS.escape(it.id)}"]`, world); if (el) el.focus({ preventScroll: true });
       return it;
-    } catch (e) { toast(e.message || 'That did not stick. Try again.', true); return null; }
+    } catch (e) { toast(e.message || 'Не приклеилось. Попробуй ещё раз.', true); return null; }
   }
   function renderDock() {
     const dock = $('#dock', root); if (!dock) return;
     const medal = lsGet('bg.medal', null);
     dock.innerHTML = `
-      <button class="tool" type="button" data-act="note"><span class="tool__ic tool__ic--note"></span>Note</button>
-      <button class="tool" type="button" data-act="whisper"><span class="tool__ic tool__ic--whisper"></span>Whisper</button>
-      <button class="tool" type="button" data-act="draw"><span class="tool__ic tool__ic--draw"></span>Draw</button>
-      <button class="tool" type="button" data-act="sticker"><span class="tool__ic tool__ic--sticker"></span>Sticker</button>
-      <label class="tool"><span class="tool__ic tool__ic--image"></span>Picture<input type="file" accept="image/*" id="pic" hidden></label>
-      <a class="tool" href="#/booth"><span class="tool__ic tool__ic--strip"></span>Photo strip</a>
-      ${medal && !medal.used ? `<button class="tool tool--medal" type="button" data-act="medal"><span class="tool__ic tool__ic--medal"></span>My medal</button>` : ''}`;
+      <button class="tool" type="button" data-act="note"><span class="tool__ic tool__ic--note"></span>Записка</button>
+      <button class="tool" type="button" data-act="whisper"><span class="tool__ic tool__ic--whisper"></span>Шёпот</button>
+      <button class="tool" type="button" data-act="draw"><span class="tool__ic tool__ic--draw"></span>Рисунок</button>
+      <button class="tool" type="button" data-act="sticker"><span class="tool__ic tool__ic--sticker"></span>Стикер</button>
+      <label class="tool"><span class="tool__ic tool__ic--image"></span>Картинка<input type="file" accept="image/*" id="pic" hidden></label>
+      <a class="tool" href="#/booth"><span class="tool__ic tool__ic--strip"></span>Лента</a>
+      ${medal && !medal.used ? `<button class="tool tool--medal" type="button" data-act="medal"><span class="tool__ic tool__ic--medal"></span>Моя медаль</button>` : ''}`;
     $('#pic', root).addEventListener('change', async e => {
       const f = e.target.files[0]; e.target.value = '';
       if (!f) return;
-      if (f.size > 25 * 1024 * 1024) { toast('That file is huge. Pick a picture under 25 MB.', true); return; }
+      if (f.size > 25 * 1024 * 1024) { toast('Файл слишком большой. Выбери картинку меньше 25 МБ.', true); return; }
       try {
-        toast('Pinning your picture…');
+        toast('Прикалываю картинку…');
         const { blob, width, height } = await resizeToBlob(f, state.mode === 'cloud' ? 1000 : 520, 'image/jpeg', .82);
         const url = await upload('wall', blob, 'jpg');
         const w = 300, hh = Math.round(300 * height / width);
         await add('image', { src: url }, w, clamp(hh, 60, 900));
-      } catch (er) { toast(er.message && er.code ? er.message : 'This picture could not be read. Try a JPEG or PNG.', true); }
+      } catch (er) { toast(er.message && er.code ? er.message : 'Не получилось прочитать картинку. Попробуй JPEG или PNG.', true); }
     });
   }
   function noteDialog(kind) {
     const isNote = kind === 'note';
     let color = isNote ? 'yellow' : 'white';
-    const m = openModal(`<h2>${isNote ? 'Write a note' : 'Leave a whisper'}</h2>
-      <p>${isNote ? 'It goes on the wall for everyone to see today and stays in the Time Capsule.' : 'A tiny anonymous message for whoever comes next.'}</p>
-      <div class="field"><label for="nt">${isNote ? 'Your note' : 'Your message'}</label><textarea id="nt" maxlength="${isNote ? 200 : 90}" rows="${isNote ? 4 : 2}" placeholder="${isNote ? esc($('#prompt b', root).textContent) : 'psst…'}"></textarea><small id="nt-c">0 / ${isNote ? 200 : 90}</small></div>
-      ${isNote ? `<div class="field"><span class="label">Paper</span><div class="paper-pick" role="radiogroup" aria-label="Paper colour">${Object.entries(NOTE_COLORS).map(([k, v]) => `<button type="button" role="radio" class="pp" style="--c:${v}" data-c="${k}" aria-checked="${k === color}" aria-label="${k}"></button>`).join('')}</div></div>` : ''}
-      <div class="modal__actions"><button class="btn btn--ghost" type="button" data-close>Cancel</button><button class="btn btn--primary" type="button" id="nt-go">${isNote ? 'Pin it' : 'Leave it'}</button></div>`, { label: isNote ? 'Write a note' : 'Leave a whisper' });
+    const m = openModal(`<h2>${isNote ? 'Написать записку' : 'Оставить шёпот'}</h2>
+      <p>${isNote ? 'Она повиснет на стене для всех сегодня и останется в Капсуле времени.' : 'Маленькое анонимное послание для того, кто придёт следующим.'}</p>
+      <div class="field"><label for="nt">${isNote ? 'Твоя записка' : 'Твоё послание'}</label><textarea id="nt" maxlength="${isNote ? 200 : 90}" rows="${isNote ? 4 : 2}" placeholder="${isNote ? esc($('#prompt b', root).textContent) : 'пссс…'}"></textarea><small id="nt-c">0 / ${isNote ? 200 : 90}</small></div>
+      ${isNote ? `<div class="field"><span class="label">Бумага</span><div class="paper-pick" role="radiogroup" aria-label="Цвет бумаги">${Object.entries(NOTE_COLORS).map(([k, v]) => `<button type="button" role="radio" class="pp" style="--c:${v}" data-c="${k}" aria-checked="${k === color}" aria-label="${COLOR_NAMES[k] || k}"></button>`).join('')}</div></div>` : ''}
+      <div class="modal__actions"><button class="btn btn--ghost" type="button" data-close>Отмена</button><button class="btn btn--primary" type="button" id="nt-go">${isNote ? 'Приколоть' : 'Оставить'}</button></div>`, { label: isNote ? 'Написать записку' : 'Оставить шёпот' });
     const ta = $('#nt', m.el);
     ta.addEventListener('input', () => { $('#nt-c', m.el).textContent = `${ta.value.length} / ${ta.maxLength}`; });
     $$('.pp', m.el).forEach(b => b.addEventListener('click', () => { color = b.dataset.c; $$('.pp', m.el).forEach(x => x.setAttribute('aria-checked', String(x === b))); }));
@@ -224,8 +225,8 @@ export async function mountBoard(root, { day, live, back }) {
     });
   }
   function stickerDialog() {
-    const list = [...BUILTIN.map(b => ({ sticker: b.id, name: b.name, src: stickerURL(b.id) })), ...S.custom.map(c => ({ src: c.url, name: c.name || 'sticker', custom: true }))];
-    const m = openModal(`<h2>Pick a sticker</h2><div class="tray tray--big">${list.map((s, i) => `<button class="tray__s" type="button" data-i="${i}" aria-label="${esc(s.name)}"><img src="${esc(s.src)}" alt=""></button>`).join('')}</div>`, { label: 'Pick a sticker', wide: true });
+    const list = [...BUILTIN.map(b => ({ sticker: b.id, name: b.name, src: stickerURL(b.id) })), ...S.custom.map(c => ({ src: c.url, name: c.name || 'стикер', custom: true }))];
+    const m = openModal(`<h2>Выбери стикер</h2><div class="tray tray--big">${list.map((s, i) => `<button class="tray__s" type="button" data-i="${i}" aria-label="${esc(s.name)}"><img src="${esc(s.src)}" alt=""></button>`).join('')}</div>`, { label: 'Выбери стикер', wide: true });
     $$('.tray__s', m.el).forEach(b => b.addEventListener('click', () => {
       const s = list[+b.dataset.i]; m.close();
       const size = rand(150, 210);
@@ -233,11 +234,11 @@ export async function mountBoard(root, { day, live, back }) {
     }));
   }
   function reportDialog(it) {
-    const m = openModal(`<h2>Report this?</h2><p>Reported things hide after a few reports, and the studio checks them.</p>
-      <div class="field"><label for="rr">What’s wrong</label><select id="rr"><option>Spam or advertising</option><option>Rude or hurtful</option><option>Personal information</option><option>Something else</option></select></div>
-      <div class="modal__actions"><button class="btn btn--ghost" type="button" data-close>Cancel</button><button class="btn btn--danger" type="button" id="rr-go">Report</button></div>`, { label: 'Report' });
+    const m = openModal(`<h2>Пожаловаться?</h2><p>После нескольких жалоб вещь скрывается, а студия её проверяет.</p>
+      <div class="field"><label for="rr">Что не так</label><select id="rr"><option>Спам или реклама</option><option>Грубо или обидно</option><option>Личные данные</option><option>Другое</option></select></div>
+      <div class="modal__actions"><button class="btn btn--ghost" type="button" data-close>Отмена</button><button class="btn btn--danger" type="button" id="rr-go">Пожаловаться</button></div>`, { label: 'Жалоба' });
     $('#rr-go', m.el).addEventListener('click', async () => {
-      try { await wall.report(it.id, $('#rr', m.el).value); S.hidden.add(it.id); removeLocal(it.id); stats(); m.close(); toast('Thanks. It is hidden for you, and the studio will take a look.'); }
+      try { await wall.report(it.id, $('#rr', m.el).value); S.hidden.add(it.id); removeLocal(it.id); stats(); m.close(); toast('Спасибо. Мы скрыли это для тебя, студия посмотрит.'); }
       catch (e) { toast(e.message, true); }
     });
   }
@@ -248,15 +249,15 @@ export async function mountBoard(root, { day, live, back }) {
     bar.hidden = S.mode !== 'draw';
     if (S.mode !== 'draw') return;
     bar.innerHTML = `<div class="drawbar__in">
-      <div class="seg" role="radiogroup" aria-label="Brush">${Object.entries(BRUSHES).map(([k, b]) => `<button type="button" class="chip" role="radio" aria-checked="${S.brush === k}" data-brush="${k}">${b.name}</button>`).join('')}</div>
-      <div class="swatches" role="radiogroup" aria-label="Ink">${INKS.map(c => `<button type="button" class="sw" role="radio" style="--c:${c}" data-ink="${c}" aria-checked="${S.ink === c}" aria-label="Ink ${c}"></button>`).join('')}</div>
-      <div class="drawbar__btns"><button class="btn btn--ghost btn--small" type="button" data-act="draw-undo">Undo</button><button class="btn btn--ghost btn--small" type="button" data-act="draw-cancel">Cancel</button><button class="btn btn--primary btn--small" type="button" data-act="draw-done">Pin drawing</button></div>
+      <div class="seg" role="radiogroup" aria-label="Кисть">${Object.entries(BRUSHES).map(([k, b]) => `<button type="button" class="chip" role="radio" aria-checked="${S.brush === k}" data-brush="${k}">${b.name}</button>`).join('')}</div>
+      <div class="swatches" role="radiogroup" aria-label="Цвет">${INKS.map(c => `<button type="button" class="sw" role="radio" style="--c:${c}" data-ink="${c}" aria-checked="${S.ink === c}" aria-label="Цвет ${c}"></button>`).join('')}</div>
+      <div class="drawbar__btns"><button class="btn btn--ghost btn--small" type="button" data-act="draw-undo">Отменить</button><button class="btn btn--ghost btn--small" type="button" data-act="draw-cancel">Выйти</button><button class="btn btn--primary btn--small" type="button" data-act="draw-done">Приколоть рисунок</button></div>
     </div>`;
   }
   function drawDraft() {
     $('#draft', root).innerHTML = S.drawPaths.map(p => `<path d="${p.pts.map((v, i) => (i % 2 ? '' : (i ? 'L' : 'M')) + v.toFixed(1) + (i % 2 ? '' : ' ')).join('')}" stroke="${p.c}" stroke-width="${p.s}" stroke-opacity="${p.a}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`).join('');
   }
-  function enterDraw() { S.mode = 'draw'; S.drawPaths = []; vp.classList.add('is-drawing'); renderDrawbar(); drawDraft(); toast('Draw anywhere on the wall, then press Pin drawing.'); }
+  function enterDraw() { S.mode = 'draw'; S.drawPaths = []; vp.classList.add('is-drawing'); renderDrawbar(); drawDraft(); toast('Рисуй где угодно на стене, потом нажми «Приколоть рисунок».'); }
   function exitDraw() { S.mode = 'idle'; S.drawPaths = []; vp.classList.remove('is-drawing'); drawDraft(); renderDrawbar(); }
   async function finishDraw() {
     const paths = S.drawPaths.filter(p => p.pts.length >= 2);
@@ -276,7 +277,7 @@ export async function mountBoard(root, { day, live, back }) {
     try {
       const it = await wall.add({ day: S.day, kind: 'drawing', x: Math.round(clamp(x0, -150, WORLD.w)), y: Math.round(clamp(y0, -150, WORLD.h)), w: Math.round(w), h: Math.round(hh), rot: 0, z: S.maxZ + 1, data });
       upsert(it); stats(); sound.play('pop');
-    } catch (e) { toast(e.message || 'The drawing did not stick. Try again.', true); }
+    } catch (e) { toast(e.message || 'Рисунок не приклеился. Попробуй ещё раз.', true); }
   }
 
   /* ---------- pointer: pan, pinch, move, rotate, resize, draw ---------- */
@@ -379,7 +380,7 @@ export async function mountBoard(root, { day, live, back }) {
   }, { passive: false });
 
   async function removeItem(it) {
-    const ok = await confirmBox('Remove this from the wall?', 'It disappears for everyone.', 'Remove', 'Keep it');
+    const ok = await confirmBox('Убрать это со стены?', 'Оно исчезнет у всех.', 'Убрать', 'Оставить');
     if (!ok) return;
     try { await wall.remove(it.id, S.day); removeLocal(it.id); stats(); sound.play('paper'); }
     catch (e) { toast(e.message, true); }
@@ -441,7 +442,7 @@ export async function mountBoard(root, { day, live, back }) {
     if (state.mode === 'cloud') refresh = setInterval(load, 90000);
     const tickClock = () => {
       const ms = msToNextDay(); const hh = Math.floor(ms / 3.6e6), mm = Math.floor(ms % 3.6e6 / 6e4);
-      const c = $('#closes', root); if (c) c.textContent = `This wall goes to the Time Capsule in ${hh} h ${mm} min`;
+      const c = $('#closes', root); if (c) c.textContent = `Стена уйдёт в Капсулу времени через ${hh} ч ${mm} мин`;
     };
     tickClock(); clockTimer = setInterval(tickClock, 30000);
     dayTimer = setTimeout(() => {
@@ -449,7 +450,7 @@ export async function mountBoard(root, { day, live, back }) {
       S.live = false; exitDraw();
       const dock = $('#dock', root); if (dock) dock.remove();
       $$('.wi', world).forEach(el => { const it = S.items.get(el.dataset.id); if (it) paint(it, el); });
-      const banner = h(`<div class="dayover" role="status"><p><b>Midnight in the studio.</b> This wall is now in the Time Capsule and a fresh one has started.</p><a class="btn btn--yellow" href="#/wall" id="fresh">Open the new wall</a></div>`);
+      const banner = h(`<div class="dayover" role="status"><p><b>В студии полночь.</b> Эта стена ушла в Капсулу времени, началась новая.</p><a class="btn btn--yellow" href="#/wall" id="fresh">Открыть новую стену</a></div>`);
       $('.board-wrap', root).appendChild(banner);
       $('#fresh', banner).addEventListener('click', e => { e.preventDefault(); location.hash = '#/'; setTimeout(() => { location.hash = '#/wall'; }, 30); });
     }, msToNextDay() + 1500);

@@ -1,4 +1,4 @@
-import { $, $$, esc, h, ICON, sound, toast, clamp, rand, todayKey, lsGet, lsSet, reducedMotion } from '../util.js';
+import { $, $$, esc, h, ICON, sound, toast, clamp, rand, todayKey, lsGet, lsSet, reducedMotion, plural } from '../util.js';
 import { LEVELS, T, ROWS, GROUND, SKILLS } from '../game/levels.js';
 import { wall } from '../store.js';
 import { WORLD } from '../wallmini.js';
@@ -8,22 +8,22 @@ const C = { cobalt: '#244EE7', cobaltTop: '#5577F2', yellow: '#FFD84A', red: '#E
 
 export async function mount(root) {
   root.innerHTML = `<div class="page run-page">
-    <div class="page-head"><div><a class="back" href="#/">${ICON.back}Back to the desk</a>
-      <h1 class="page-title">Designer Run</h1><p class="page-sub">collect coins and skills, dodge client edits, ship the project</p></div>
+    <div class="page-head"><div><a class="back" href="#/">${ICON.back}На рабочий стол</a>
+      <h1 class="page-title">Забег дизайнера</h1><p class="page-sub">собирай монеты и навыки, уворачивайся от правок, сдай проект</p></div>
       <p class="run-best" id="best"></p></div>
     <div class="cabinet">
-      <div class="gamebox" id="gamebox" tabindex="0" aria-label="Designer Run game. Arrow keys or A and D to walk, Space to jump, P to pause.">
+      <div class="gamebox" id="gamebox" tabindex="0" aria-label="Игра «Забег дизайнера». Стрелки или A и D — идти, пробел — прыжок, P — пауза.">
         <canvas id="game" width="480" height="270"></canvas>
         <div class="gscreen" id="gscreen"></div>
       </div>
       <div class="pads" id="pads" aria-hidden="true">
         <div class="pads__lr"><button class="pad" data-pad="left" type="button">◀</button><button class="pad" data-pad="right" type="button">▶</button></div>
-        <button class="pad pad--jump" data-pad="jump" type="button">JUMP</button>
+        <button class="pad pad--jump" data-pad="jump" type="button">ПРЫЖОК</button>
       </div>
       <div class="run-help">
-        <p><b>Keys:</b> ← → or A D to walk, Space or ↑ to jump, P to pause.</p>
-        <p><b>Skills:</b> ${Object.values(SKILLS).map(s => `<span class="skill-chip" style="--c:${s.color}">${s.name}</span> ${s.note}`).join(' · ')}</p>
-        <p class="run-rotate">Tip: turn your phone sideways for a bigger screen.</p>
+        <p><b>Клавиши:</b> ← → или A D — идти, пробел или ↑ — прыжок, P — пауза.</p>
+        <p><b>Навыки:</b> ${Object.values(SKILLS).map(s => `<span class="skill-chip" style="--c:${s.color}">${s.name}</span> ${s.note}`).join(' · ')}</p>
+        <p class="run-rotate">Совет: поверни телефон боком — экран станет больше.</p>
       </div>
     </div>
   </div>`;
@@ -38,7 +38,7 @@ export async function mount(root) {
   }
   sizeCanvas();
   const best = () => lsGet('bg.run.best', 0);
-  const showBest = () => { const b = best(); $('#best', root).textContent = b ? `Your best: ${b} points` : ''; };
+  const showBest = () => { const b = best(); $('#best', root).textContent = b ? `Твой рекорд: ${b} ${plural(b, ["очко", "очка", "очков"])}` : ''; };
   showBest();
 
   /* ---------- state ---------- */
@@ -88,7 +88,7 @@ export async function mount(root) {
     if (has('color')) { popEnemy(e, false); return; }
     G.lives--; P.inv = 100; P.vy = -5; P.vx = (P.x < (e ? e.x + e.w / 2 : P.x) ? -3 : 3);
     sound.play('hit'); burst(P.x + 6, P.y + 10, C.red, 14);
-    pops.push({ x: P.x, y: P.y - 8, text: e ? 'NOPE!' : 'OOPS', life: 50, color: C.red });
+    pops.push({ x: P.x, y: P.y - 8, text: e ? 'НЕТ!' : 'УПС', life: 50, color: C.red });
     if (G.lives <= 0) { gameOver(); }
   }
   function popEnemy(e, bounce = true) {
@@ -136,7 +136,7 @@ export async function mount(root) {
       if (G.state === 'play') { P.x = respawn.x; P.y = respawn.y; P.vx = 0; P.vy = 0; }
     }
     // checkpoints
-    for (const c of L.checkpoints) if (!c.got && P.x + P.w > c.x - 8 && P.x < c.x + 8) { c.got = true; respawn = { x: c.x - 6, y: c.y - P.h }; sound.play('coin'); pops.push({ x: c.x - 30, y: c.y - 40, text: 'SAVED', life: 60, color: C.cobalt }); }
+    for (const c of L.checkpoints) if (!c.got && P.x + P.w > c.x - 8 && P.x < c.x + 8) { c.got = true; respawn = { x: c.x - 6, y: c.y - P.h }; sound.play('coin'); pops.push({ x: c.x - 30, y: c.y - 40, text: 'СОХРАНЕНО', life: 60, color: C.cobalt }); }
     // enemies
     const slow = has('deadline') ? .45 : 1;
     for (const e of enemies) {
@@ -206,9 +206,9 @@ export async function mount(root) {
           const cx = wx + 60, cy = 62; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px(cx), cy, 24, 0, 7); ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 2; ctx.stroke();
           const a = G.levelT / 60 * Math.PI * 2 / 12, b = G.levelT / 60 * Math.PI * 2;
           ctx.beginPath(); ctx.moveTo(px(cx), cy); ctx.lineTo(px(cx + Math.sin(a) * 13), cy - Math.cos(a) * 13); ctx.moveTo(px(cx), cy); ctx.lineTo(px(cx + Math.sin(b) * 19), cy - Math.cos(b) * 19); ctx.strokeStyle = C.red; ctx.stroke();
-        } else { ctx.fillStyle = '#fff'; ctx.fillRect(px(wx + 28), 36, 54, 36); ctx.fillStyle = C.red; ctx.font = FONT; ctx.fillText('DUE', px(wx + 42), 58); }
+        } else { ctx.fillStyle = '#fff'; ctx.fillRect(px(wx + 28), 36, 54, 36); ctx.fillStyle = C.red; ctx.font = FONT; ctx.fillText('СРОК', px(wx + 38), 58); }
       } else {
-        const notes = ['v7', 'FINAL', 'final2', 'USE THIS', 'v7_new'];
+        const notes = ['v7', 'ФИНАЛ', 'final2', 'ВОТ ЭТОТ', 'v7_new'];
         ctx.fillStyle = idx % 2 ? C.yellow : C.pink; ctx.fillRect(px(wx + 26), 34 + (idx % 3) * 14, 46, 30);
         ctx.fillStyle = '#000'; ctx.font = FONT; ctx.fillText(notes[((idx % 5) + 5) % 5], px(wx + 30), 52 + (idx % 3) * 14);
         if ((G.t + idx * 17) % 90 < 4) { ctx.fillStyle = 'rgba(36,78,231,.7)'; ctx.fillRect(0, (idx * 37 % VH), VW, 3); }
@@ -322,7 +322,7 @@ export async function mount(root) {
     ctx.fillStyle = '#000';
     ctx.fillText(`$${G.coins}`, 78, 16);
     ctx.fillText(`${G.score}`, 130, 16);
-    ctx.fillText(`SKILLS ${G.skillsGot.size}/6`, VW - 130, 16);
+    ctx.fillText(`НАВЫКИ ${G.skillsGot.size}/6`, VW - 130, 16);
     let ex = 8;
     for (const k of ['color', 'figma', 'composition', 'deadline']) {
       if (!has(k)) continue;
@@ -339,7 +339,7 @@ export async function mount(root) {
     if (G.levelT < 150) {
       const a = Math.min(1, (150 - G.levelT) / 30);
       ctx.globalAlpha = a; ctx.fillStyle = '#000'; ctx.fillRect(VW / 2 - 130, VH / 2 - 34, 260, 52);
-      ctx.fillStyle = C.yellow; ctx.fillText(`LEVEL 0${L.id}`, VW / 2 - 116, VH / 2 - 14);
+      ctx.fillStyle = C.yellow; ctx.fillText(`УРОВЕНЬ 0${L.id}`, VW / 2 - 116, VH / 2 - 14);
       ctx.fillStyle = '#fff'; ctx.fillText(L.name, VW / 2 - 116, VH / 2);
       ctx.fillStyle = '#9ec2ff'; ctx.font = '6px "Press Start 2P", monospace'; ctx.fillText(L.sub, VW / 2 - 116, VH / 2 + 12);
       ctx.globalAlpha = 1;
@@ -364,9 +364,9 @@ export async function mount(root) {
   function screen(html) { scr.innerHTML = html; scr.hidden = !html; }
   function titleScreen() {
     G.state = 'title';
-    screen(`<div class="gs gs--title"><p class="gs__kicker">a game about design life</p><h2 class="gs__title">DESIGNER <br>RUN</h2>
-      <p class="gs__text">Collect coins and skills. Pop client edits by jumping on them. Ship the project in three levels.</p>
-      <button class="btn btn--yellow btn--big" type="button" data-g="start">Start</button></div>`);
+    screen(`<div class="gs gs--title"><p class="gs__kicker">игра про жизнь дизайнера</p><h2 class="gs__title">ЗАБЕГ <br>ДИЗАЙНЕРА</h2>
+      <p class="gs__text">Собирай монеты и навыки. Лопай правки клиента, прыгая на них. Сдай проект за три уровня.</p>
+      <button class="btn btn--yellow btn--big" type="button" data-g="start">Старт</button></div>`);
   }
   function levelDone() {
     sound.play('win');
@@ -375,37 +375,37 @@ export async function mount(root) {
     if (G.levelIndex < LEVELS.length - 1) {
       G.state = 'between';
       const next = LEVELS[G.levelIndex + 1];
-      screen(`<div class="gs"><p class="gs__kicker">level 0${L.id} done${bonus ? ` · time bonus +${bonus}` : ''}</p><h2 class="gs__title gs__title--small">${esc(L.goal.label)}!</h2>
-        <p class="gs__text">Coins ${G.coins} · score ${G.score} · skills ${G.skillsGot.size}/6</p>
-        <p class="gs__text">Next: <b>LEVEL 0${next.id} — ${esc(next.name)}</b></p>
-        <button class="btn btn--yellow btn--big" type="button" data-g="next">Next level</button></div>`);
+      screen(`<div class="gs"><p class="gs__kicker">уровень 0${L.id} пройден${bonus ? ` · бонус за время +${bonus}` : ''}</p><h2 class="gs__title gs__title--small">${esc(L.goal.label)}!</h2>
+        <p class="gs__text">Монеты ${G.coins} · очки ${G.score} · навыки ${G.skillsGot.size}/6</p>
+        <p class="gs__text">Дальше: <b>УРОВЕНЬ 0${next.id} — ${esc(next.name)}</b></p>
+        <button class="btn btn--yellow btn--big" type="button" data-g="next">Следующий уровень</button></div>`);
       $('[data-g="next"]', scr).focus();
     } else win();
   }
   function win() {
     G.state = 'won';
     const prevBest = best(); if (G.score > prevBest) lsSet('bg.run.best', G.score); showBest();
-    const medal = { title: 'SHIPPED v7', coins: G.coins, score: G.score, day: todayKey(), used: false };
+    const medal = { title: 'СДАНО v7', coins: G.coins, score: G.score, day: todayKey(), used: false };
     lsSet('bg.medal', medal);
-    screen(`<div class="gs gs--win"><h2 class="gs__title gs__title--small">CONGRATS!<br>THE CLIENT LOVES IT.<br><span>FOR NOW.</span></h2>
-      <p class="gs__text">Coins ${G.coins} · score ${G.score}${G.score > prevBest ? ' · new best!' : ''} · skills ${G.skillsGot.size}/6</p>
-      <div class="gs__medal"><img src="" alt="" id="medal-img" width="96" height="120"><p>You earned a medal sticker.</p></div>
-      <div class="gs__btns"><button class="btn btn--yellow" type="button" data-g="medal">Pin my medal to today’s wall</button><button class="btn btn--ghost btn--onblue" type="button" data-g="again">Play again</button></div></div>`);
+    screen(`<div class="gs gs--win"><h2 class="gs__title gs__title--small">УРА!<br>КЛИЕНТУ НРАВИТСЯ.<br><span>ПОКА ЧТО.</span></h2>
+      <p class="gs__text">Монеты ${G.coins} · очки ${G.score}${G.score > prevBest ? ' · новый рекорд!' : ''} · навыки ${G.skillsGot.size}/6</p>
+      <div class="gs__medal"><img src="" alt="" id="medal-img" width="96" height="120"><p>Ты заработала стикер-медаль.</p></div>
+      <div class="gs__btns"><button class="btn btn--yellow" type="button" data-g="medal">Повесить медаль на стену дня</button><button class="btn btn--ghost btn--onblue" type="button" data-g="again">Сыграть ещё</button></div></div>`);
     import('../stickers.js').then(m => { const i = $('#medal-img', scr); if (i) i.src = m.svgURL(m.medalSVG(medal)); });
     $('[data-g="medal"]', scr).focus();
   }
   function gameOver() {
     G.state = 'over'; sound.play('lose');
     const prevBest = best(); if (G.score > prevBest) lsSet('bg.run.best', G.score); showBest();
-    screen(`<div class="gs gs--over"><h2 class="gs__title gs__title--small">GAME OVER</h2><p class="gs__text">The client went with a template.</p>
-      <p class="gs__text">Coins ${G.coins} · score ${G.score}</p>
-      <div class="gs__btns"><button class="btn btn--yellow btn--big" type="button" data-g="restart">Restart</button><button class="btn btn--ghost btn--onblue" type="button" data-g="again">From level 1</button></div></div>`);
+    screen(`<div class="gs gs--over"><h2 class="gs__title gs__title--small">КОНЕЦ ИГРЫ</h2><p class="gs__text">Клиент выбрал шаблон.</p>
+      <p class="gs__text">Монеты ${G.coins} · очки ${G.score}</p>
+      <div class="gs__btns"><button class="btn btn--yellow btn--big" type="button" data-g="restart">Заново</button><button class="btn btn--ghost btn--onblue" type="button" data-g="again">С первого уровня</button></div></div>`);
     $('[data-g="restart"]', scr).focus();
   }
   function pause(on) {
     if (G.state !== 'play' && G.state !== 'paused') return;
     G.state = on ? 'paused' : 'play';
-    screen(on ? `<div class="gs"><h2 class="gs__title gs__title--small">PAUSED</h2><button class="btn btn--yellow btn--big" type="button" data-g="resume">Resume</button></div>` : '');
+    screen(on ? `<div class="gs"><h2 class="gs__title gs__title--small">ПАУЗА</h2><button class="btn btn--yellow btn--big" type="button" data-g="resume">Продолжить</button></div>` : '');
     if (on) $('[data-g="resume"]', scr).focus(); else box.focus();
   }
   function startGame(fromLevel = 0, keepScore = false) {
@@ -420,14 +420,14 @@ export async function mount(root) {
     if (a === 'restart') { G.score = levelScore0; G.coins = levelCoins0; startGame(G.levelIndex, true); }
     if (a === 'resume') pause(false);
     if (a === 'medal') {
-      b.disabled = true; b.textContent = 'Pinning…';
+      b.disabled = true; b.textContent = 'Вешаю…';
       const m = lsGet('bg.medal', null);
       try {
         await wall.add({ day: todayKey(), kind: 'medal', x: Math.round(rand(300, WORLD.w - 500)), y: Math.round(rand(200, WORLD.h - 400)), w: 170, h: 212, rot: Math.round(rand(-10, 10)), z: Math.floor(Date.now() / 1000) % 1e9, data: { title: m.title, coins: m.coins } });
         m.used = true; lsSet('bg.medal', m);
-        b.replaceWith(h('<a class="btn btn--yellow" href="#/wall">It’s on the wall: go see</a>'));
+        b.replaceWith(h('<a class="btn btn--yellow" href="#/wall">Медаль на стене — посмотреть</a>'));
         sound.play('pop');
-      } catch (er) { toast(er.message || 'The medal did not stick. It’s saved: add it from the wall later.', true); b.disabled = false; b.textContent = 'Pin my medal to today’s wall'; }
+      } catch (er) { toast(er.message || 'Медаль не приклеилась. Она сохранена — добавь её со стены позже.', true); b.disabled = false; b.textContent = 'Повесить медаль на стену дня'; }
     }
   });
 

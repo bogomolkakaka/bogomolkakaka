@@ -2,21 +2,21 @@
 import { $, $$, esc, h, ICON, sound, toast, openModal, confirmBox, hashStr, lsGet, lsSet } from '../util.js';
 import { works as store, upload, config, state, onAuth } from '../store.js';
 
-const CATS = [['graphic', 'Graphic design'], ['3d', '3D experiments'], ['posters', 'Posters'], ['personal', 'Personal projects'], ['random', 'Random stuff']];
+const CATS = [['graphic', 'Графдизайн'], ['3d', '3D-эксперименты'], ['posters', 'Постеры'], ['personal', 'Личные проекты'], ['random', 'Разное']];
 const CAT = Object.fromEntries(CATS);
 const FORM = { posters: 'poster', '3d': 'photo', graphic: 'spread', personal: 'folder', random: 'paper' };
 const URL_RE = /^(https:\/\/[^\s"'<>]+|assets\/[\w./-]+)$/;
 const str = (v, m = 4000) => typeof v === 'string' ? v.slice(0, m) : '';
-const norm = d => ({ id: String(d.id), title: str(d.title, 90) || 'Untitled', category: CAT[d.category] ? d.category : 'random', year: str(d.year, 12), summary: str(d.summary, 240), body: str(d.body, 8000),
+const norm = d => ({ id: String(d.id), title: str(d.title, 90) || 'Без названия', category: CAT[d.category] ? d.category : 'random', year: str(d.year, 12), summary: str(d.summary, 240), body: str(d.body, 8000),
   images: Array.isArray(d.images) ? d.images.filter(u => typeof u === 'string' && URL_RE.test(u)) : [], order: Number.isFinite(d.order) ? d.order : 1e9, draft: !!d.draft, demo: !!d.demo });
 
 let S = null, R = null;
 export async function mount(root, params) {
   R = root; S = { list: [], loaded: false, cat: 'all', studio: false, pos: lsGet('bg.stuff.pos', {}), cfg: {} };
-  root.innerHTML = `<div class="page stuff-page"><div class="page-head"><div><a class="back" href="#/">${ICON.back}Back to the desk</a>
-      <h1 class="page-title">My Stuff</h1><p class="page-sub">posters, 3D, zines and random experiments, scattered on purpose</p></div>
+  root.innerHTML = `<div class="page stuff-page"><div class="page-head"><div><a class="back" href="#/">${ICON.back}На рабочий стол</a>
+      <h1 class="page-title">Мои работы</h1><p class="page-sub">постеры, 3D, зины и разные эксперименты — разбросаны нарочно</p></div>
       <div class="stuff-tools" id="stuff-tools"></div></div>
-    <div class="cats" id="cats" role="group" aria-label="Categories"></div>
+    <div class="cats" id="cats" role="group" aria-label="Категории"></div>
     <div id="stuff-body"></div></div>`;
   root.addEventListener('click', onClick);
   root.addEventListener('pointerdown', onDown);
@@ -28,7 +28,7 @@ export async function mount(root, params) {
 export function update(params) { if (S) show(params); }
 async function load() {
   try { const [l, cfg] = await Promise.all([store.list(), config.all()]); S.list = l.map(norm).sort((a, b) => a.order - b.order); S.cfg = cfg; }
-  catch (e) { toast(e.message || 'The works did not load.', true); }
+  catch (e) { toast(e.message || 'Работы не загрузились.', true); }
   S.loaded = true;
 }
 const visible = () => S.list.filter(w => (S.studio || !w.draft));
@@ -43,11 +43,11 @@ function render() {
   const list = visible().filter(w => S.cat === 'all' || w.category === S.cat);
   const counts = { all: visible().length }; CATS.forEach(([k]) => { counts[k] = visible().filter(w => w.category === k).length; });
   $('#cats', R).hidden = false;
-  $('#cats', R).innerHTML = [['all', 'Everything'], ...CATS].map(([k, n]) => `<button class="chip" type="button" data-cat="${k}" aria-pressed="${S.cat === k}">${n} <small>${counts[k]}</small></button>`).join('');
+  $('#cats', R).innerHTML = [['all', 'Всё'], ...CATS].map(([k, n]) => `<button class="chip" type="button" data-cat="${k}" aria-pressed="${S.cat === k}">${n} <small>${counts[k]}</small></button>`).join('');
   const body = $('#stuff-body', R);
-  if (!list.length) { body.innerHTML = `<p class="stuff-empty">${S.loaded ? (S.studio ? 'Пока пусто. Нажми «Добавить работу».' : 'Nothing in this drawer yet.') : 'Opening the drawers…'}</p>`; return; }
+  if (!list.length) { body.innerHTML = `<p class="stuff-empty">${S.loaded ? (S.studio ? 'Пока пусто. Нажми «Добавить работу».' : 'В этом ящике пока пусто.') : 'Открываем ящики…'}</p>`; return; }
   body.innerHTML = `<ul class="pile" id="pile">${list.map((w, i) => itemHTML(w, i, list.length)).join('')}</ul>
-    <p class="pile-hint">Drag things around if you like. Click anything to open it.</p>`;
+    <p class="pile-hint">Вещи можно двигать. Нажми на любую, чтобы открыть.</p>`;
 }
 function itemHTML(w, i, n) {
   const r = hashStr(w.id);
@@ -64,24 +64,24 @@ function itemHTML(w, i, n) {
   }[form];
   const ctl = S.studio ? `<div class="pi-ctl"><button type="button" data-act="up" aria-label="Раньше" ${i === 0 ? 'disabled' : ''}>${ICON.left}</button><button type="button" data-act="edit">${ICON.pen}Изменить</button><button type="button" data-act="down" aria-label="Позже" ${i === n - 1 ? 'disabled' : ''}>${ICON.right}</button><button type="button" data-act="del" aria-label="Удалить">${ICON.trash}</button></div>` : '';
   return `<li class="pi pi--${form}${w.draft ? ' is-draft' : ''}" data-id="${esc(w.id)}" style="--rot:${rot}deg;--jx:${jx}px;--jy:${jy}px;--dx:${p[0]}px;--dy:${p[1]}px">
-    <a class="pi__obj" href="#/stuff/${esc(w.id)}" aria-label="${esc(w.title)}, ${esc(CAT[w.category])}${w.year ? ', ' + esc(w.year) : ''}">${inner}${w.demo ? '<span class="pi-demo">demo</span>' : ''}</a>
+    <a class="pi__obj" href="#/stuff/${esc(w.id)}" aria-label="${esc(w.title)}, ${esc(CAT[w.category])}${w.year ? ', ' + esc(w.year) : ''}">${inner}${w.demo ? '<span class="pi-demo">демо</span>' : ''}</a>
     <p class="pi__label"><b>${esc(w.title)}</b><span>${esc(CAT[w.category])}${w.year ? ' · ' + esc(w.year) : ''}</span></p>${ctl}</li>`;
 }
 function renderProject(id) {
   const list = visible(), i = list.findIndex(w => w.id === id), w = list[i];
   $('#cats', R).hidden = true;
   const body = $('#stuff-body', R);
-  if (!w) { body.innerHTML = S.loaded ? `<p class="stuff-empty">This project is not here. <a href="#/stuff">See all work</a></p>` : ''; return; }
+  if (!w) { body.innerHTML = S.loaded ? `<p class="stuff-empty">Такого проекта здесь нет. <a href="#/stuff">Все работы</a></p>` : ''; return; }
   const prev = list[i - 1], next = list[i + 1];
   const paras = w.body.trim() ? w.body.trim().split(/\n\s*\n/).map(p => `<p>${esc(p).replace(/\n/g, '<br>')}</p>`).join('') : '';
   body.innerHTML = `<article class="project">
-    <a class="back" href="#/stuff">${ICON.back}All my stuff</a>
-    <header class="project__head"><p class="project__meta"><span class="chip">${esc(CAT[w.category])}</span>${w.year ? `<span>${esc(w.year)}</span>` : ''}${w.demo ? '<span class="pi-demo pi-demo--inline">demo</span>' : ''}</p>
+    <a class="back" href="#/stuff">${ICON.back}Все работы</a>
+    <header class="project__head"><p class="project__meta"><span class="chip">${esc(CAT[w.category])}</span>${w.year ? `<span>${esc(w.year)}</span>` : ''}${w.demo ? '<span class="pi-demo pi-demo--inline">демо</span>' : ''}</p>
       <h2 class="project__title">${esc(w.title)}</h2>${w.summary ? `<p class="project__sum">${esc(w.summary)}</p>` : ''}
       ${state.admin && S.studio ? `<button class="btn btn--ink btn--small" data-act="edit" data-id="${esc(w.id)}">${ICON.pen}Изменить</button>` : ''}</header>
-    <div class="project__grid"><div class="project__imgs">${w.images.map((u, k) => `<figure><img src="${esc(u)}" alt="${esc(w.title)}, image ${k + 1}" loading="${k ? 'lazy' : 'eager'}"></figure>`).join('') || '<p class="stuff-empty">Images coming soon.</p>'}</div>
+    <div class="project__grid"><div class="project__imgs">${w.images.map((u, k) => `<figure><img src="${esc(u)}" alt="${esc(w.title)}, изображение ${k + 1}" loading="${k ? 'lazy' : 'eager'}"></figure>`).join('') || '<p class="stuff-empty">Картинки скоро будут.</p>'}</div>
       ${paras ? `<div class="project__text">${paras}</div>` : ''}</div>
-    <nav class="project__nav" aria-label="More projects">${prev ? `<a class="linkbtn" href="#/stuff/${esc(prev.id)}">${ICON.left}${esc(prev.title)}</a>` : '<span></span>'}${next ? `<a class="linkbtn" href="#/stuff/${esc(next.id)}">${esc(next.title)}${ICON.right}</a>` : ''}</nav>
+    <nav class="project__nav" aria-label="Другие проекты">${prev ? `<a class="linkbtn" href="#/stuff/${esc(prev.id)}">${ICON.left}${esc(prev.title)}</a>` : '<span></span>'}${next ? `<a class="linkbtn" href="#/stuff/${esc(next.id)}">${esc(next.title)}${ICON.right}</a>` : ''}</nav>
   </article>`;
   window.scrollTo(0, 0);
 }
@@ -133,7 +133,7 @@ function editor(id) {
     <div class="field"><span class="label">Картинки (первая лежит на столе)</span><ul class="w-imgs" id="w-imgs"></ul>
       <label class="btn btn--ghost btn--small">${ICON.upload}Добавить картинки<input type="file" id="w-file" accept="image/*" multiple hidden></label></div>
     <label class="check"><input type="checkbox" id="w-draft">Скрыть от посетителей (черновик)</label>
-    ${d.demo ? '<label class="check"><input type="checkbox" id="w-demo">Показывать наклейку «demo»</label>' : ''}
+    ${d.demo ? '<label class="check"><input type="checkbox" id="w-demo">Показывать наклейку «демо»</label>' : ''}
     <div class="modal__actions">${src ? `<button class="btn btn--text" type="button" id="w-del" style="margin-right:auto;color:var(--red)">${ICON.trash}Удалить</button>` : ''}<button class="btn btn--ghost" type="button" data-close>Отмена</button><button class="btn btn--primary" type="button" id="w-save">Сохранить</button></div>`, { label: 'Работа', wide: true });
   const el = m.el;
   $('#w-title', el).value = d.title; $('#w-cat', el).value = d.category; $('#w-year', el).value = d.year; $('#w-sum', el).value = d.summary; $('#w-body', el).value = d.body; $('#w-draft', el).checked = d.draft;

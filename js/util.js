@@ -23,7 +23,11 @@ export const todayKey = () => zoned().key;
 export function msToNextDay() { const z = zoned(); return ((23 - z.hh) * 3600 + (59 - z.mm) * 60 + (60 - z.ss)) * 1000; }
 export function keyToDate(key) { const [y, m, d] = key.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d, 12)); }
 export function addDays(key, n) { const d = keyToDate(key); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
-export function fmtDay(key, opts = { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) { return new Intl.DateTimeFormat('en-GB', { ...opts, timeZone: 'UTC' }).format(keyToDate(key)); }
+export function fmtDay(key, opts = { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) { return new Intl.DateTimeFormat('ru-RU', { ...opts, timeZone: 'UTC' }).format(keyToDate(key)).replace(/\s?г\.$/, ''); }
+export const MONTHS = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+export const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+// Russian plural: plural(5, ['штука', 'штуки', 'штук'])
+export function plural(n, f) { const a = Math.abs(n) % 100, b = a % 10; return a > 10 && a < 20 ? f[2] : b > 1 && b < 5 ? f[1] : b === 1 ? f[0] : f[2]; }
 export function hashStr(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
 
 /* ---------- toast / modal / confirm ---------- */
@@ -40,7 +44,7 @@ export function openModal(inner, { label = '', wide = false, onClose } = {}) {
   const host = $('#layer-modal');
   const back = document.activeElement;
   const wrap = h(`<div class="modal"><div class="modal__card${wide ? ' modal__card--wide' : ''}" role="dialog" aria-modal="true" ${label ? `aria-label="${esc(label)}"` : ''}>
-    <button class="iconbtn modal__x" type="button" data-close aria-label="Close">${ICON.close}</button>${inner}</div></div>`);
+    <button class="iconbtn modal__x" type="button" data-close aria-label="Закрыть">${ICON.close}</button>${inner}</div></div>`);
   host.appendChild(wrap);
   const entry = { wrap, back, onClose };
   modalStack.push(entry);
@@ -57,7 +61,7 @@ export function openModal(inner, { label = '', wide = false, onClose } = {}) {
   return { el: wrap.firstElementChild, close };
 }
 export function closeTopModal() { const e = modalStack[modalStack.length - 1]; if (e) { e.close(); return true; } return false; }
-export function confirmBox(title, text, yes = 'Yes', no = 'Cancel', danger = true) {
+export function confirmBox(title, text, yes = 'Да', no = 'Отмена', danger = true) {
   return new Promise(res => {
     let done = false;
     const m = openModal(`<h2>${esc(title)}</h2><p>${esc(text)}</p><div class="modal__actions">
@@ -185,15 +189,17 @@ export const ICON = {
   objects: '<svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="20" rx="9" ry="2" fill="#000" opacity=".18"/><path d="M8 4c0 3 .5 5 1 6" stroke="#FF9CC8" stroke-width="2.6" stroke-linecap="round"/><path d="M15 4c0 3-.5 5-1 6" stroke="#FF9CC8" stroke-width="2.6" stroke-linecap="round"/><ellipse cx="11.5" cy="14.5" rx="6" ry="5.5" fill="#FF9CC8"/><circle cx="9.5" cy="14" r="1" fill="#000"/><circle cx="13.5" cy="14" r="1" fill="#000"/></svg>',
   stuff: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 7a2 2 0 012-2h5l2 2h9a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2z" fill="#244EE7"/><path d="M2 10h20v8a2 2 0 01-2 2H4a2 2 0 01-2-2z" fill="#5577F2"/><rect x="6" y="3" width="10" height="7" fill="#FFD84A" transform="rotate(-6 11 6)"/></svg>',
   capsule: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="3" fill="#fff" stroke="#000" stroke-width="1.6"/><rect x="3" y="4" width="18" height="5" rx="2" fill="#E8291F"/><path d="M8 2v4M16 2v4" stroke="#000" stroke-width="2" stroke-linecap="round"/><text x="12" y="18.5" font-size="8" text-anchor="middle" font-family="Arial Black, sans-serif" fill="#000">12</text></svg>',
+  films: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2" fill="#111"/><rect x="4" y="7" width="16" height="5" rx="1" fill="#FFD84A"/><circle cx="8" cy="15.5" r="2" fill="#fff"/><circle cx="16" cy="15.5" r="2" fill="#fff"/><rect x="10" y="14.5" width="4" height="2" fill="#E8291F"/></svg>',
   admin: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" fill="#000"/><path d="M8 11V8a4 4 0 018 0v3" stroke="#000" stroke-width="2" fill="none"/><circle cx="12" cy="16" r="1.6" fill="#FFD84A"/></svg>',
   logo: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3c2 4 6 6 10 5-2 4-1 9 2 12-4 0-8 3-9 7-2-3-6-5-10-4 1-4-1-9-5-11 4-1 8-4 9-8z" fill="#FFD84A" stroke="#fff" stroke-width="1.5"/><circle cx="13" cy="15" r="1.6"/><circle cx="19" cy="15" r="1.6"/><path d="M13.5 19.5c1.5 1.2 3.5 1.2 5 0" stroke="#000" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>'
 };
 
 export const SECTIONS = [
-  { id: 'booth', name: 'Photo Booth', hint: 'Four snaps, eight filters, one strip', icon: 'booth' },
-  { id: 'wall', name: "Today's Wall", hint: 'A shared collage that starts empty every day', icon: 'wall' },
-  { id: 'run', name: 'Designer Run', hint: 'Dodge client edits, ship the project', icon: 'run' },
-  { id: 'objects', name: 'Little Objects', hint: 'Hand-made figures from my shelf', icon: 'objects' },
-  { id: 'stuff', name: 'My Stuff', hint: 'Posters, 3D and random experiments', icon: 'stuff' },
-  { id: 'capsule', name: 'Time Capsule', hint: 'Every wall we ever made, by date', icon: 'capsule' }
+  { id: 'booth', name: 'Фотобудка', short: 'Фотобудка', hint: 'Четыре кадра, восемь фильтров, одна полоска', icon: 'booth' },
+  { id: 'wall', name: 'Стена дня', short: 'Стена', hint: 'Общий коллаж, каждый день с чистого листа', icon: 'wall' },
+  { id: 'run', name: 'Забег дизайнера', short: 'Забег', hint: 'Уворачивайся от правок, сдай проект', icon: 'run' },
+  { id: 'objects', name: 'Маленькие объекты', short: 'Объекты', hint: 'Фигурки ручной работы с моей полки', icon: 'objects' },
+  { id: 'films', name: 'Видеопрокат', short: 'Прокат', hint: 'Фильмы и сериалы, которые стоит посмотреть', icon: 'films' },
+  { id: 'stuff', name: 'Мои работы', short: 'Работы', hint: 'Постеры, 3D и всякие эксперименты', icon: 'stuff' },
+  { id: 'capsule', name: 'Капсула времени', short: 'Капсула', hint: 'Все стены, которые мы сделали, по датам', icon: 'capsule' }
 ];
