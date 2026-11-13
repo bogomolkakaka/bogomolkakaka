@@ -70,6 +70,19 @@
 .thing--run { --x: 57; --y: -1; --w: 24; --r: 9deg; }
 .console { position: relative; display: block; }
 .console-screen { position: absolute; left: 14.72%; top: 17.59%; width: 37.63%; height: 31.74%; clip-path: polygon(.6% .6%, 98.9% 7.2%, 98.4% 99.4%, 1.6% 89.8%); image-rendering: pixelated; pointer-events: none; }
+/* VHS stack */
+.thing--films { --x: -64; --y: 1; --w: 20; --r: -7deg; }
+.dvhs-stack { display: grid; gap: calc(.5 * var(--u)); }
+.dvhs { position: relative; display: grid; place-items: center; height: calc(5 * var(--u)); border-radius: calc(.5 * var(--u)); background: #15161d; box-shadow: 0 calc(.5 * var(--u)) 0 rgba(0, 0, 0, .25); }
+.dvhs b { background: var(--paper); color: var(--ink); width: 64%; height: 64%; display: grid; place-items: center; font-family: var(--font-display); font-weight: 400; font-size: calc(1.7 * var(--u)); letter-spacing: .04em; border-radius: 2px; }
+.dvhs--1 { transform: translateX(calc(1.6 * var(--u))) rotate(3deg); background: var(--cobalt); }
+.dvhs--1 b { background: var(--yellow); }
+.dvhs--2 { transform: translateX(calc(-1 * var(--u))) rotate(-2deg); }
+.dvhs--2 b { background: var(--pink); }
+.dvhs--3 { transform: rotate(1deg); }
+.thing--films:hover .dvhs--1 { transform: translateX(calc(4 * var(--u))) rotate(8deg); }
+.dvhs::before, .dvhs::after { content: ""; position: absolute; top: 50%; width: calc(1.1 * var(--u)); height: calc(1.1 * var(--u)); border-radius: 50%; background: #555a66; transform: translateY(-50%); }
+.dvhs::before { left: 7%; } .dvhs::after { right: 7%; }
 /* toys */
 .thing--objects { --x: 36; --y: 30; --w: 42; --r: -2deg; }
 /* folders */
@@ -96,7 +109,7 @@
 .pencil::before { content: ""; position: absolute; left: 0; top: 35%; width: 3%; height: 30%; background: #222; }
 .ring { left: calc(50% + 61 * var(--u)); top: calc(50% - 39 * var(--u)); width: calc(14 * var(--u)); height: calc(13 * var(--u)); border-radius: 48% 52% 50% 50%; border: calc(.55 * var(--u)) solid rgba(130, 84, 44, .2); background: radial-gradient(circle at 55% 45%, rgba(130, 84, 44, .07), rgba(130, 84, 44, .02) 65%, transparent 70%); box-shadow: inset 0 0 calc(.6 * var(--u)) rgba(130, 84, 44, .18); }
 .eraser { left: calc(50% + 18 * var(--u)); top: calc(50% + 10 * var(--u)); width: calc(9 * var(--u)); height: calc(4.5 * var(--u)); background: linear-gradient(90deg, var(--pink) 0 55%, var(--sky) 55%); border-radius: calc(.8 * var(--u)); transform: rotate(18deg); box-shadow: 0 4px 0 rgba(0, 0, 0, .15); }
-.clip { left: calc(50% - 63 * var(--u)); top: calc(50% + 2 * var(--u)); width: calc(3.4 * var(--u)); height: calc(9 * var(--u)); border: calc(.5 * var(--u)) solid #9aa1ae; border-radius: 99px; transform: rotate(-30deg); }
+.clip { left: calc(50% - 25 * var(--u)); top: calc(50% - 44 * var(--u)); width: calc(3.4 * var(--u)); height: calc(9 * var(--u)); border: calc(.5 * var(--u)) solid #9aa1ae; border-radius: 99px; transform: rotate(-30deg); }
 .clip::after { content: ""; position: absolute; left: 18%; right: 18%; top: 22%; bottom: 8%; border: calc(.45 * var(--u)) solid #9aa1ae; border-top: 0; border-radius: 0 0 99px 99px; }
 .hint-move { left: calc(50% - 68 * var(--u)); bottom: calc(2 * var(--u)); font-family: var(--font-hand); font-size: max(18px, calc(2.2 * var(--u))); color: var(--muted); transform: rotate(-2deg); margin: 0; z-index: 2; }
 .desk-reset { right: calc(1.6 * var(--u)); bottom: calc(1.6 * var(--u)); z-index: 7; }
@@ -116,7 +129,7 @@
   .thing { left: auto; top: auto; width: auto; --dx: 0px; --dy: 0px; --u: 4.2px; touch-action: auto; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 10px; transform: rotate(var(--r)); min-width: 0; }
   .thing:hover, .thing:focus-visible { transform: rotate(0deg) translateY(-3px); filter: none; }
   .thing > img, .thing .console img { width: auto; max-width: 100%; height: 132px; object-fit: contain; }
-  .thing__label { position: static; transform: rotate(-2deg); opacity: 1; font-size: 19px; padding: 1px 10px 2px; box-shadow: 2px 2px 0 var(--ink); }
+  .thing__label { position: static; transform: rotate(-2deg); opacity: 1; font-size: 18px; padding: 1px 10px 2px; box-shadow: 2px 2px 0 var(--ink); white-space: normal; text-align: center; text-wrap: balance; max-width: 100%; }
   .thing:hover .thing__label, .thing:focus-visible .thing__label { transform: rotate(-1deg); }
 
   .thing--booth { order: 1; --r: -2deg; }
@@ -142,7 +155,9 @@
   .thing--stuff .folder--2 { --tab: 26%; }
   .thing--objects { order: 6; grid-column: 1 / -1; --r: -1deg; }
   .thing--objects > img { height: auto; width: 92%; }
-  .note-phrase { order: 7; grid-column: 1 / -1; justify-self: center; left: auto; top: auto; width: min(100%, 300px); min-height: 0; transform: rotate(-2deg); font-size: 23px; padding: 22px 18px 14px; }
+  .thing--films { order: 7; --r: -3deg; --u: 6.4px; }
+  .thing--films .dvhs-stack { width: 150px; margin-top: 10px; }
+  .note-phrase { order: 8; justify-self: center; left: auto; top: auto; width: 100%; min-height: 0; transform: rotate(-2deg); font-size: 20px; padding: 20px 14px 12px; }
   .note-phrase small { font-size: 12px; margin-top: 10px; }
   .note-phrase:hover { transform: rotate(-1deg); }
   .decor, .hint-move, .desk-reset { display: none; }
