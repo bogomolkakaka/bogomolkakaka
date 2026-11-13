@@ -22,6 +22,7 @@ export async function mount(root) {
       </div>
       <div class="run-help">
         <p><b>Клавиши:</b> ← → или A D — идти, пробел или ↑ — прыжок, P — пауза.</p>
+        <p><b>Жизни:</b> каждый уровень начинается минимум с трёх. Ещё одну дают каждые 40 монет, сердечки на уровнях и навык «Креатив», всего до пяти.</p>
         <p><b>Навыки:</b> ${Object.values(SKILLS).map(s => `<span class="skill-chip" style="--c:${s.color}">${s.name}</span> ${s.note}`).join(' · ')}</p>
         <p class="run-rotate">Совет: поверни телефон боком — экран станет больше.</p>
       </div>
@@ -43,7 +44,8 @@ export async function mount(root) {
 
   /* ---------- state ---------- */
   const G = { state: 'title', levelIndex: 0, lives: 3, score: 0, coins: 0, skillsGot: new Set(), effects: {}, t: 0, levelT: 0, paused: false };
-  let L = null, P = null, cam = { x: 0, y: 0 }, enemies = [], coins = [], skills = [], pops = [], parts = [], respawn = null, levelScore0 = 0, levelCoins0 = 0;
+  const MAX_LIVES = 5, COINS_PER_LIFE = 40;
+  let L = null, P = null, cam = { x: 0, y: 0 }, enemies = [], coins = [], skills = [], hearts = [], pops = [], parts = [], respawn = null, levelScore0 = 0, levelCoins0 = 0;
   const keys = { left: false, right: false, jump: false, jumpPressed: false };
 
   function solidAt(tx, ty) {
@@ -64,6 +66,7 @@ export async function mount(root) {
     L = LEVELS[i];
     L.checkpoints.forEach(c => { c.got = false; });
     G.levelIndex = i; G.levelT = 0; G.effects = {};
+    G.lives = Math.max(G.lives, 3); // every level starts with at least three lives
     P = { x: L.start.x * T, y: (GROUND) * T - 22, w: 12, h: 22, vx: 0, vy: 0, ground: false, coyote: 0, jumpBuf: 0, face: 1, inv: 0, anim: 0 };
     respawn = { x: P.x, y: P.y };
     enemies = L.enemies.map(e => {
@@ -76,6 +79,7 @@ export async function mount(root) {
     });
     coins = L.coins.map(c => ({ ...c, taken: false }));
     skills = L.skills.map(s => ({ ...s, taken: false }));
+    hearts = (L.hearts || []).map(hh => ({ ...hh, taken: false }));
     pops = []; parts = [];
     levelScore0 = G.score; levelCoins0 = G.coins;
     cam.x = 0;
@@ -85,8 +89,8 @@ export async function mount(root) {
   const has = k => (G.effects[k] || 0) > 0;
   function hurt(e) {
     if (P.inv > 0) return;
-    if (has('color')) { popEnemy(e, false); return; }
-    G.lives--; P.inv = 100; P.vy = -5; P.vx = (P.x < (e ? e.x + e.w / 2 : P.x) ? -3 : 3);
+    if (has('color') && e) { popEnemy(e, false); return; }
+    G.lives--; P.inv = 130; P.vy = -4.5; P.vx = (P.x < (e ? e.x + e.w / 2 : P.x) ? -2.2 : 2.2);
     sound.play('hit'); burst(P.x + 6, P.y + 10, C.red, 14);
     pops.push({ x: P.x, y: P.y - 8, text: e ? 'НЕТ!' : 'УПС', life: 50, color: C.red });
     if (G.lives <= 0) { gameOver(); }
@@ -98,12 +102,17 @@ export async function mount(root) {
     if (bounce) P.vy = -6.2;
     if (e.loop) setTimeout(() => { e.alive = true; e.x = e.x0; e.active = false; }, 4000);
   }
+  function gainLife(x, y) {
+    if (G.lives < MAX_LIVES) { G.lives++; pops.push({ x: x - 30, y: y - 14, text: '+1 ЖИЗНЬ', life: 80, color: C.red, big: true }); }
+    else { G.score += 100; pops.push({ x: x - 16, y: y - 14, text: '+100', life: 60, color: C.cobalt }); }
+    sound.play('power'); burst(x, y, C.red, 16);
+  }
   function burst(x, y, color, n) { if (reducedMotion()) return; for (let i = 0; i < n; i++) parts.push({ x, y, vx: rand(-2.5, 2.5), vy: rand(-3.5, .5), life: rand(20, 40), color }); }
   function take(sk) {
     sk.taken = true; G.skillsGot.add(sk.type); sound.play('power');
     const info = SKILLS[sk.type];
     if (sk.type === 'typography') G.score += 500;
-    if (sk.type === 'creativity') G.lives = Math.min(5, G.lives + 1);
+    if (sk.type === 'creativity') gainLife(sk.x, sk.y - 20);
     if (sk.type === 'color') G.effects.color = 480;
     if (sk.type === 'figma') G.effects.figma = 480;
     if (sk.type === 'composition') G.effects.composition = 600;
@@ -133,10 +142,10 @@ export async function mount(root) {
     // fell into a pit
     if (P.y > ROWS * T + 40) {
       hurt(null);
-      if (G.state === 'play') { P.x = respawn.x; P.y = respawn.y; P.vx = 0; P.vy = 0; }
+      if (G.state === 'play') { P.x = respawn.x; P.y = respawn.y; P.vx = 0; P.vy = 0; P.inv = Math.max(P.inv, 90); }
     }
     // checkpoints
-    for (const c of L.checkpoints) if (!c.got && P.x + P.w > c.x - 8 && P.x < c.x + 8) { c.got = true; respawn = { x: c.x - 6, y: c.y - P.h }; sound.play('coin'); pops.push({ x: c.x - 30, y: c.y - 40, text: 'СОХРАНЕНО', life: 60, color: C.cobalt }); }
+    for (const c of L.checkpoints) if (!c.got && P.x + P.w > c.x - 8 && P.x < c.x + 8) { c.got = true; respawn = safeSpot(c.x) || respawn; sound.play('coin'); pops.push({ x: c.x - 30, y: c.y - 40, text: 'СОХРАНЕНО', life: 60, color: C.cobalt }); }
     // enemies
     const slow = has('deadline') ? .45 : 1;
     for (const e of enemies) {
@@ -149,9 +158,9 @@ export async function mount(root) {
         if (e.active) { e.x -= e.speed * slow; e.y = e.yc + Math.sin(G.t * .05 + e.t) * 14; if (e.x + e.w < cam.x - 60) { if (e.loop) { e.x = cam.x + VW + rand(40, 160); } else e.alive = false; } }
       }
       // collide (hitbox a bit smaller than the bubble, to be fair)
-      const ex = e.x + 3, ey = e.y + 3, ew = e.w - 6, eh = e.h - 4;
+      const ex = e.x + 5, ey = e.y + 4, ew = e.w - 10, eh = e.h - 7;
       if (P.x < ex + ew && P.x + P.w > ex && P.y < ey + eh && P.y + P.h > ey) {
-        if (P.vy > 0 && prevBottom <= ey + 6) popEnemy(e); else hurt(e);
+        if (P.vy > 0 && prevBottom <= ey + 9) popEnemy(e); else hurt(e);
         if (G.state !== 'play') return;
       }
     }
@@ -161,8 +170,9 @@ export async function mount(root) {
       if (c.taken) continue;
       const dx = P.x + 6 - c.x, dy = P.y + 11 - c.y;
       if (magnet && Math.hypot(dx, dy) < 120) { c.x += dx * .14; c.y += dy * .14; }
-      if (Math.abs(dx) < 12 && Math.abs(dy) < 16) { c.taken = true; G.coins++; G.score += 10; sound.play('coin'); }
+      if (Math.abs(dx) < 12 && Math.abs(dy) < 16) { c.taken = true; G.coins++; G.score += 10; sound.play('coin'); if (G.coins % COINS_PER_LIFE === 0) gainLife(c.x, c.y); }
     }
+    for (const hh of hearts) if (!hh.taken && Math.abs(P.x + 6 - hh.x) < 14 && Math.abs(P.y + 11 - hh.y) < 18) { hh.taken = true; gainLife(hh.x, hh.y); }
     for (const s of skills) if (!s.taken && Math.abs(P.x + 6 - s.x) < 14 && Math.abs(P.y + 11 - s.y) < 18) take(s);
     // goal
     const gx = L.goal.x;
@@ -174,6 +184,15 @@ export async function mount(root) {
     const target = P.x - VW * .38 + P.face * 30;
     cam.x += (clamp(target, 0, L.cols * T - VW) - cam.x) * .12;
     cam.y = clamp(P.y - VH * .55, 0, ROWS * T - VH);
+  }
+  // respawn point on solid ground at or just behind a checkpoint, never above a pit
+  function safeSpot(x) {
+    const tx = Math.floor(x / T);
+    for (let d = 0; d < 24; d++) {
+      const c = tx - d;
+      if (c >= 0 && solidAt(c, GROUND) && !solidAt(c, GROUND - 1) && !solidAt(c, GROUND - 2)) return { x: c * T + 2, y: GROUND * T - P.h };
+    }
+    return null;
   }
   function moveX(dx) {
     P.x += dx;
@@ -284,6 +303,15 @@ export async function mount(root) {
     ctx.fillStyle = C.yellow; ctx.fillRect(px(x - w / 2), px(y - 5), px(w), 10);
     if (w > 6) { ctx.fillStyle = '#000'; ctx.fillRect(px(x - 1), px(y - 3), 2, 6); ctx.fillRect(px(x - 2), px(y - 2), 4, 1); ctx.fillRect(px(x - 2), px(y + 1), 4, 1); }
   }
+  // a pixel heart: 2x scale of the HUD heart with a black outline, gently bobbing
+  function drawHeart(hh) {
+    const x = px(hh.x - cam.x - 8), y = px(hh.y - cam.y - 8 + Math.sin(G.t * .08 + hh.x) * 2);
+    if (x < -20 || x > VW + 10) return;
+    const rows = ['.##..##.', '########', '########', '.######.', '..####..', '...##...'];
+    ctx.fillStyle = '#000';
+    rows.forEach((r, j) => { for (let i = 0; i < 8; i++) if (r[i] === '#') ctx.fillRect(x + i * 2 - 1, y + j * 2 + 1, 4, 4); });
+    rows.forEach((r, j) => { for (let i = 0; i < 8; i++) if (r[i] === '#') { ctx.fillStyle = (i === 1 && j === 1) ? '#fff' : C.red; ctx.fillRect(x + i * 2, y + j * 2 + 2, 2, 2); } });
+  }
   function drawSkill(s) {
     const x = px(s.x - cam.x - 10), y = px(s.y - cam.y - 10 + Math.sin(G.t * .07 + s.x) * 3);
     if (x < -30 || x > VW + 10) return;
@@ -353,6 +381,7 @@ export async function mount(root) {
     drawTiles(); drawGoal();
     coins.forEach(c => !c.taken && drawCoin(c));
     skills.forEach(s => !s.taken && drawSkill(s));
+    hearts.forEach(hh => !hh.taken && drawHeart(hh));
     enemies.forEach(e => e.alive && (e.type !== 'fly' || e.active) && drawBubble(e));
     drawPlayer();
     parts.forEach(p => { ctx.fillStyle = p.color; ctx.fillRect(px(p.x - cam.x), px(p.y - cam.y), 2, 2); });
@@ -365,7 +394,7 @@ export async function mount(root) {
   function titleScreen() {
     G.state = 'title';
     screen(`<div class="gs gs--title"><p class="gs__kicker">игра про жизнь дизайнера</p><h2 class="gs__title">ЗАБЕГ <br>ДИЗАЙНЕРА</h2>
-      <p class="gs__text">Собирай монеты и навыки. Лопай правки клиента, прыгая на них. Сдай проект за три уровня.</p>
+      <p class="gs__text">Собирай монеты и навыки. Лопай правки клиента, прыгая на них. Каждые 40 монет и каждое сердечко — ещё одна жизнь.</p>
       <button class="btn btn--yellow btn--big" type="button" data-g="start">Старт</button></div>`);
   }
   function levelDone() {
@@ -377,6 +406,7 @@ export async function mount(root) {
       const next = LEVELS[G.levelIndex + 1];
       screen(`<div class="gs"><p class="gs__kicker">уровень 0${L.id} пройден${bonus ? ` · бонус за время +${bonus}` : ''}</p><h2 class="gs__title gs__title--small">${esc(L.goal.label)}!</h2>
         <p class="gs__text">Монеты ${G.coins} · очки ${G.score} · навыки ${G.skillsGot.size}/6</p>
+        <p class="gs__text">Жизни: ${Math.max(G.lives, 3)}${G.lives < 3 ? ' (пополнили до трёх)' : ''}</p>
         <p class="gs__text">Дальше: <b>УРОВЕНЬ 0${next.id} — ${esc(next.name)}</b></p>
         <button class="btn btn--yellow btn--big" type="button" data-g="next">Следующий уровень</button></div>`);
       $('[data-g="next"]', scr).focus();
@@ -397,7 +427,7 @@ export async function mount(root) {
   function gameOver() {
     G.state = 'over'; sound.play('lose');
     const prevBest = best(); if (G.score > prevBest) lsSet('bg.run.best', G.score); showBest();
-    screen(`<div class="gs gs--over"><h2 class="gs__title gs__title--small">КОНЕЦ ИГРЫ</h2><p class="gs__text">Клиент выбрал шаблон.</p>
+    screen(`<div class="gs gs--over"><h2 class="gs__title gs__title--small">КОНЕЦ ИГРЫ</h2><p class="gs__text">Клиент выбрал шаблон. «Заново» начнёт этот же уровень с тремя жизнями, монеты уровня обнулятся.</p>
       <p class="gs__text">Монеты ${G.coins} · очки ${G.score}</p>
       <div class="gs__btns"><button class="btn btn--yellow btn--big" type="button" data-g="restart">Заново</button><button class="btn btn--ghost btn--onblue" type="button" data-g="again">С первого уровня</button></div></div>`);
     $('[data-g="restart"]', scr).focus();

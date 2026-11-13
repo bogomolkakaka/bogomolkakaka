@@ -11,7 +11,7 @@ export const SKILLS = {
 };
 
 class Builder {
-  constructor(cols) { this.cols = cols; this.grid = Array.from({ length: ROWS }, () => new Array(cols).fill('.')); this.coins = []; this.skills = []; this.enemies = []; this.signs = []; this.checkpoints = []; this.goal = null; this.start = { x: 2, y: GROUND - 2 }; }
+  constructor(cols) { this.cols = cols; this.grid = Array.from({ length: ROWS }, () => new Array(cols).fill('.')); this.coins = []; this.skills = []; this.enemies = []; this.signs = []; this.checkpoints = []; this.hearts = []; this.goal = null; this.start = { x: 2, y: GROUND - 2 }; }
   fill(x0, x1, y0, y1, ch = '#') { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (x >= 0 && x < this.cols && y >= 0 && y < ROWS) this.grid[y][x] = ch; return this; }
   ground(x0, x1, top = GROUND) { return this.fill(x0, x1, top, ROWS - 1, '#'); }
   step(x0, x1, height) { return this.fill(x0, x1, GROUND - height, GROUND - 1, '#'); }
@@ -20,13 +20,14 @@ class Builder {
   coin(x, y) { this.coins.push({ x: x * T + 8, y: y * T + 8 }); return this; }
   coinRow(x0, n, y, dx = 1) { for (let i = 0; i < n; i++) this.coin(x0 + i * dx, y); return this; }
   coinArc(x0, n, y, hgt = 2) { for (let i = 0; i < n; i++) { const t = n > 1 ? i / (n - 1) : .5; this.coins.push({ x: (x0 + i) * T + 8, y: (y - Math.sin(t * Math.PI) * hgt) * T + 8 }); } return this; }
+  heart(x, y) { this.hearts.push({ x: x * T + 8, y: y * T + 8 }); return this; }
   skill(x, y, type) { this.skills.push({ x: x * T + 8, y: y * T + 8, type }); return this; }
   patrol(x0, x1, y, text, speed = .6) { this.enemies.push({ type: 'patrol', x0: x0 * T, x1: x1 * T, y: y * T, text, speed }); return this; }
   bob(x, y, amp, text, speed = .03) { this.enemies.push({ type: 'bob', x0: x * T, y: y * T, amp: amp * T, text, speed }); return this; }
   flyer(x, y, text, speed = 1.2, loop = false) { this.enemies.push({ type: 'fly', x0: x * T, y: y * T, text, speed, loop }); return this; }
   sign(x, y, text) { this.signs.push({ x: x * T, y: y * T, text }); return this; }
   check(x) { this.checkpoints.push({ x: x * T + 8, y: (GROUND) * T }); return this; }
-  done(meta) { return { ...meta, cols: this.cols, rows: ROWS, grid: this.grid.map(r => r.join('')), coins: this.coins, skills: this.skills, enemies: this.enemies, signs: this.signs, checkpoints: this.checkpoints, goal: this.goal, start: this.start }; }
+  done(meta) { return { ...meta, cols: this.cols, rows: ROWS, grid: this.grid.map(r => r.join('')), coins: this.coins, skills: this.skills, enemies: this.enemies, signs: this.signs, checkpoints: this.checkpoints, hearts: this.hearts, goal: this.goal, start: this.start }; }
 }
 
 function level1() {
@@ -40,42 +41,41 @@ function level1() {
     .patrol(58, 67, GROUND - 2, 'ПОЯРЧЕ!', .55).plat(61, 4, 9).skill(63, 7, 'color')
     .coinArc(72, 5, 11, 2.5).check(76)
     .ground(76, 131).step(82, 86, 2).coinRow(82, 5, 10).patrol(90, 101, GROUND - 3, 'А МОЖНО БЕСПЛАТНО?', .6)
-    .plat(104, 4, 10).coinRow(104, 4, 9).step(110, 111, 3).coinRow(113, 6, 12).sign(118, 8, 'бриф вон там →');
+    .plat(104, 4, 10).coinRow(104, 4, 9).heart(106, 7).step(110, 111, 3).coinRow(113, 6, 12).sign(118, 8, 'бриф вон там →');
   b.goal = { x: 126 * T, y: GROUND * T, label: 'БРИФ ОК' };
   return b.done({ id: 1, name: 'БРИФ', sub: 'осваиваемся и собираем первые монеты', theme: 'brief', time: 0 });
 }
 function level2() {
   const b = new Builder(176);
-  b.ground(0, 22).coinRow(4, 4, 12).patrol(9, 18, GROUND - 2, 'СРОЧНО!!!', .8)
+  b.ground(0, 22).coinRow(4, 4, 12).patrol(9, 18, GROUND - 2, 'СРОЧНО!!!', .6)
     .ground(26, 50).coinArc(22, 4, 11, 2).plat(29, 4, 10).skill(31, 8, 'figma').coinRow(35, 6, 12)
-    .flyer(46, 10, 'ЕЩЁ ОДНА ПРАВОЧКА', 1.3).patrol(38, 48, GROUND - 2, 'ПОЯРЧЕ!', .9)
+    .flyer(46, 10, 'ЕЩЁ ОДНА ПРАВОЧКА', 1.1).patrol(38, 48, GROUND - 2, 'ПОЯРЧЕ!', .7)
     .plat(51, 3, 11).plat(56, 3, 9).plat(61, 3, 11).coinRow(51, 3, 10).coinRow(56, 3, 8).coinRow(61, 3, 10)
-    .bob(58, 11, 2.2, 'СДЕЛАЙ КРУПНЕЕ!', .04)
-    .ground(65, 100).check(66).step(70, 72, 2).coinRow(70, 3, 10).patrol(74, 86, GROUND - 2, 'А МОЙ КУЗЕН ДИЗАЙНЕР', 1)
-    .plat(84, 5, 9).skill(86, 7, 'composition').coinRow(88, 8, 12).flyer(98, 9, 'СРОЧНО!!!', 1.6)
+    .bob(58, 11, 1.6, 'СДЕЛАЙ КРУПНЕЕ!', .035).heart(57, 6)
+    .ground(65, 100).check(66).step(70, 72, 2).coinRow(70, 3, 10).patrol(74, 86, GROUND - 2, 'А МОЙ КУЗЕН ДИЗАЙНЕР', .75)
+    .plat(84, 5, 9).skill(86, 7, 'composition').coinRow(88, 8, 12).flyer(98, 9, 'СРОЧНО!!!', 1.25)
     .coinArc(100, 4, 11, 2.2).ground(104, 132).block(108, 2, 11, 13).coinRow(108, 2, 10).block(114, 2, 10, 13).coinRow(114, 2, 9)
-    .patrol(117, 128, GROUND - 2, 'А МОЖНО БЕСПЛАТНО?', 1.05).check(122)
+    .patrol(117, 128, GROUND - 2, 'А МОЖНО БЕСПЛАТНО?', .8).check(122)
     .plat(133, 3, 11).skill(134, 9, 'deadline').coinRow(129, 3, 12).ground(136, 175)
-    .flyer(150, 11, 'СДЕЛАЙ КРУПНЕЕ!', 1.7).flyer(162, 8, 'ЕЩЁ ОДНА ПРАВОЧКА', 1.5).bob(146, 10, 2.5, 'ПОЯРЧЕ!', .05)
+    .check(140).flyer(150, 11, 'СДЕЛАЙ КРУПНЕЕ!', 1.3).flyer(164, 8, 'ЕЩЁ ОДНА ПРАВОЧКА', 1.2).bob(146, 10, 2, 'ПОЯРЧЕ!', .04)
     .coinRow(140, 5, 12).coinRow(155, 6, 12).step(158, 160, 2);
   b.goal = { x: 170 * T, y: GROUND * T, label: 'УСПЕЛИ!' };
   return b.done({ id: 2, name: 'ДЕДЛАЙН', sub: 'правок больше, времени меньше', theme: 'deadline', time: 150 });
 }
 function level3() {
   const b = new Builder(214);
-  b.ground(0, 26).coinRow(4, 6, 12).patrol(12, 24, GROUND - 2, 'ЛОГОТИП ПОКРУПНЕЕ?', 1.05)
-    .flyer(30, 9, 'СРОЧНО!!!', 1.8, true)
+  b.ground(0, 26).coinRow(4, 6, 12).patrol(12, 24, GROUND - 2, 'ЛОГОТИП ПОКРУПНЕЕ?', .75)
     .plat(27, 3, 11).plat(32, 3, 9).plat(37, 3, 11).coinRow(27, 3, 10).coinRow(32, 3, 8).coinRow(37, 3, 10)
-    .ground(41, 70).skill(44, 11, 'creativity').bob(52, 9, 3, 'ПОЯРЧЕ!', .06).patrol(55, 68, GROUND - 2, 'А МОЙ КУЗЕН ДИЗАЙНЕР', 1.2)
-    .flyer(66, 11, 'ЕЩЁ ОДНА ПРАВОЧКА', 2, true).coinRow(58, 8, 12).check(72)
-    .ground(72, 104).step(78, 81, 2).step(84, 87, 3).coinRow(84, 4, 9).patrol(89, 102, GROUND - 2, 'СДЕЛАЙ КРУПНЕЕ!', 1.3)
-    .plat(96, 5, 9).skill(98, 7, 'color').flyer(110, 10, 'СРОЧНО!!!', 2.1, true)
-    .coinArc(104, 4, 11, 2.5).ground(108, 140).bob(115, 10, 3, 'А МОЖНО БЕСПЛАТНО?', .05).block(120, 3, 11, 13).coinRow(120, 3, 10)
-    .patrol(124, 138, GROUND - 2, 'ЕЩЁ ОДНА ПРАВОЧКА', 1.35).check(142)
-    .plat(141, 3, 11).plat(146, 3, 9).plat(151, 3, 7).skill(152, 5, 'deadline').plat(156, 3, 9).plat(161, 2, 11)
-    .bob(149, 11, 2, 'ПОЯРЧЕ!', .07).bob(159, 7, 2, 'СРОЧНО!!!', .06)
-    .ground(164, 213).flyer(178, 9, 'СДЕЛАЙ КРУПНЕЕ!', 2.2, true).flyer(190, 11, 'ЛОГОТИП ПОКРУПНЕЕ?', 1.9, true)
-    .patrol(168, 182, GROUND - 2, 'ПОЯРЧЕ!', 1.4).patrol(186, 200, GROUND - 2, 'А МОЙ КУЗЕН ДИЗАЙНЕР', 1.5)
+    .ground(41, 71).skill(44, 11, 'creativity').flyer(50, 9, 'СРОЧНО!!!', 1.25).bob(52, 9, 2, 'ПОЯРЧЕ!', .04).patrol(55, 68, GROUND - 2, 'А МОЙ КУЗЕН ДИЗАЙНЕР', .85)
+    .flyer(70, 10, 'ЕЩЁ ОДНА ПРАВОЧКА', 1.35).coinRow(58, 8, 12).check(72)
+    .ground(72, 104).step(78, 81, 2).step(84, 87, 3).coinRow(84, 4, 9).patrol(89, 102, GROUND - 2, 'СДЕЛАЙ КРУПНЕЕ!', .9)
+    .plat(96, 5, 9).skill(98, 7, 'color').heart(100, 6).flyer(118, 10, 'СРОЧНО!!!', 1.4)
+    .coinArc(104, 4, 11, 2.5).ground(108, 140).check(110).bob(115, 10, 2, 'А МОЖНО БЕСПЛАТНО?', .04).block(120, 3, 11, 13).coinRow(120, 3, 10)
+    .patrol(124, 136, GROUND - 2, 'ЕЩЁ ОДНА ПРАВОЧКА', .95).check(139)
+    .plat(141, 3, 11).plat(146, 3, 9).plat(151, 3, 7).skill(152, 5, 'deadline').plat(156, 3, 9).plat(160, 4, 11).heart(147, 7)
+    .bob(149, 12, 1.5, 'ПОЯРЧЕ!', .04)
+    .ground(164, 213).check(166).flyer(180, 9, 'СДЕЛАЙ КРУПНЕЕ!', 1.45).flyer(196, 11, 'ЛОГОТИП ПОКРУПНЕЕ?', 1.35)
+    .patrol(170, 182, GROUND - 2, 'ПОЯРЧЕ!', 1).patrol(188, 200, GROUND - 2, 'А МОЙ КУЗЕН ДИЗАЙНЕР', 1.05)
     .coinRow(166, 10, 12).coinRow(186, 10, 12).step(202, 203, 2).sign(196, 6, 'последняя мелочь →');
   b.goal = { x: 208 * T, y: GROUND * T, label: 'ОТПРАВИТЬ', send: true };
   return b.done({ id: 3, name: 'FINAL FINAL V7', sub: 'режим хаоса. сдавай.', theme: 'final', time: 0 });
