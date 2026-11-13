@@ -198,7 +198,7 @@ function renderSheet(fresh) {
       </div></div></div>`;
   document.documentElement.classList.add('locked');
   const sheet = $('.sheet', host);
-  if (fresh) { sheet.scrollTop = 0; $('[data-act="close"]', sheet).focus({ preventScroll: true }); } else sheet.scrollTop = keep;
+  if (fresh) { sheet.scrollTop = 0; $('[data-act="close"]', sheet).focus({ preventScroll: true, focusVisible: false }); } else sheet.scrollTop = keep;
   const img = $('#stage-img', host);
   if (img) { img.addEventListener('error', () => img.classList.add('is-broken'), { once: true }); bindSwipe(img, o); }
 }

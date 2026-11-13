@@ -63,7 +63,15 @@ export async function mountBoard(root, { day, live, back }) {
     const r = vp.getBoundingClientRect();
     const fitK = Math.min(r.width / WORLD.w, r.height / WORLD.h);
     if (fitK >= .3) { fit(); return; }
-    S.k = .32; S.tx = (r.width - WORLD.w * S.k) / 2; S.ty = 16; applyView();
+    // small screens: frame the question card and whatever is already on the wall
+    const card = $('#prompt', root), cw = card ? card.offsetWidth : 840, ch = card ? card.offsetHeight : 200;
+    let x0 = WORLD.w / 2 - cw / 2, y0 = 20, x1 = WORLD.w / 2 + cw / 2, y1 = 40 + ch;
+    for (const it of S.items.values()) { x0 = Math.min(x0, it.x); y0 = Math.min(y0, it.y); x1 = Math.max(x1, it.x + it.w); y1 = Math.max(y1, it.y + it.h); }
+    x0 -= 40; y0 -= 20; x1 += 40; y1 += 120;
+    const room = r.width - 58; // keep clear of the zoom buttons on the right
+    S.k = clamp(Math.min(room / (x1 - x0), r.height / (y1 - y0)), .14, .5);
+    S.tx = room / 2 - (x0 + x1) / 2 * S.k; S.ty = Math.min(16, r.height / 2 - (y0 + y1) / 2 * S.k);
+    clampView(); applyView();
   }
   function zoomAt(f, cx, cy) {
     const r = vp.getBoundingClientRect();
@@ -153,7 +161,7 @@ export async function mountBoard(root, { day, live, back }) {
   }
 
   /* ---------- prompt ---------- */
-  (async () => {
+  const promptReady = (async () => {
     try { const list = await prompts.list(); $('#prompt b', root).textContent = prompts.pick(S.day, list); }
     catch (e) { $('#prompt b', root).textContent = 'Leave something for a stranger.'; }
   })();
@@ -452,7 +460,8 @@ export async function mountBoard(root, { day, live, back }) {
   const onResize = () => { clampView(); applyView(); };
   window.addEventListener('resize', onResize);
   startView();
-  await load();
+  await Promise.all([load(), promptReady]);
+  startView();
 
   return () => {
     S.alive = false; unsub(); clearInterval(refresh); clearInterval(clockTimer); clearTimeout(dayTimer);

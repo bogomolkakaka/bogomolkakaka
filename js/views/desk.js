@@ -26,10 +26,10 @@ export async function mount(root) {
       <p class="desk-sub">a tiny studio on the internet.<br>touch things, make things.</p>
     </div>
     <a class="thing thing--booth" href="#/booth" data-thing="booth"><img src="assets/desk/camera.png" alt="Photo Booth: a blue camera" width="441" height="391"><span class="thing__label">Photo Booth</span></a>
-    <a class="thing thing--wall" href="#/wall" data-thing="wall"><div class="deskboard"><span class="tape" aria-hidden="true"></span><canvas width="480" height="320" aria-hidden="true"></canvas>
+    <a class="thing thing--wall" href="#/wall" data-thing="wall"><div class="deskboard"><span class="tape" aria-hidden="true"></span><canvas width="640" height="400" aria-hidden="true"></canvas>
       <div class="board__cap"><b>Today’s Wall</b><span id="desk-count">…</span></div></div><span class="thing__label">Make something together</span></a>
     <a class="thing thing--capsule" href="#/capsule" data-thing="capsule"><div class="cal"><div class="cal__top">${MONTHS[z.m - 1].toUpperCase()}</div><div class="cal__day">${z.d}</div><div class="cal__wd">${esc(wd)}</div></div><span class="thing__label">Time Capsule</span></a>
-    <a class="thing thing--run" href="#/run" data-thing="run"><img src="assets/desk/console.png" alt="Designer Run: a yellow game console" width="489" height="523"><canvas class="console-screen" width="96" height="76" aria-hidden="true"></canvas><span class="thing__label">Designer Run</span></a>
+    <a class="thing thing--run" href="#/run" data-thing="run"><span class="console"><img src="assets/desk/console.png" alt="Designer Run: a yellow game console" width="489" height="523"><canvas class="console-screen" width="96" height="76" aria-hidden="true"></canvas></span><span class="thing__label">Designer Run</span></a>
     <a class="thing thing--objects" href="#/objects" data-thing="objects"><img src="assets/desk/toys.png" alt="Little Objects: three small figures" width="639" height="351"><span class="thing__label">Little Objects</span></a>
     <a class="thing thing--stuff" href="#/stuff" data-thing="stuff"><div class="folders" aria-hidden="true">
       <div class="folder folder--1" data-tab="random"></div><div class="folder folder--2" data-tab="3D"></div><div class="folder__paper"></div>
@@ -59,6 +59,18 @@ export async function mount(root) {
   };
   applyPos();
   void unit;
+
+  // keep the site name inside the mat whatever the font and screen width
+  const title = $('.desk-title', root), hero = $('.desk-hero', root);
+  const fitTitle = () => {
+    title.style.fontSize = '';
+    const cs = getComputedStyle(hero);
+    const room = hero.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const w = title.scrollWidth;
+    if (room > 0 && w > room) title.style.fontSize = (parseFloat(getComputedStyle(title).fontSize) * room / w * .98) + 'px';
+  };
+  fitTitle();
+  if (document.fonts) document.fonts.ready.then(() => { if (title.isConnected) fitTitle(); });
 
   // drag things around (desktop); a short press without moving still opens the room
   let drag = null, suppressClick = false;
@@ -98,7 +110,7 @@ export async function mount(root) {
   }, true);
   desk.addEventListener('dragstart', e => e.preventDefault());
   $('#desk-reset').addEventListener('click', () => { saved = {}; lsSet('bg.desk', saved); applyPos(); sound.play('paper'); });
-  const onResize = () => applyPos();
+  const onResize = () => { applyPos(); fitTitle(); };
   window.addEventListener('resize', onResize);
 
   // phrase note
@@ -115,7 +127,7 @@ export async function mount(root) {
     try {
       const items = await wall.list(todayKey());
       if (!alive) return;
-      drawMini(cv, items, { bg: '#fafbfd', redraw: true });
+      drawMini(cv, items, { bg: '#fafbfd', redraw: true, fit: 'content' });
       $('#desk-count').textContent = items.length ? `${items.length} thing${items.length === 1 ? '' : 's'} today` : 'empty, be first';
     } catch (e) { $('#desk-count').textContent = 'open it'; }
   })();
