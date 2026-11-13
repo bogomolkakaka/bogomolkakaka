@@ -2,6 +2,7 @@ import { $, $$, esc, h, ICON, sound, toast, clamp, rand, todayKey, lsGet, lsSet,
 import { LEVELS, T, ROWS, GROUND, SKILLS } from '../game/levels.js';
 import { wall } from '../store.js';
 import { WORLD } from '../wallmini.js';
+import { complete, celebrate, gamesNavHTML, albumHTML, levelsDone } from '../progress.js';
 
 const FONT = '8px "Press Start 2P", "Courier New", monospace';
 const C = { cobalt: '#244EE7', cobaltTop: '#5577F2', yellow: '#FFD84A', red: '#E8291F', pink: '#FFB8D9', sky: '#CFE0FF', ink: '#000000', paper: '#ffffff' };
@@ -11,6 +12,7 @@ export async function mount(root) {
     <div class="page-head"><div><a class="back" href="#/">${ICON.back}На рабочий стол</a>
       <h1 class="page-title">Забег дизайнера</h1><p class="page-sub">собирай монеты и навыки, уворачивайся от правок, сдай проект</p></div>
       <p class="run-best" id="best"></p></div>
+    <div id="gamesnav">${gamesNavHTML('run')}</div>
     <div class="cabinet">
       <div class="gamebox" id="gamebox" tabindex="0" aria-label="Игра «Забег дизайнера». Стрелки или A и D — идти, пробел — прыжок, P — пауза.">
         <canvas id="game" width="480" height="270"></canvas>
@@ -24,10 +26,14 @@ export async function mount(root) {
         <p><b>Клавиши:</b> ← → или A D — идти, пробел или ↑ — прыжок, P — пауза.</p>
         <p><b>Жизни:</b> каждый уровень начинается минимум с трёх. Ещё одну дают каждые 40 монет, сердечки на уровнях и навык «Креатив», всего до пяти.</p>
         <p><b>Навыки:</b> ${Object.values(SKILLS).map(s => `<span class="skill-chip" style="--c:${s.color}">${s.name}</span> ${s.note}`).join(' · ')}</p>
+        <p><b>Батут:</b> жёлтая пружина подбрасывает очень высоко, наверху обычно монеты.</p>
+        <p><b>Награды:</b> за уровни 1–3 и 4–6 — по стикеру. Уровни 1–3 открывают «Мемори», уровни 4–6 — «Змейку».</p>
         <p class="run-rotate">Совет: поверни телефон боком — экран станет больше.</p>
       </div>
     </div>
+    <div id="album">${albumHTML()}</div>
   </div>`;
+  const refreshMeta = () => { $('#gamesnav', root).innerHTML = gamesNavHTML('run'); $('#album', root).innerHTML = albumHTML(); };
 
   const cv = $('#game', root), ctx = cv.getContext('2d');
   const box = $('#gamebox', root), scr = $('#gscreen', root);
@@ -53,7 +59,7 @@ export async function mount(root) {
     if (ty < 0) return false;
     if (ty >= ROWS) return false;
     const ch = L.grid[ty][tx];
-    return ch === '#' || ch === '=' || ch === 'B';
+    return ch === '#' || ch === '=' || ch === 'B' || ch === 'J';
   }
   function bubbleSize(text) {
     const words = text.split(' '); const lines = []; let cur = '';
@@ -134,7 +140,8 @@ export async function mount(root) {
     if (keys.jumpPressed) { P.jumpBuf = 8; keys.jumpPressed = false; }
     if (P.ground) P.coyote = 7; else if (P.coyote > 0) P.coyote--;
     if (P.jumpBuf > 0) { P.jumpBuf--; if (P.coyote > 0) { P.vy = -8.5; P.coyote = 0; P.jumpBuf = 0; P.ground = false; sound.play('jump'); } }
-    if (!keys.jump && P.vy < -3.2) P.vy = -3.2;
+    if (P.vy >= 0) P.boost = false;
+    if (!keys.jump && P.vy < -3.2 && !P.boost) P.vy = -3.2;
     const prevBottom = P.y + P.h;
     moveX(P.vx); moveY(P.vy);
     if (P.inv > 0) P.inv--;
@@ -203,7 +210,7 @@ export async function mount(root) {
   function moveY(dy) {
     P.y += dy; P.ground = false;
     const x0 = Math.floor(P.x / T), x1 = Math.floor((P.x + P.w - 1) / T);
-    if (dy > 0) { const ty = Math.floor((P.y + P.h) / T); for (let tx = x0; tx <= x1; tx++) if (solidAt(tx, ty) && ty >= 0 && ty < ROWS) { P.y = ty * T - P.h; P.vy = 0; P.ground = true; break; } }
+    if (dy > 0) { const ty = Math.floor((P.y + P.h) / T); for (let tx = x0; tx <= x1; tx++) if (solidAt(tx, ty) && ty >= 0 && ty < ROWS) { P.y = ty * T - P.h; P.vy = 0; P.ground = true; if (L.grid[ty][tx] === 'J') { P.vy = -11.5; P.ground = false; P.boost = true; P.coyote = 0; L.bounce = { tx, t: G.t }; sound.play('jump'); } break; } }
     if (dy < 0) { const ty = Math.floor(P.y / T); for (let tx = x0; tx <= x1; tx++) if (ty >= 0 && solidAt(tx, ty)) { P.y = (ty + 1) * T; P.vy = 0; break; } }
   }
 
@@ -211,7 +218,8 @@ export async function mount(root) {
   function px(x) { return Math.round(x); }
   function drawBg() {
     const th = L.theme;
-    const sky = th === 'brief' ? ['#CFE0FF', '#E4EEFF'] : th === 'deadline' ? ['#FFC9A8', '#FFE0EC'] : ['#0D1338', '#1A2160'];
+    const dark = th === 'final' || th === 'launch';
+    const sky = { brief: ['#CFE0FF', '#E4EEFF'], deadline: ['#FFC9A8', '#FFE0EC'], pitch: ['#FFE9A8', '#FFF4D1'], revisions: ['#FFD6E7', '#FFE9F2'], launch: ['#121A4D', '#1C2670'] }[th] || ['#0D1338', '#1A2160'];
     ctx.fillStyle = sky[0]; ctx.fillRect(0, 0, VW, VH);
     ctx.fillStyle = sky[1]; for (let y = 0; y < VH; y += 6) if ((y / 6) % 2) ctx.fillRect(0, y + 2, VW, 2);
     const off = cam.x * .3;
@@ -226,6 +234,21 @@ export async function mount(root) {
           const a = G.levelT / 60 * Math.PI * 2 / 12, b = G.levelT / 60 * Math.PI * 2;
           ctx.beginPath(); ctx.moveTo(px(cx), cy); ctx.lineTo(px(cx + Math.sin(a) * 13), cy - Math.cos(a) * 13); ctx.moveTo(px(cx), cy); ctx.lineTo(px(cx + Math.sin(b) * 19), cy - Math.cos(b) * 19); ctx.strokeStyle = C.red; ctx.stroke();
         } else { ctx.fillStyle = '#fff'; ctx.fillRect(px(wx + 28), 36, 54, 36); ctx.fillStyle = C.red; ctx.font = FONT; ctx.fillText('СРОК', px(wx + 38), 58); }
+      } else if (th === 'pitch') {
+        // projector screens with growing bar charts
+        ctx.fillStyle = '#000'; ctx.fillRect(px(wx + 18), 26, 84, 58); ctx.fillStyle = '#fff'; ctx.fillRect(px(wx + 20), 28, 80, 54);
+        for (let k = 0; k < 4; k++) { const hgt = 10 + ((idx * 7 + k * 11) % 30); ctx.fillStyle = [C.cobalt, C.yellow, C.red, C.pink][(k + idx) & 3]; ctx.fillRect(px(wx + 28 + k * 17), 76 - hgt, 11, hgt); }
+        ctx.fillStyle = '#000'; ctx.fillRect(px(wx + 58), 84, 3, 14);
+      } else if (th === 'revisions') {
+        // pages covered in red-pen marks
+        ctx.fillStyle = '#fff'; ctx.fillRect(px(wx + 26), 28, 56, 72); ctx.fillStyle = '#c9ced8';
+        for (let k = 0; k < 6; k++) ctx.fillRect(px(wx + 32), 38 + k * 9, 30 + ((idx + k) % 3) * 6, 3);
+        ctx.strokeStyle = C.red; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(px(wx + 52), 56, 14 + (idx & 1) * 4, 0, 7); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(px(wx + 30), 86); ctx.lineTo(px(wx + 76), 80); ctx.stroke();
+      } else if (th === 'launch') {
+        // stars and a rocket waiting for the release
+        ctx.fillStyle = '#fff'; for (let k = 0; k < 5; k++) { const sx = wx + ((idx * 37 + k * 23) % 110), sy = 14 + ((idx * 13 + k * 29) % 110); if ((G.t + k * 9) % 60 > 8) ctx.fillRect(px(sx), sy, 2, 2); }
+        if (idx % 3 === 0) { ctx.fillStyle = '#fff'; ctx.fillRect(px(wx + 56), 52, 12, 30); ctx.fillStyle = C.red; ctx.fillRect(px(wx + 56), 44, 12, 8); ctx.fillRect(px(wx + 52), 76, 4, 10); ctx.fillRect(px(wx + 68), 76, 4, 10); ctx.fillStyle = C.cobalt; ctx.fillRect(px(wx + 59), 58, 6, 6); ctx.fillStyle = G.t % 10 < 5 ? C.yellow : C.red; ctx.fillRect(px(wx + 58), 82, 8, 6); }
       } else {
         const notes = ['v7', 'ФИНАЛ', 'final2', 'ВОТ ЭТОТ', 'v7_new'];
         ctx.fillStyle = idx % 2 ? C.yellow : C.pink; ctx.fillRect(px(wx + 26), 34 + (idx % 3) * 14, 46, 30);
@@ -236,9 +259,9 @@ export async function mount(root) {
     const off2 = cam.x * .6;
     for (let i = -1; i < VW / 90 + 2; i++) {
       const wx = i * 90 - (off2 % 90);
-      ctx.fillStyle = th === 'final' ? '#232b6e' : 'rgba(255,255,255,.55)';
-      ctx.fillRect(px(wx + 10), 150, 60, 34); ctx.fillStyle = th === 'final' ? '#3a4596' : 'rgba(36,78,231,.25)'; ctx.fillRect(px(wx + 14), 154, 52, 26);
-      ctx.fillStyle = th === 'final' ? '#232b6e' : 'rgba(255,255,255,.55)'; ctx.fillRect(px(wx + 34), 184, 12, 10);
+      ctx.fillStyle = dark ? '#232b6e' : 'rgba(255,255,255,.55)';
+      ctx.fillRect(px(wx + 10), 150, 60, 34); ctx.fillStyle = dark ? '#3a4596' : 'rgba(36,78,231,.25)'; ctx.fillRect(px(wx + 14), 154, 52, 26);
+      ctx.fillStyle = dark ? '#232b6e' : 'rgba(255,255,255,.55)'; ctx.fillRect(px(wx + 34), 184, 12, 10);
     }
   }
   function drawTiles() {
@@ -255,6 +278,12 @@ export async function mount(root) {
       } else if (ch === '=') {
         ctx.fillStyle = '#000'; ctx.fillRect(x, y, T, 7); ctx.fillStyle = '#fff'; ctx.fillRect(x, y + 1, T, 5);
         ctx.fillStyle = 'rgba(0,0,0,.15)'; ctx.fillRect(x, y + 7, T, 2);
+      } else if (ch === 'J') {
+        // spring: squashes for a moment after a bounce
+        const sq = L.bounce && L.bounce.tx === tx && G.t - L.bounce.t < 8 ? 4 : 0;
+        ctx.fillStyle = '#000'; ctx.fillRect(x + 1, y + 13, 14, 3);
+        ctx.fillStyle = '#555'; for (let k = 0; k < 3; k++) ctx.fillRect(x + 3 + (k % 2) * 2, y + 6 + sq + k * (2 - sq / 4), 8, 2);
+        ctx.fillStyle = '#000'; ctx.fillRect(x, y + 2 + sq, 16, 5); ctx.fillStyle = C.yellow; ctx.fillRect(x + 1, y + 3 + sq, 14, 3);
       } else if (ch === 'B') {
         ctx.fillStyle = (tx + ty) % 2 ? C.yellow : C.pink; ctx.fillRect(x, y, T, T);
         ctx.fillStyle = '#000'; ctx.fillRect(x, y, T, 1); ctx.fillRect(x, y, 1, T); ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(x + 3, y + 5, T - 6, 2);
@@ -333,8 +362,9 @@ export async function mount(root) {
     if (g.send) {
       ctx.fillStyle = '#000'; ctx.fillRect(x - 2, y - 26, 40, 26); ctx.fillStyle = '#fff'; ctx.fillRect(x, y - 24, 36, 24);
       const pulse = G.t % 40 < 20 ? 0 : 2;
-      ctx.fillStyle = '#000'; ctx.fillRect(x + 2, y - 42 - pulse, 32, 18); ctx.fillStyle = C.red; ctx.fillRect(x + 3, y - 41 - pulse, 30, 16);
-      ctx.fillStyle = '#fff'; ctx.font = FONT; ctx.fillText('SEND', x + 2, y - 30 - pulse);
+      ctx.font = FONT; const bw = Math.max(32, ctx.measureText(g.label).width + 8);
+      ctx.fillStyle = '#000'; ctx.fillRect(x + 18 - bw / 2 - 1, y - 42 - pulse, bw + 2, 18); ctx.fillStyle = C.red; ctx.fillRect(x + 18 - bw / 2, y - 41 - pulse, bw, 16);
+      ctx.fillStyle = '#fff'; ctx.fillText(g.label, x + 18 - bw / 2 + 4, y - 30 - pulse);
     } else {
       ctx.fillStyle = '#000'; ctx.fillRect(x, y - 64, 3, 64);
       const wave = Math.floor(G.t / 8) % 2;
@@ -393,14 +423,17 @@ export async function mount(root) {
   function screen(html) { scr.innerHTML = html; scr.hidden = !html; }
   function titleScreen() {
     G.state = 'title';
+    const done = levelsDone('run'), cont = done >= LEVELS.length ? 0 : done;
     screen(`<div class="gs gs--title"><p class="gs__kicker">игра про жизнь дизайнера</p><h2 class="gs__title">ЗАБЕГ <br>ДИЗАЙНЕРА</h2>
-      <p class="gs__text">Собирай монеты и навыки. Лопай правки клиента, прыгая на них. Каждые 40 монет и каждое сердечко — ещё одна жизнь.</p>
-      <button class="btn btn--yellow btn--big" type="button" data-g="start">Старт</button></div>`);
+      <p class="gs__text">Шесть уровней. Лопай правки клиента, прыгая на них. Каждые 40 монет и каждое сердечко — ещё одна жизнь.</p>
+      <div class="gs__btns">${cont ? `<button class="btn btn--yellow btn--big" type="button" data-g="continue" data-l="${cont}">Уровень ${cont + 1}</button><button class="btn btn--ghost btn--onblue" type="button" data-g="start">С первого уровня</button>` : '<button class="btn btn--yellow btn--big" type="button" data-g="start">Старт</button>'}</div></div>`);
   }
   function levelDone() {
     sound.play('win');
     const bonus = L.time ? Math.max(0, L.time - Math.floor(G.levelT / 60)) * 5 : 0;
     G.score += bonus;
+    const res = complete('run', L.id); refreshMeta();
+    setTimeout(() => celebrate(res), 450);
     if (G.levelIndex < LEVELS.length - 1) {
       G.state = 'between';
       const next = LEVELS[G.levelIndex + 1];
@@ -419,7 +452,7 @@ export async function mount(root) {
     lsSet('bg.medal', medal);
     screen(`<div class="gs gs--win"><h2 class="gs__title gs__title--small">УРА!<br>КЛИЕНТУ НРАВИТСЯ.<br><span>ПОКА ЧТО.</span></h2>
       <p class="gs__text">Монеты ${G.coins} · очки ${G.score}${G.score > prevBest ? ' · новый рекорд!' : ''} · навыки ${G.skillsGot.size}/6</p>
-      <div class="gs__medal"><img src="" alt="" id="medal-img" width="96" height="120"><p>Ты заработала стикер-медаль.</p></div>
+      <div class="gs__medal"><img src="" alt="" id="medal-img" width="96" height="120"><p>И медаль для стены дня.</p></div>
       <div class="gs__btns"><button class="btn btn--yellow" type="button" data-g="medal">Повесить медаль на стену дня</button><button class="btn btn--ghost btn--onblue" type="button" data-g="again">Сыграть ещё</button></div></div>`);
     import('../stickers.js').then(m => { const i = $('#medal-img', scr); if (i) i.src = m.svgURL(m.medalSVG(medal)); });
     $('[data-g="medal"]', scr).focus();
@@ -446,6 +479,7 @@ export async function mount(root) {
     const b = e.target.closest('[data-g]'); if (!b) return;
     const a = b.dataset.g;
     if (a === 'start' || a === 'again') startGame(0);
+    if (a === 'continue') startGame(+b.dataset.l);
     if (a === 'next') { loadLevel(G.levelIndex + 1); G.state = 'play'; screen(''); box.focus(); }
     if (a === 'restart') { G.score = levelScore0; G.coins = levelCoins0; startGame(G.levelIndex, true); }
     if (a === 'resume') pause(false);
@@ -471,7 +505,7 @@ export async function mount(root) {
     else if (k === 'arrowright' || k === 'd') keys.right = down;
     else if (k === ' ' || k === 'arrowup' || k === 'w') { if (down && !keys.jump) keys.jumpPressed = true; keys.jump = down; }
     else if ((k === 'p' || k === 'escape') && down) { if (G.state === 'play') pause(true); else if (G.state === 'paused') pause(false); else used = false; }
-    else if (k === 'enter' && down && G.state === 'title') startGame(0);
+    else if (k === 'enter' && down && G.state === 'title') startGame(levelsDone('run') % LEVELS.length);
     else used = false;
     if (used && (G.state === 'play' || G.state === 'paused') && !e.target.closest('button')) e.preventDefault();
     if (used && k === ' ' && G.state === 'play') e.preventDefault();
@@ -484,7 +518,7 @@ export async function mount(root) {
     e.preventDefault(); try { b.setPointerCapture(e.pointerId); } catch (er) { /* ignore */ }
     padState.set(e.pointerId, b.dataset.pad); b.classList.add('is-down');
     if (b.dataset.pad === 'jump') { keys.jumpPressed = true; keys.jump = true; } else keys[b.dataset.pad] = true;
-    if (G.state === 'title') startGame(0);
+    if (G.state === 'title') startGame(levelsDone('run') % LEVELS.length);
   });
   const padUp = e => {
     const which = padState.get(e.pointerId); if (!which) return;

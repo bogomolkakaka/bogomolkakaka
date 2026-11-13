@@ -2,6 +2,7 @@ import { CONFIG } from '../config.js';
 import { $, $$, esc, h, ICON, sound, toast, clamp, rand, todayKey, fmtDay, msToNextDay, addDays, openModal, confirmBox, resizeToBlob, lsGet, lsSet, plural } from '../util.js';
 import { wall, upload, prompts, stickers as stickerStore, state } from '../store.js';
 import { BUILTIN, stickerURL, medalSVG, svgURL } from '../stickers.js';
+import { earned } from '../progress.js';
 import { WORLD, NOTE_COLORS } from '../wallmini.js';
 
 const BRUSHES = { pen: { s: 6, a: 1, name: 'Ручка' }, marker: { s: 16, a: 1, name: 'Маркер' }, glow: { s: 30, a: .4, name: 'Выделитель' } };
@@ -225,7 +226,7 @@ export async function mountBoard(root, { day, live, back }) {
     });
   }
   function stickerDialog() {
-    const list = [...BUILTIN.map(b => ({ sticker: b.id, name: b.name, src: stickerURL(b.id) })), ...S.custom.map(c => ({ src: c.url, name: c.name || 'стикер', custom: true }))];
+    const list = [...[...earned().reverse(), ...BUILTIN].map(b => ({ sticker: b.id, name: b.name, src: stickerURL(b.id) })), ...S.custom.map(c => ({ src: c.url, name: c.name || 'стикер', custom: true }))];
     const m = openModal(`<h2>Выбери стикер</h2><div class="tray tray--big">${list.map((s, i) => `<button class="tray__s" type="button" data-i="${i}" aria-label="${esc(s.name)}"><img src="${esc(s.src)}" alt=""></button>`).join('')}</div>`, { label: 'Выбери стикер', wide: true });
     $$('.tray__s', m.el).forEach(b => b.addEventListener('click', () => {
       const s = list[+b.dataset.i]; m.close();

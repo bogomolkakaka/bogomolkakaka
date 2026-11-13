@@ -20,6 +20,7 @@ class Builder {
   coin(x, y) { this.coins.push({ x: x * T + 8, y: y * T + 8 }); return this; }
   coinRow(x0, n, y, dx = 1) { for (let i = 0; i < n; i++) this.coin(x0 + i * dx, y); return this; }
   coinArc(x0, n, y, hgt = 2) { for (let i = 0; i < n; i++) { const t = n > 1 ? i / (n - 1) : .5; this.coins.push({ x: (x0 + i) * T + 8, y: (y - Math.sin(t * Math.PI) * hgt) * T + 8 }); } return this; }
+  spring(x) { this.grid[GROUND - 1][x] = 'J'; return this; }
   heart(x, y) { this.hearts.push({ x: x * T + 8, y: y * T + 8 }); return this; }
   skill(x, y, type) { this.skills.push({ x: x * T + 8, y: y * T + 8, type }); return this; }
   patrol(x0, x1, y, text, speed = .6) { this.enemies.push({ type: 'patrol', x0: x0 * T, x1: x1 * T, y: y * T, text, speed }); return this; }
@@ -77,7 +78,54 @@ function level3() {
     .ground(164, 213).check(166).flyer(180, 9, 'СДЕЛАЙ КРУПНЕЕ!', 1.45).flyer(196, 11, 'ЛОГОТИП ПОКРУПНЕЕ?', 1.35)
     .patrol(170, 182, GROUND - 2, 'ПОЯРЧЕ!', 1).patrol(188, 200, GROUND - 2, 'А МОЙ КУЗЕН ДИЗАЙНЕР', 1.05)
     .coinRow(166, 10, 12).coinRow(186, 10, 12).step(202, 203, 2).sign(196, 6, 'последняя мелочь →');
-  b.goal = { x: 208 * T, y: GROUND * T, label: 'ОТПРАВИТЬ', send: true };
+  b.goal = { x: 208 * T, y: GROUND * T, label: 'СДАНО' };
   return b.done({ id: 3, name: 'FINAL FINAL V7', sub: 'режим хаоса. сдавай.', theme: 'final', time: 0 });
 }
-export const LEVELS = [level1(), level2(), level3()];
+// Chapter two. Same gentle ramp as 1→3: a little faster each level, never endless swarms, a checkpoint every ~35 columns.
+function level4() {
+  const b = new Builder(190);
+  b.ground(0, 30).coinRow(4, 5, 12).sign(5, 7, 'жёлтый батут подбросит высоко').spring(14).coin(14, 7).coin(14, 5).coin(14, 3)
+    .patrol(18, 28, GROUND - 2, 'НУЖНО ВЧЕРА', .7).plat(22, 4, 10).coinRow(22, 4, 9)
+    .ground(34, 70).step(38, 40, 2).coinRow(38, 3, 10).patrol(44, 54, GROUND - 2, 'ДОБАВЬ ВОЗДУХА', .8).flyer(58, 9, 'ЕЩЁ ВАРИАНТ', 1.2)
+    .check(60).plat(62, 4, 9).skill(64, 7, 'figma').coinRow(66, 4, 12)
+    .plat(72, 3, 11).coinRow(72, 3, 10)
+    .ground(76, 120).spring(80).coin(80, 7).coin(80, 5).coin(80, 3).block(86, 2, 11, 13).coinRow(86, 2, 10)
+    .bob(92, 10, 1.6, 'А ЕСЛИ ЗЕЛЁНЫЙ?', .035).check(98).patrol(100, 112, GROUND - 2, 'ШРИФТ ПОМОДНЕЕ', .85)
+    .plat(106, 4, 10).heart(108, 8).coinArc(118, 4, 11, 2)
+    .ground(124, 189).check(127).step(130, 132, 2).coinRow(130, 3, 10).flyer(146, 10, 'НУЖНО ВЧЕРА', 1.3)
+    .patrol(146, 160, GROUND - 2, 'СДЕЛАЙ КАК У ВСЕХ', .9).plat(150, 4, 9).skill(152, 7, 'composition')
+    .coinRow(164, 8, 12).sign(174, 8, 'питч уже близко →');
+  b.goal = { x: 184 * T, y: GROUND * T, label: 'ПИТЧ ОК' };
+  return b.done({ id: 4, name: 'ПИТЧ', sub: 'покажи идею и не моргни', theme: 'pitch', time: 0 });
+}
+function level5() {
+  const b = new Builder(200);
+  b.ground(0, 24).coinRow(4, 5, 12).patrol(10, 22, GROUND - 2, 'ДАВАЙТЕ КАК БЫЛО', .8)
+    .ground(28, 60).step(31, 33, 2).coinRow(31, 3, 10).check(36).bob(40, 10, 1.6, 'А ПОЧЕМУ ТАК?', .04)
+    .spring(46).coin(46, 7).coin(46, 5).coin(46, 3).patrol(48, 58, GROUND - 2, 'ЕЩЁ ВАРИАНТ', .85)
+    .plat(62, 3, 11).plat(67, 3, 9).heart(68, 7).coinRow(62, 3, 10)
+    .ground(72, 110).check(74).skill(80, 11, 'deadline').block(88, 2, 11, 13).coinRow(88, 2, 10).flyer(96, 10, 'НУЖНО ВЧЕРА', 1.3)
+    .patrol(94, 108, GROUND - 2, 'ЛОГО НА ВЕСЬ ЭКРАН', .9)
+    .ground(114, 150).check(116).plat(120, 5, 10).coinRow(120, 5, 9).bob(126, 9, 1.8, 'ДОБАВЬ ВОЗДУХА', .04)
+    .patrol(130, 148, GROUND - 2, 'А ЕСЛИ ЗЕЛЁНЫЙ?', .95).plat(134, 4, 9).skill(136, 7, 'color')
+    .plat(152, 3, 11).plat(157, 3, 9).plat(162, 3, 11).heart(158, 7).coinRow(152, 3, 10).coinRow(162, 3, 10).bob(155, 13, 1.2, 'ШРИФТ ПОМОДНЕЕ', .035)
+    .ground(166, 199).check(168).coinRow(168, 6, 12).flyer(182, 9, 'СДЕЛАЙ КАК У ВСЕХ', 1.35).patrol(180, 190, GROUND - 2, 'НУЖНО ВЧЕРА', 1);
+  b.goal = { x: 194 * T, y: GROUND * T, label: 'ПРИНЯТО' };
+  return b.done({ id: 5, name: 'ПРАВКИ', sub: 'правка на правку и ещё одна', theme: 'revisions', time: 0 });
+}
+function level6() {
+  const b = new Builder(210);
+  b.ground(0, 28).coinRow(4, 6, 12).patrol(12, 26, GROUND - 2, 'ЛОГО НА ВЕСЬ ЭКРАН', .85).flyer(38, 9, 'НУЖНО ВЧЕРА', 1.3)
+    .ground(32, 66).spring(36).coin(36, 7).coin(36, 5).coin(36, 3).step(42, 44, 3).coinRow(42, 3, 9).check(46)
+    .bob(50, 10, 1.6, 'ЕЩЁ ВАРИАНТ', .045).patrol(52, 64, GROUND - 2, 'А ПОЧЕМУ ТАК?', .95)
+    .plat(68, 3, 11).plat(73, 3, 8).plat(78, 3, 11).heart(74, 6).coinRow(68, 3, 10).coinRow(78, 3, 10)
+    .ground(82, 120).check(84).skill(88, 11, 'creativity').block(96, 2, 11, 13).block(102, 2, 10, 13).coinRow(102, 2, 9)
+    .flyer(108, 10, 'ДАВАЙТЕ КАК БЫЛО', 1.4).patrol(106, 118, GROUND - 2, 'СДЕЛАЙ КАК У ВСЕХ', 1)
+    .ground(125, 160).check(127).spring(132).coin(132, 7).coin(132, 5).coin(132, 3).bob(140, 10, 1.8, 'ШРИФТ ПОМОДНЕЕ', .045)
+    .patrol(142, 158, GROUND - 2, 'ДОБАВЬ ВОЗДУХА', 1.05).plat(146, 4, 9).skill(148, 7, 'typography').heart(150, 7)
+    .ground(164, 209).check(166).coinRow(166, 5, 12).patrol(172, 184, GROUND - 2, 'НУЖНО ВЧЕРА', 1.05).flyer(184, 9, 'А ЕСЛИ ЗЕЛЁНЫЙ?', 1.45)
+    .patrol(188, 198, GROUND - 2, 'ЕЩЁ ВАРИАНТ', 1.1).coinRow(186, 6, 12).sign(194, 6, 'жми «Сдать» →');
+  b.goal = { x: 204 * T, y: GROUND * T, label: 'СДАТЬ', send: true };
+  return b.done({ id: 6, name: 'РЕЛИЗ', sub: 'последний рывок до запуска', theme: 'launch', time: 0 });
+}
+export const LEVELS = [level1(), level2(), level3(), level4(), level5(), level6()];

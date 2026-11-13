@@ -3,6 +3,7 @@ import { $, $$, esc, h, ICON, sound, toast, sleep, clamp, todayKey, fmtDay, down
 import { FilterEngine, FILTERS } from '../booth-gl.js';
 import { FRAMES, geometry, composeStrip, ensureFonts } from '../booth-strip.js';
 import { BUILTIN, stickerURL } from '../stickers.js';
+import { earned } from '../progress.js';
 import { wall, upload, config, stickers as stickerStore, state as storeState } from '../store.js';
 import { WORLD } from '../wallmini.js';
 
@@ -239,7 +240,7 @@ export async function mount(root, params, { go }) {
     $('.booth', root).hidden = true;
     const ed = $('#editor', root);
     ed.hidden = false;
-    const stickerBtns = [...BUILTIN.map(s => ({ id: s.id, src: stickerURL(s.id), name: s.name })), ...B.custom.map(s => ({ id: '', src: s.url, name: s.name || 'Стикер' }))];
+    const stickerBtns = [...earned().reverse(), ...BUILTIN].map(s => ({ id: s.id, src: stickerURL(s.id), name: s.name })).concat( B.custom.map(s => ({ id: '', src: s.url, name: s.name || 'Стикер' })));
     ed.innerHTML = `<div class="editor__grid">
       <div class="editor__preview">
         <div class="strip-stage" id="strip-stage"><canvas id="strip-canvas" aria-label="Твоя фотолента"></canvas><div class="overlay" id="overlay" aria-label="Стикеры на ленте"></div></div>
