@@ -72,10 +72,10 @@ async function show(params) {
     const list = byDay.get(key) || [];
     const label = fmtDay(key, { weekday: 'long', day: 'numeric', month: 'long' });
     if (key > today) html += `<li class="cap-day cap-day--future" aria-label="${esc(label)}, not yet"><span class="cap-day__n">${d}</span></li>`;
-    else if (key === today) html += `<li><a class="cap-day cap-day--today" href="#/wall" aria-label="${esc(label)}: today, still open, ${list.length} things"><span class="cap-day__n">${d}</span><canvas width="240" height="160" data-day="${key}"></canvas><span class="cap-day__c">today · ${list.length}</span></a></li>`;
+    else if (key === today) html += `<li><a class="cap-day cap-day--today" href="#/wall" aria-label="${esc(label)}: today, still open, ${list.length} things"><span class="cap-day__n">${d}</span><canvas width="240" height="160" data-day="${key}"></canvas><span class="cap-day__c"><span class="cap-today">today · </span>${list.length}</span></a></li>`;
     else if (list.length) html += `<li><a class="cap-day" href="#/capsule/${key}" aria-label="${esc(label)}: ${list.length} things"><span class="cap-day__n">${d}</span><canvas width="240" height="160" data-day="${key}"></canvas><span class="cap-day__c">${list.length}</span></a></li>`;
     else html += `<li class="cap-day cap-day--quiet" aria-label="${esc(label)}: quiet day"><span class="cap-day__n">${d}</span><span class="q">quiet day</span></li>`;
   }
   $('#cap-days', R).innerHTML = html;
-  $$('canvas[data-day]', R).forEach(cv => drawMini(cv, byDay.get(cv.dataset.day) || [], { bg: '#ffffff', redraw: true }));
+  $$('canvas[data-day]', R).forEach(cv => drawMini(cv, byDay.get(cv.dataset.day) || [], { bg: '#ffffff', redraw: true, fit: 'content' }));
 }

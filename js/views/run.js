@@ -364,7 +364,7 @@ export async function mount(root) {
   function screen(html) { scr.innerHTML = html; scr.hidden = !html; }
   function titleScreen() {
     G.state = 'title';
-    screen(`<div class="gs gs--title"><p class="gs__kicker">a game about design life</p><h2 class="gs__title">DESIGNER<br>RUN</h2>
+    screen(`<div class="gs gs--title"><p class="gs__kicker">a game about design life</p><h2 class="gs__title">DESIGNER <br>RUN</h2>
       <p class="gs__text">Collect coins and skills. Pop client edits by jumping on them. Ship the project in three levels.</p>
       <button class="btn btn--yellow btn--big" type="button" data-g="start">Start</button></div>`);
   }

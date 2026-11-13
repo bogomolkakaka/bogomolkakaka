@@ -86,13 +86,23 @@
   .board-wrap { height: 72vh; min-height: 440px; margin: 0 10px 12px; }
   .wallhead__r { text-align: left; }
   .viewport { border-radius: 16px; box-shadow: 4px 4px 0 var(--ink); }
-  .tool { min-width: 58px; padding: 6px 4px 5px; }
+  .dock { left: 8px; right: 8px; transform: none; max-width: none; justify-content: space-between; gap: 0; padding: 5px 4px; border-radius: 16px; }
+  .tool { min-width: 0; flex: 1 1 0; padding: 5px 1px 4px; font-size: 10.5px; }
+  .tool__ic { width: 28px; height: 24px; }
+  .tool__ic--strip { width: 13px; }
+  .tool__ic--medal { width: 22px; height: 22px; }
+  .wall-title { font-size: 36px; }
+  .prompt-card { min-width: 0; width: max-content; max-width: 1100px; }
+  .zoombar { gap: 4px; }
+  .wallhead { padding-top: 10px; }
+  .wallhead__r { gap: 0; }
   .zoombar { right: 10px; top: 10px; }
   .zoombar .iconbtn { width: 38px; height: 38px; }
 }
 
 /* ---------- time capsule ---------- */
 .cap-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 18px; }
+}
 .cap-nav h2 { font-family: var(--font-display); font-weight: 400; font-size: clamp(26px, 3vw, 40px); margin: 0 8px; min-width: 7.5em; }
 .cap-nav select { width: auto; }
 .cap-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; list-style: none; margin: 0; padding: 0; }
@@ -118,3 +128,11 @@ a.cap-day:hover, a.cap-day:focus-visible { transform: translateY(-3px) rotate(-1
   .cap-day--quiet span.q { display: none; }
   .cap-wd { font-size: 11px; }
 }
+@media (max-width: 700px) {
+  .cap-nav { display: grid; grid-template-columns: 44px 1fr 44px; gap: 10px; }
+  .cap-nav h2 { margin: 0; min-width: 0; text-align: center; font-size: 19px; white-space: nowrap; }
+  .cap-today { display: none; }
+  .cap-nav select { grid-row: 2; width: 100%; }
+  .cap-nav #cap-m { grid-column: 1 / 3; }
+  .cap-nav #cap-y { grid-column: 3 / 4; width: auto; min-width: 88px; justify-self: end; }
+  .cap-nav .btn { grid-column: 1 / -1; justify-self: start; }

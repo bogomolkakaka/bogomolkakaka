@@ -26,4 +26,22 @@
 .skill-chip { display: inline-block; font-family: var(--font-pixel); font-size: 9px; padding: 3px 5px; border-radius: 4px; background: #fff; border-left: 4px solid var(--c); }
 .run-rotate { display: none; color: var(--muted); }
 @media (pointer: coarse) and (orientation: portrait) { .run-rotate { display: block; } }
-@media (max-width: 600px) { .gamebox { border-width: 6px; border-radius: 12px; } .cabinet { border-radius: 20px; box-shadow: 5px 5px 0 var(--ink); } }
+@media (max-width: 600px) {
+  .gamebox { border-width: 6px; border-radius: 12px; }
+  .cabinet { border-radius: 20px; box-shadow: 5px 5px 0 var(--ink); padding: 10px; }
+  .gs { gap: 8px; }
+  .gs__kicker { display: none; }
+  .gscreen { background: rgba(13, 19, 56, .93); }
+  .gs__title { font-size: 20px; text-shadow: 3px 3px 0 var(--cobalt); }
+  .gs--title .gs__title br { display: none; }
+  .gs__title--small { font-size: 14px; }
+  .gs__text { font-size: 12.5px; line-height: 1.35; }
+  .gs--title .gs__text { display: none; }
+  .gs .btn--big { padding: 10px 20px 11px; font-size: 16px; }
+  .gs__btns .btn { padding: 8px 14px 9px; font-size: 14px; }
+  .gs__medal img { width: 44px; }
+  .gs__medal p { font-size: 18px; }
+  .run-help { font-size: 13px; }
+  .pads { margin-top: 12px; }
+  .pad { width: 70px; height: 70px; }
+}
