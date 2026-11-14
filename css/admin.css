@@ -14,6 +14,7 @@
 .mod-item.is-hidden { background: var(--soft); }
 .mod-prev { width: 96px; height: 80px; display: grid; place-items: center; background: var(--soft); border-radius: 8px; overflow: hidden; }
 .mod-prev img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.mod-prev .rec-cover { height: 100%; width: auto; object-fit: cover; border-radius: 4px; }
 .mod-note { font-family: var(--font-hand); font-size: 17px; line-height: 1.05; padding: 6px; overflow: hidden; max-height: 100%; }
 .mod-info { font-size: 15px; }
 .mod-reasons { margin: 4px 0 0; color: var(--red); font-size: 14px; }

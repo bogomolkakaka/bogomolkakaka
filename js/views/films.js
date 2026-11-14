@@ -35,7 +35,7 @@ export async function mount(root) {
 }
 
 async function load() {
-  try { S.list = await store.list(); S.failed = ''; }
+  try { S.list = await store.list(); S.failed = ''; S.myCovers = await store.myCovers().catch(() => ({})); }
   catch (e) { S.failed = e.message || 'Полка не загрузилась. Обнови страницу.'; }
   if (!S) return;
   S.loaded = true;
@@ -92,12 +92,16 @@ function sleeveHTML(r, i) {
   const pend = r.status === 'pending';
   const who = r.by_owner ? 'Хозяйка советует' : r.author ? `советует ${esc(r.author)}` : 'совет гостя';
   const meta = [KIND[r.kind], r.year].filter(Boolean).join(', ');
-  return `<li class="vhs-slot${pend ? ' is-pending' : ''}" style="--i:${i}">
+  const myCover = !r.cover && S.myCovers && S.myCovers[r.id];
+  const cover = r.cover || myCover;
+  return `<li class="vhs-slot${pend ? ' is-pending' : ''}${cover ? ' has-cover' : ''}" style="--i:${i}">
     <button class="vhs" type="button" data-id="${esc(r.id)}" style="--sbg:${bg};--sart:${art};--sink:${ink};--tilt:${tilt}deg;--fs:${titleSize(r.title)}cqw" aria-label="${esc(r.title)}. ${esc(meta)}. ${who}${pend ? '. Ждёт проверки' : ''}">
       <span class="vhs__top"><span>${KIND[r.kind]}</span>${r.year ? `<span>${esc(r.year)}</span>` : ''}</span>
-      <span class="vhs__art vhs__art--${kind}" aria-hidden="true"></span>
+      ${cover ? `<span class="vhs__cover" aria-hidden="true"><img src="${esc(cover)}" alt="" loading="lazy" decoding="async"></span>
+      <span class="vhs__label">${esc(r.title)}</span>
+      ${myCover ? '<span class="vhs__coverwait" aria-hidden="true">обложка на проверке</span>' : ''}` : `<span class="vhs__art vhs__art--${kind}" aria-hidden="true"></span>
       <span class="vhs__title">${esc(r.title)}</span>
-      ${r.genre ? `<span class="vhs__genre" style="--gs:${Math.min(10, 84 / (r.genre.length * .74)).toFixed(2)}cqw">${esc(r.genre)}</span>` : ''}
+      ${r.genre ? `<span class="vhs__genre" style="--gs:${Math.min(10, 84 / (r.genre.length * .74)).toFixed(2)}cqw">${esc(r.genre)}</span>` : ''}`}
       <span class="vhs__tape" aria-hidden="true"></span>
       ${r.by_owner ? '<span class="vhs__pick" aria-hidden="true">Хозяйка<br>советует</span>' : ''}
       ${pend ? '<span class="vhs__pending" aria-hidden="true">на проверке</span>' : ''}
@@ -113,21 +117,38 @@ function openRec(id) {
   const [bg, art, ink] = SLEEVES[hsh % SLEEVES.length];
   const pend = r.status === 'pending';
   const own = mine(r);
+  const myCover = !r.cover && S.myCovers && S.myCovers[r.id];
+  const cover = r.cover || myCover;
+  const canCover = !r.cover && !myCover && !(r.demo && state.mode === 'cloud') && (r.status === 'approved' || state.admin);
   const paras = r.note.trim() ? r.note.trim().split(/\n\s*\n/).map(p => `<p>${esc(p).replace(/\n/g, '<br>')}</p>`).join('') : '';
   const m = openModal(`<div class="rec" style="--sbg:${bg};--sart:${art};--sink:${ink}">
-    <div class="rec__head"><p class="rec__meta"><span class="chip chip--static">${KIND[r.kind]}</span>${r.year ? `<span>${esc(r.year)}</span>` : ''}${r.genre ? `<span>${esc(r.genre)}</span>` : ''}</p>
+    <div class="rec__head${cover ? ' has-cover' : ''}">${cover ? `<img class="rec__cover" src="${esc(cover)}" alt="Обложка: ${esc(r.title)}">` : ''}<div class="rec__headtext"><p class="rec__meta"><span class="chip chip--static">${KIND[r.kind]}</span>${r.year ? `<span>${esc(r.year)}</span>` : ''}${r.genre ? `<span>${esc(r.genre)}</span>` : ''}</p>
       <h2 class="rec__title">${esc(r.title)}</h2>
-      <p class="rec__who">${r.by_owner ? 'Хозяйка советует' : r.author ? `Советует ${esc(r.author)}` : 'Совет гостя'}</p></div>
+      <p class="rec__who">${r.by_owner ? 'Хозяйка советует' : r.author ? `Советует ${esc(r.author)}` : 'Совет гостя'}</p></div></div>
+    ${myCover ? '<p class="notice">Твоя обложка ждёт проверки. Пока её видишь только ты.</p>' : ''}
     ${pend ? `<p class="notice">${state.admin ? 'Этот совет ждёт проверки: гости его пока не видят.' : 'Совет ждёт проверки. Пока его видишь только ты, на общей полке он появится после одобрения.'}</p>` : ''}
     ${paras ? `<div class="rec__note">${paras}</div>` : ''}
     <div class="rec__watch"><h3>Где смотреть</h3>
       ${r.links.length ? `<ul class="rec__links">${r.links.map(l => `<li><a class="btn btn--primary" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer nofollow ugc">${ICON.right}<span>${esc(l.label || host(l.url))}</span><small>${esc(host(l.url))}</small></a></li>`).join('')}</ul>
         ${r.by_owner ? '' : '<p class="rec__hint">Ссылки добавили гости. Перед входом проверь, что сайт тебе знаком.</p>'}` : '<p class="rec__hint">Ссылок пока нет. Поищи по названию в своём любимом сервисе.</p>'}</div>
     <div class="rec__actions">
+      ${canCover ? `<label class="btn btn--yellow btn--small rec__addcover">${ICON.upload}<span>${state.admin ? 'Добавить обложку' : 'Предложить обложку'}</span><input type="file" accept="image/*" hidden data-cover></label>` : ''}
       ${state.admin ? `${pend ? '<button class="btn btn--primary btn--small" type="button" data-r="approve">Одобрить</button>' : ''}<button class="btn btn--ink btn--small" type="button" data-r="edit">${ICON.pen}Изменить</button><button class="btn btn--danger btn--small" type="button" data-r="del">${ICON.trash}Удалить</button>`
         : own && pend ? `<button class="btn btn--ghost btn--small" type="button" data-r="withdraw">${ICON.trash}Забрать совет</button>`
         : r.by_owner || r.demo ? '' : `<button class="btn btn--text btn--small" type="button" data-r="report">${ICON.flag}Пожаловаться</button>`}
     </div></div>`, { label: r.title, wide: true });
+  const cin = $('[data-cover]', m.el);
+  if (cin) cin.addEventListener('change', async () => {
+    const file = cin.files[0]; cin.value = ''; if (!file) return;
+    const lab = cin.closest('label'), txt = $('span', lab), was = txt.textContent;
+    lab.classList.add('is-busy'); txt.textContent = 'Загружаю…';
+    try {
+      const url = await store.uploadCover(file);
+      if (state.admin) { await store.update(r.id, { cover: url }); toast('Обложка на кассете'); }
+      else { await store.suggestCover(r.id, url); toast(state.mode === 'cloud' ? 'Спасибо! Обложка появится после проверки.' : 'Обложка сохранена в этом браузере.'); }
+      m.close(); sound.play('pop'); await load();
+    } catch (er) { toast(er.message === 'encode' ? 'Не получилось прочитать картинку. Попробуй JPEG или PNG.' : er.message, true); lab.classList.remove('is-busy'); txt.textContent = was; }
+  });
   m.el.addEventListener('click', async e => {
     const b = e.target.closest('[data-r]'); if (!b) return;
     const a = b.dataset.r;
@@ -177,6 +198,11 @@ function suggest(src = null) {
       <div class="field"><span class="label">Это</span><div class="seg" role="radiogroup" aria-label="Фильм или сериал">${Object.entries(KIND).map(([k, n]) => `<button type="button" class="chip" role="radio" aria-checked="${d.kind === k}" data-kd="${k}">${n}</button>`).join('')}</div></div>
       <div class="grid2"><div class="field"><label for="rf-year">Год</label><input id="rf-year" maxlength="9" inputmode="numeric" value="${esc(d.year || '')}" placeholder="2001"></div>
         <div class="field"><label for="rf-genre">Жанр</label><input id="rf-genre" maxlength="40" value="${esc(d.genre || '')}" placeholder="комедия, драма…"></div></div>
+      <div class="field"><span class="label">Обложка</span><div class="cover-pick">
+        <div class="cover-pick__prev" id="rf-cv-prev">${d.cover ? `<img src="${esc(d.cover)}" alt="">` : '<span>нет</span>'}</div>
+        <div class="cover-pick__side"><label class="btn btn--ghost btn--small">${ICON.upload}<span id="rf-cv-t">${d.cover ? 'Заменить' : 'Загрузить картинку'}</span><input type="file" accept="image/*" id="rf-cv" hidden></label>
+          <button class="btn btn--text btn--small" type="button" id="rf-cv-x" ${d.cover ? '' : 'hidden'}>Убрать</button>
+          <small>Постер или кадр из фильма, с телефона или компьютера. Мы сами уменьшим её до размера обложки.</small></div></div></div>
       <div class="field"><label for="rf-note">Почему стоит посмотреть</label><textarea id="rf-note" rows="4" maxlength="600" placeholder="Пара предложений без спойлеров">${esc(d.note || '')}</textarea><small id="rf-note-c">${(d.note || '').length} / 600</small></div>
       <div class="field"><span class="label">Ссылки на просмотр</span><small>До трёх ссылок. Лучше на официальные сервисы: пиратские ссылки не пройдут проверку.</small>
         <div id="rf-links"></div><button class="btn btn--ghost btn--small" type="button" id="rf-addl">${ICON.plus}Ещё ссылка</button><span class="field__err" id="rf-links-e" hidden></span></div>
@@ -197,6 +223,19 @@ function suggest(src = null) {
     const x = e.target.closest('[data-lx]'); if (x) { readLinks(); links.splice(+x.dataset.lx, 1); if (!links.length) links = [{ url: '', label: '' }]; drawLinks(); return; }
     if (e.target.closest('#rf-addl')) { readLinks(); if (links.length < 3) links.push({ url: '', label: '' }); drawLinks(); const rows = $$('.lrow', el); $('input', rows[rows.length - 1]).focus(); }
   });
+  let coverFile = null, coverGone = false, prevURL = '';
+  $('#rf-cv', el).addEventListener('change', e => {
+    const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+    if (!/^image\//.test(f.type)) { toast('Нужна картинка: JPEG, PNG или WebP.', true); return; }
+    coverFile = f; coverGone = false;
+    if (prevURL) URL.revokeObjectURL(prevURL);
+    prevURL = URL.createObjectURL(f);
+    $('#rf-cv-prev', el).innerHTML = `<img src="${prevURL}" alt="">`; $('#rf-cv-t', el).textContent = 'Заменить'; $('#rf-cv-x', el).hidden = false;
+  });
+  $('#rf-cv-x', el).addEventListener('click', () => {
+    coverFile = null; coverGone = true;
+    $('#rf-cv-prev', el).innerHTML = '<span>нет</span>'; $('#rf-cv-t', el).textContent = 'Загрузить картинку'; $('#rf-cv-x', el).hidden = true;
+  });
   $('#rf-note', el).addEventListener('input', e => { $('#rf-note-c', el).textContent = `${e.target.value.length} / 600`; });
   $('#rf', el).addEventListener('submit', async e => {
     e.preventDefault();
@@ -213,13 +252,15 @@ function suggest(src = null) {
     const rec = { kind, title, year: $('#rf-year', el).value.trim(), genre: $('#rf-genre', el).value.trim(), note: $('#rf-note', el).value.trim(), author: owner ? (d.author || '') : $('#rf-author', el).value.trim(), links: clean };
     const btn = $('#rf-go', el); btn.disabled = true;
     try {
+      if (coverFile) { const t0 = btn.textContent; btn.textContent = 'Загружаю обложку…'; try { rec.cover = await store.uploadCover(coverFile); } finally { btn.textContent = t0; } }
+      else rec.cover = coverGone ? '' : (d.cover || '');
       if (src) await store.update(src.id, rec);
       else await store.add(rec);
       m.close(); sound.play('pop');
       toast(src ? 'Совет сохранён' : owner ? 'Кассета на полке' : 'Спасибо! Совет появится на полке после проверки.');
       if (!src) { S.kind = 'all'; S.who = 'all'; }
       await load();
-    } catch (er) { toast(er.message, true); btn.disabled = false; }
+    } catch (er) { toast(er.message === 'encode' ? 'Не получилось прочитать картинку. Попробуй JPEG или PNG.' : er.message, true); btn.disabled = false; }
   });
 }
 

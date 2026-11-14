@@ -204,6 +204,7 @@ create table if not exists public.recs (
   owner uuid default auth.uid(),
   created_at timestamptz not null default now()
 );
+alter table public.recs add column if not exists cover text not null default '';
 alter table public.recs enable row level security;
 drop policy if exists "approved recs are public" on public.recs;
 drop policy if exists "guests suggest recs" on public.recs;
@@ -223,6 +224,8 @@ begin
   for l in select * from jsonb_array_elements(new.links) loop
     if coalesce(l ->> 'url', '') !~* '^https?://[^\s"''<>]+$' or length(l ->> 'url') > 500 or length(coalesce(l ->> 'label', '')) > 40 then raise exception 'bad_link'; end if;
   end loop;
+  -- covers must be files uploaded to this project's "covers" storage
+  if new.cover <> '' and (new.cover !~ '^https://[^\s"''<>]+/storage/v1/object/public/covers/[^\s"''<>]+$' or length(new.cover) > 500) then raise exception 'bad_cover'; end if;
   if public.is_admin() then
     if tg_op = 'INSERT' then new.by_owner := true; new.status := 'approved'; end if;
     return new;
@@ -265,6 +268,62 @@ begin
 end $$;
 drop trigger if exists recs_auto_review on public.rec_reports;
 create trigger recs_auto_review after insert on public.rec_reports for each row execute function public.recs_auto_review();
+
+-- Covers that guests propose for a tape that has none. The owner approves them in the admin panel.
+create table if not exists public.rec_covers (
+  id uuid primary key default gen_random_uuid(),
+  rec_id uuid not null references public.recs(id) on delete cascade,
+  cover text not null check (length(cover) <= 500),
+  owner uuid default auth.uid(),
+  status text not null default 'pending' check (status in ('pending', 'approved', 'rejected')),
+  created_at timestamptz not null default now()
+);
+alter table public.rec_covers enable row level security;
+drop policy if exists "guests propose covers" on public.rec_covers;
+drop policy if exists "guests see own covers" on public.rec_covers;
+drop policy if exists "admin moderates covers" on public.rec_covers;
+drop policy if exists "admin deletes covers" on public.rec_covers;
+create policy "guests propose covers" on public.rec_covers for insert to authenticated with check (owner = auth.uid());
+create policy "guests see own covers" on public.rec_covers for select to authenticated using (owner = auth.uid() or public.is_admin());
+create policy "admin moderates covers" on public.rec_covers for update to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "admin deletes covers" on public.rec_covers for delete to authenticated using (public.is_admin());
+
+create or replace function public.rec_covers_guard() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare per_day int;
+begin
+  if tg_op = 'INSERT' then
+    if new.cover !~ '^https://[^\s"''<>]+/storage/v1/object/public/covers/[^\s"''<>]+$' then raise exception 'bad_cover'; end if;
+    if not public.is_admin() then
+      new.status := 'pending'; new.owner := auth.uid(); new.created_at := now();
+      select count(*) into per_day from public.rec_covers where owner = auth.uid() and created_at > now() - interval '1 day';
+      if per_day >= 10 then raise exception 'cover_limit'; end if;
+    end if;
+  end if;
+  return new;
+end $$;
+drop trigger if exists rec_covers_guard on public.rec_covers;
+create trigger rec_covers_guard before insert on public.rec_covers for each row execute function public.rec_covers_guard();
+
+-- Approving a proposed cover puts it on the tape.
+create or replace function public.rec_covers_apply() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if new.status = 'approved' and old.status <> 'approved' then update public.recs set cover = new.cover where id = new.rec_id; end if;
+  return new;
+end $$;
+drop trigger if exists rec_covers_apply on public.rec_covers;
+create trigger rec_covers_apply after update on public.rec_covers for each row execute function public.rec_covers_apply();
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('covers', 'covers', true, 1048576, array['image/jpeg', 'image/png', 'image/webp'])
+on conflict (id) do update set public = true, file_size_limit = 1048576, allowed_mime_types = array['image/jpeg', 'image/png', 'image/webp'];
+drop policy if exists "guests upload covers to their folder" on storage.objects;
+drop policy if exists "admin manages covers" on storage.objects;
+create policy "guests upload covers to their folder" on storage.objects for insert to authenticated
+  with check (bucket_id = 'covers' and (storage.foldername(name))[1] = auth.uid()::text);
+create policy "admin manages covers" on storage.objects for delete to authenticated
+  using (bucket_id = 'covers' and public.is_admin());
 
 -- ============ starter content (demo, replace in the admin panel) ============
 insert into public.prompts (text) select t from unnest(array[

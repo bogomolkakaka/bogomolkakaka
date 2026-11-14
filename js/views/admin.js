@@ -101,8 +101,8 @@ async function moderation() {
 const host = u => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (e) { return u; } };
 function recRow(r, reasons) {
   const meta = [r.kind === 'series' ? 'сериал' : 'фильм', r.year, r.genre].filter(Boolean).map(esc).join(' · ');
-  return `<li class="mod-item rec-item" data-id="${esc(r.id)}"><div class="mod-prev"><div class="mod-note"><b>${esc(r.title)}</b><br><small>${meta}</small></div></div>
-    <div class="mod-info"><b>${r.author ? esc(r.author) : 'гость без имени'}</b> · ${esc(r.created_at ? fmtDay(r.created_at.slice(0, 10), { day: 'numeric', month: 'short' }) : '')}${r.status !== 'approved' ? ` · <span class="mod-flag">${r.status === 'rejected' ? 'отклонено' : 'ждёт проверки'}</span>` : ''}
+  return `<li class="mod-item rec-item" data-id="${esc(r.id)}"><div class="mod-prev">${r.cover ? `<img src="${esc(r.cover)}" alt="Обложка" class="rec-cover">` : `<div class="mod-note"><b>${esc(r.title)}</b><br><small>${meta}</small></div>`}</div>
+    <div class="mod-info">${r.cover ? `<b>${esc(r.title)}</b> <small>${meta}</small><br>` : ''}<b>${r.author ? esc(r.author) : 'гость без имени'}</b> · ${esc(r.created_at ? fmtDay(r.created_at.slice(0, 10), { day: 'numeric', month: 'short' }) : '')}${r.status !== 'approved' ? ` · <span class="mod-flag">${r.status === 'rejected' ? 'отклонено' : 'ждёт проверки'}</span>` : ''}
       ${r.note ? `<p class="rec-note">${esc(r.note)}</p>` : ''}
       ${r.links.length ? `<p class="rec-links">${r.links.map(l => `<a href="${esc(l.url)}" target="_blank" rel="noopener noreferrer nofollow">${l.label ? esc(l.label) + ': ' : ''}${esc(l.url.length > 72 ? l.url.slice(0, 72) + '…' : l.url)}</a>`).join('<br>')}</p>` : ''}
       ${reasons ? `<p class="mod-reasons">Жалобы (${reasons.length}): ${esc([...new Set(reasons)].join(', '))}</p>` : ''}</div>
@@ -113,6 +113,7 @@ function recRow(r, reasons) {
 async function filmsTab() {
   const body = $('#a-body', R);
   body.innerHTML = `<section class="admin-card"><h2>Ждут проверки</h2><p>Советы гостей появляются в Видеопрокате только после одобрения. Проверь ссылки, прежде чем одобрять.</p><ul class="mod-list" id="r-pend"><li>Загружаю…</li></ul></section>
+    <section class="admin-card"><h2>Обложки на проверке</h2><p>Гости могут предложить обложку для кассеты без обложки. После одобрения она сразу появится на полке.</p><ul class="mod-list" id="r-cov"><li>Загружаю…</li></ul></section>
     <section class="admin-card"><h2>Жалобы на советы</h2><p>После трёх жалоб совет гостя сам уходит на проверку.</p><ul class="mod-list" id="r-rep"><li>Загружаю…</li></ul></section>
     <section class="admin-card"><h2>Свои советы</h2><p>Добавлять и править свои фильмы удобнее прямо на полке: <a href="#/films">открыть Видеопрокат</a>.</p></section>`;
   const load = async () => {
@@ -121,12 +122,24 @@ async function filmsTab() {
       $('#r-pend', R).innerHTML = list.length ? list.map(r => recRow(r)).join('') : '<li class="mod-empty">Новых советов нет.</li>';
     } catch (er) { $('#r-pend', R).innerHTML = `<li class="mod-empty">${esc(er.message)}</li>`; }
     try {
+      const q = await recs.coverQueue();
+      $('#r-cov', R).innerHTML = q.length ? q.map(c => `<li class="mod-item" data-cov="${esc(c.id)}"><div class="mod-prev"><img src="${esc(c.cover)}" alt="Предложенная обложка" class="rec-cover"></div>
+        <div class="mod-info"><b>${esc(c.rec.title)}</b>${c.rec.year ? ` · ${esc(c.rec.year)}` : ''}<br><small>${esc(c.created_at ? fmtDay(c.created_at.slice(0, 10), { day: 'numeric', month: 'short' }) : '')}</small></div>
+        <div class="mod-btns"><button class="btn btn--primary btn--small" data-c="approved">Поставить на кассету</button><button class="btn btn--ghost btn--small" data-c="rejected">Отклонить</button></div></li>`).join('') : '<li class="mod-empty">Новых обложек нет.</li>';
+    } catch (er) { $('#r-cov', R).innerHTML = `<li class="mod-empty">${esc(er.message)}</li>`; }
+    try {
       const { reports, items } = await recs.reports();
       const by = new Map(); reports.forEach(r => { if (!by.has(r.rec_id)) by.set(r.rec_id, []); by.get(r.rec_id).push(r.reason || '—'); });
       $('#r-rep', R).innerHTML = items.length ? items.map(it => recRow(it, by.get(it.id))).join('') : '<li class="mod-empty">Жалоб нет.</li>';
     } catch (er) { $('#r-rep', R).innerHTML = `<li class="mod-empty">${esc(er.message)}</li>`; }
   };
   body.addEventListener('click', async e => {
+    const cb = e.target.closest('[data-c]');
+    if (cb) {
+      try { await recs.setCoverStatus(cb.closest('[data-cov]').dataset.cov, cb.dataset.c); toast(cb.dataset.c === 'approved' ? 'Обложка на кассете' : 'Обложка отклонена'); load(); }
+      catch (er) { toast(er.message, true); }
+      return;
+    }
     const b = e.target.closest('[data-r]'); if (!b) return;
     const id = b.closest('.mod-item').dataset.id;
     try {
