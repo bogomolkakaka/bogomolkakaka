@@ -22,7 +22,7 @@ export async function mount(root, params, { go }) {
       <p class="booth-privacy">Фото остаются в браузере. Ничего не покидает устройство, пока ты сама не повесишь ленту на стену.</p>
     </div>
     <div class="booth">
-      <div class="marquee" aria-hidden="true"><span>ФОТО</span><i></i><span>БУДКА</span></div>
+      <div class="marquee"><span aria-hidden="true">ФОТО</span><i aria-hidden="true"></i><button class="lens" type="button" data-act="shoot" id="lens" hidden><span class="lens__glass" aria-hidden="true"></span><span class="lens__label">Снимать</span></button><span aria-hidden="true">БУДКА</span></div>
       <div class="booth__body">
         <div class="booth__screen-col">
           <div class="screen" id="screen">
@@ -62,7 +62,18 @@ export async function mount(root, params, { go }) {
   const frames = () => FRAMES.filter(f => !B.framesOff.includes(f.id));
 
   /* ---------- panel ---------- */
+  // On phones the shutter sits in the booth sign, right where a camera lens would be:
+  // looking at it while pressing means looking up, towards the phone's own camera.
+  function renderLens() {
+    const lens = $('#lens', root), on = !!B.stream && B.stage !== 'edit';
+    lens.hidden = !on;
+    $('.booth', root).classList.toggle('has-lens', on);
+    lens.disabled = B.stage === 'shooting';
+    lens.classList.toggle('is-shooting', B.stage === 'shooting');
+    $('.lens__label', lens).textContent = B.stage === 'shooting' ? 'Улыбку!' : 'Снимать';
+  }
   function renderPanel() {
+    renderLens();
     const shooting = B.stage === 'shooting';
     $('#panel', root).innerHTML = `
       <div class="panel__group">
@@ -124,6 +135,8 @@ export async function mount(root, params, { go }) {
       B.stage = 'live';
       sound.play('open');
       renderIdle(); renderPanel();
+      // phones: bring the sign with the shutter and the preview to the top of the screen
+      if (matchMedia('(max-width: 899px)').matches) $('.booth', root).scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'start' });
       loop();
     } catch (e) {
       const msg = {
