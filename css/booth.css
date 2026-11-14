@@ -122,7 +122,25 @@
 .pola--3 { right: -60px; bottom: 30px; transform: rotate(-6deg); width: 120px; }
 @media (max-width: 1399px) { .polaroids { display: none; } }
 
+/* phones: the shutter lives in the sign, shaped like a lens */
+.lens { display: none; position: relative; width: 72px; height: 72px; margin: -16px 2px; padding: 0; place-items: center; border-radius: 50%; border: 3px solid var(--ink); cursor: pointer;
+  background: radial-gradient(circle, #5d6478 0 55%, #23262f 56% 64%, var(--red) 65%); box-shadow: 3px 3px 0 var(--ink); transition: transform .08s, box-shadow .08s; }
+.lens__glass { width: 60%; aspect-ratio: 1; border-radius: 50%; border: 2px solid #000;
+  background: radial-gradient(circle at 34% 30%, #fff 0 8%, transparent 9%), radial-gradient(circle at 62% 66%, rgba(255, 255, 255, .45) 0 5%, transparent 6%), radial-gradient(circle, #4a64f0 0 26%, #13205e 52%, #05070f 100%); }
+.lens__label { position: absolute; top: calc(100% + 5px); left: 50%; transform: translateX(-50%) rotate(1.5deg); padding: 4px 12px 5px; border: 2px solid var(--ink); border-radius: 999px; background: var(--red); color: #fff; font-family: var(--font-body); font-weight: 700; font-size: 14px; line-height: 1.1; white-space: nowrap; box-shadow: 2px 2px 0 var(--ink); }
+.lens:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+.lens:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
+.lens:disabled { cursor: default; }
+.lens.is-shooting { animation: lensRec 1s ease-in-out infinite; }
+.marquee .lens .lens__label { color: #fff; }
+.marquee .lens.is-shooting .lens__label { background: var(--yellow); color: var(--ink); }
+@keyframes lensRec { 50% { box-shadow: 3px 3px 0 var(--ink), 0 0 0 9px rgba(232, 41, 31, .35); } }
+
 @media (max-width: 899px) {
+  .booth.has-lens { padding-top: 78px; scroll-margin-top: 52px; }
+  .booth.has-lens .marquee i { display: none; }
+  .booth.has-lens .lens:not([hidden]) { display: grid; }
+  .booth.has-lens .panel__go [data-act="shoot"] { display: none; }
   .booth__body { grid-template-columns: minmax(0, 1fr); }
   .editor__grid { grid-template-columns: minmax(0, 1fr); }
   .editor__preview { position: static; }
@@ -135,4 +153,4 @@
   .slots { gap: 6px; }
   .panel { padding: 14px; }
 }
-@media (prefers-reduced-motion: reduce) { .marquee { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .marquee, .lens.is-shooting { animation: none; } .lens { transition: none; } }
