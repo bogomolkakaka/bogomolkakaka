@@ -41,8 +41,6 @@ export async function mount(root, params, { go }) {
     <div class="editor" id="editor" hidden></div>
     <div class="polaroids" aria-hidden="true">
       <figure class="pola pola--1"><img src="assets/objects/pug-1.jpg" alt=""><figcaption>мопс понедельника</figcaption></figure>
-      <figure class="pola pola--2"><img src="assets/objects/bunny-pink-1.jpg" alt=""><figcaption>зайка ♡</figcaption></figure>
-      <figure class="pola pola--3"><img src="assets/objects/ghost-1.jpg" alt=""><figcaption>бу!</figcaption></figure>
     </div>
   </div>`;
 

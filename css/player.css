@@ -1,0 +1,106 @@
+/* CD PLAYER: jewel cases, a Discman and the taskbar mini player */
+
+/* ---------- a disc (CD-R with a hand-written label) ---------- */
+.cdisc { position: relative; display: grid; place-items: center; aspect-ratio: 1; border-radius: 50%; border: 2px solid var(--ink);
+  background: radial-gradient(circle closest-side, transparent 0 13%, var(--ink) 13.5% 16%, #dfe4ee 16.5% 32%, transparent 32.5%),
+    radial-gradient(circle closest-side, transparent 0 50%, var(--l, #eee) 50.5% 97%, transparent 97.5%),
+    conic-gradient(from 20deg, #eef1f7, #c9d6ff, #ffd9ec, #fff2b8, #d4f5ff, #eef1f7, #c9d6ff, #ffd9ec, #eef1f7);
+  -webkit-mask: radial-gradient(circle closest-side, transparent 0 13%, #000 13.5%); mask: radial-gradient(circle closest-side, transparent 0 13%, #000 13.5%); }
+.cdisc b { position: absolute; left: 50%; top: 76%; transform: translate(-50%, -50%) rotate(-6deg); font-family: var(--font-hand); font-weight: 700; color: var(--li, #000); white-space: nowrap; line-height: 1; }
+
+/* ---------- jewel case: the lid swings open on its hinge and shows the disc ---------- */
+.jewel { position: relative; display: block; width: 100%; aspect-ratio: 1; perspective: 700px; container-type: inline-size; }
+.jewel__tray { position: absolute; inset: 0; display: grid; place-items: center; border: 2px solid var(--ink); border-radius: 6px; background: #1d2130; }
+.jewel__tray .cdisc { width: 84%; }
+.jewel__tray .cdisc b { font-size: 13cqw; }
+.jewel__lid { position: absolute; inset: 0; transform-origin: 0 50%; transition: transform .55s cubic-bezier(.3, 1.2, .5, 1); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.jewel__art { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: 12% 10% 10% 16%; overflow: hidden;
+  border: 2px solid var(--ink); border-radius: 6px; background-color: var(--bg); color: var(--ink); backface-visibility: hidden; box-shadow: 3px 3px 0 var(--ink); }
+.jewel__art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255, 255, 255, .5), transparent 34%, transparent 72%, rgba(255, 255, 255, .22)); pointer-events: none; }
+.jewel__art b { position: relative; z-index: 1; font-family: var(--font-display); font-weight: 400; font-size: 12cqw; line-height: .95; overflow-wrap: anywhere; }
+.jewel__art small { position: relative; z-index: 1; font-size: max(10px, 9cqw); font-weight: 600; margin-top: 4px; opacity: .85; }
+.jewel__spine { position: absolute; left: 0; top: 0; bottom: 0; width: 9%; background: rgba(0, 0, 0, .35); border-radius: 6px 0 0 6px; pointer-events: none; }
+/* original cover patterns, one per disc */
+.jewel--hearts .jewel__art { background-image: radial-gradient(circle at 78% 24%, var(--ac) 0 9%, transparent 9.5%), radial-gradient(circle at 64% 38%, #fff 0 4%, transparent 4.5%), radial-gradient(circle at 86% 46%, #fff 0 3%, transparent 3.5%); }
+.jewel--bolts .jewel__art { background-image: linear-gradient(115deg, transparent 0 40%, var(--ac) 40% 46%, transparent 46% 56%, var(--ac) 56% 62%, transparent 62%); background-size: 100% 60%; background-repeat: no-repeat; }
+.jewel--grid .jewel__art { background-image: linear-gradient(var(--ac) 2px, transparent 2px), linear-gradient(90deg, var(--ac) 2px, transparent 2px); background-size: 22% 22%; background-position: 0 0; }
+.jewel--stripes .jewel__art { background-image: repeating-linear-gradient(-45deg, transparent 0 10px, var(--ac) 10px 14px); background-size: 100% 58%; background-repeat: no-repeat; }
+.jewel--dots .jewel__art { background-image: radial-gradient(circle, var(--ac) 0 26%, transparent 28%); background-size: 18% 18%; background-position: 0 0; }
+.jewel--sun .jewel__art { background-image: radial-gradient(circle at 70% 30%, var(--ac) 0 24%, transparent 24.5%), repeating-linear-gradient(0deg, transparent 0 9px, rgba(255, 255, 255, .7) 9px 11px); }
+.jewel--grid .jewel__art b, .jewel--bolts .jewel__art b, .jewel--stripes .jewel__art b { text-shadow: 2px 2px 0 rgba(0, 0, 0, .35); }
+
+/* ---------- the window ---------- */
+.cdp { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(18px, 3vw, 34px); align-items: start; }
+.cdp__h { font-family: var(--font-display); font-weight: 400; font-size: clamp(28px, 3.4vw, 40px); margin: 0; line-height: 1; }
+.cdp__sub { color: var(--muted); margin: 6px 0 16px; font-size: 15px; }
+.cdp__cases { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 16px; }
+.cdp__case { display: grid; gap: 8px; width: 100%; padding: 0; border: 0; background: none; text-align: left; cursor: pointer; color: var(--ink); }
+.cdp__case:hover .jewel__lid { transform: rotateY(-22deg); }
+.cdp__case.is-open .jewel__lid { transform: rotateY(-118deg); }
+.cdp__case.is-open .jewel__tray .cdisc { animation: cdPop .6s cubic-bezier(.3, 1.5, .5, 1); }
+.cdp__case:focus-visible { outline: 3px solid var(--cobalt); outline-offset: 4px; border-radius: 8px; }
+.cdp__name { font-weight: 700; font-size: 14px; }
+.cdp__case.is-open .cdp__name { color: var(--cobalt); }
+@keyframes cdPop { from { transform: scale(.7) rotate(-90deg); } }
+
+.cdp__deck { position: sticky; top: 0; display: grid; gap: 12px; }
+.discman { position: relative; display: grid; justify-items: center; gap: 12px; padding: 18px 18px 16px; border: 2px solid var(--ink); border-radius: 30px; background: linear-gradient(160deg, #3a63f0, var(--cobalt) 55%, #1c3cc0); box-shadow: 5px 5px 0 var(--ink); }
+.discman__win { width: min(68%, 230px); aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; border: 3px solid var(--ink); background: radial-gradient(circle, rgba(255, 255, 255, .18), rgba(255, 255, 255, .04)); box-shadow: inset 0 0 0 8px rgba(255, 255, 255, .12); }
+.cdisc--big { width: 92%; transition: transform .4s; }
+.cdisc--big b { font-size: clamp(15px, 1.7vw, 20px); font-weight: 600; }
+.cdisc--big.is-empty { opacity: .18; }
+.discman.is-playing .cdisc--big { animation: cdSpin 1.8s linear infinite; }
+@keyframes cdSpin { to { transform: rotate(360deg); } }
+.discman__lcd { width: 100%; max-width: 320px; display: flex; justify-content: space-between; gap: 10px; padding: 8px 12px; border: 2px solid var(--ink); border-radius: 10px; background: #C9E27A; color: #1f2b0b; font-family: var(--font-pixel); font-size: 10px; line-height: 1.5; text-transform: uppercase; }
+.discman__lcd span:first-child { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; min-width: 0; }
+.discman__lcd span:last-child { flex: none; }
+.cdp__ctl { display: flex; justify-content: center; gap: 12px; }
+.cdp__btn { width: 54px; height: 54px; border-radius: 50%; border: 2px solid var(--ink); background: var(--paper); font-size: 18px; box-shadow: 3px 3px 0 var(--ink); color: var(--ink); }
+.cdp__btn--play { width: 64px; height: 64px; background: var(--yellow); font-size: 22px; }
+.cdp__btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+.cdp__bar { height: 6px; border-radius: 99px; background: var(--soft); overflow: hidden; border: 1.5px solid var(--ink); }
+.cdp__bar i { display: block; height: 100%; width: 0; background: var(--red); }
+.cdp__msg { margin: 0; min-height: 0; color: var(--red); font-size: 14px; }
+.cdp__msg:empty { display: none; }
+.cdp__tracks { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; max-height: 300px; overflow: auto; }
+.cdp__tracks li { display: flex; align-items: center; gap: 6px; }
+.cdp__track { flex: 1; min-width: 0; display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 8px 10px; border: 1.5px solid transparent; border-radius: 12px; background: none; text-align: left; color: var(--ink); }
+.cdp__track:hover { background: var(--soft); }
+.cdp__track.is-on { border-color: var(--ink); background: var(--yellow); }
+.cdp__n { font-family: var(--font-pixel); font-size: 10px; color: var(--muted); }
+.cdp__track.is-on .cdp__n { color: var(--ink); }
+.cdp__tt { min-width: 0; display: grid; }
+.cdp__tt b { font-size: 15px; font-weight: 600; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.cdp__tt small { font-size: 12px; color: var(--muted); }
+.cdp__y { font-size: 12px; color: var(--muted); }
+.cdp__am { flex: none; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; color: var(--muted); text-decoration: none; }
+.cdp__am:hover { background: var(--soft); color: var(--ink); }
+.cdp__credit { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.4; }
+
+/* ---------- taskbar mini player ---------- */
+.tb-cdwrap { display: flex; align-items: center; gap: 2px; }
+.tb-cdwrap:empty { display: none; }
+.tb-cd { display: flex; align-items: center; gap: 8px; height: 40px; max-width: 150px; padding: 0 10px 0 6px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); }
+.tb-cd:hover { background: var(--soft); }
+.tb-cd__disc { flex: none; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--ink); background: radial-gradient(circle, var(--paper) 0 16%, var(--ink) 17% 22%, var(--l) 23% 55%, transparent 56%), conic-gradient(#eef1f7, #c9d6ff, #ffd9ec, #fff2b8, #eef1f7); }
+.tb-cd.is-playing .tb-cd__disc { animation: cdSpin 1.8s linear infinite; }
+.tb-cd__t { font-size: 13px; font-weight: 600; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+@media (max-width: 1360px) { .tb-cd__t { display: none; } .tb-cd { padding: 0 6px; } }
+@media (max-width: 760px) {
+  .cdp { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .cdp__cases { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; margin: 0 -20px; padding: 4px 20px 6px; scroll-snap-type: x mandatory; }
+  .cdp__cases::-webkit-scrollbar { display: none; }
+  .cdp__cases li { flex: 0 0 112px; scroll-snap-align: start; }
+  .cdp__deck { position: static; }
+  .discman { padding: 14px 14px 12px; border-radius: 26px; }
+  .discman__win { width: min(56%, 190px); }
+  .cdp__tracks { max-height: none; }
+  .tb-cd { width: 40px; padding: 0; justify-content: center; }
+  .tb-cd__t { display: none; }
+  .tb-cdwrap .tb-cd__pp { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .discman.is-playing .cdisc--big, .tb-cd.is-playing .tb-cd__disc, .cdp__case.is-open .jewel__tray .cdisc { animation: none; }
+  .jewel__lid { transition: none; }
+}

@@ -1,5 +1,6 @@
 import { CONFIG } from '../config.js';
 import { $, $$, esc, h, ICON, sound, lsGet, lsSet, zoned, todayKey, reducedMotion, pick, plural, MONTHS } from '../util.js';
+import { openPlayer } from '../player.js';
 import { wall } from '../store.js';
 import { drawMini } from '../wallmini.js';
 
@@ -31,9 +32,9 @@ export async function mount(root) {
     <a class="thing thing--run" href="#/run" data-thing="run"><span class="console"><img src="assets/desk/console.png" alt="Игры: жёлтая игровая консоль" width="489" height="523"><canvas class="console-screen" width="96" height="76" aria-hidden="true"></canvas></span><span class="thing__label">Игры</span></a>
     <a class="thing thing--objects" href="#/objects" data-thing="objects"><img src="assets/desk/toys.png" alt="Маленькие объекты: три фигурки" width="639" height="351"><span class="thing__label">Маленькие объекты</span></a>
     <a class="thing thing--films" href="#/films" data-thing="films"><span class="dvhs-stack" aria-hidden="true"><span class="dvhs dvhs--1"><b>СЕРИАЛЫ</b></span><span class="dvhs dvhs--2"><b>ЛЮБИМОЕ</b></span><span class="dvhs dvhs--3"><b>КИНО</b></span></span><span class="thing__label">Видеопрокат</span></a>
-    <a class="thing thing--stuff" href="#/stuff" data-thing="stuff"><div class="folders" aria-hidden="true">
-      <div class="folder folder--1" data-tab="разное"></div><div class="folder folder--2" data-tab="3D"></div><div class="folder__paper"></div>
-      <div class="folder folder--3" data-tab="постеры"><span class="folder__label">Мои работы</span></div></div><span class="thing__label">Мои работы</span></a>
+    <button class="thing thing--cd" type="button" data-thing="cd" id="desk-cd" aria-label="Диски: CD-плеер, поп 2000-х и 2010-х"><span class="dcd" aria-hidden="true">
+      <span class="dcd__case dcd__case--1" style="--bg:#244EE7"><b>NSYNC</b></span><span class="dcd__case dcd__case--2" style="--bg:#000"><b>Аврил</b></span>
+      <span class="dcd__disc"></span><span class="dcd__case dcd__case--3" style="--bg:#FFB8D9"><b>Бритни</b></span></span><span class="thing__label">Диски</span></button>
     <button class="note-phrase" type="button" id="phrase" aria-live="polite"><span>${esc(pick(PHRASES))}</span><small>нажми, чтобы сменить</small></button>
     <span class="decor pencil" aria-hidden="true"></span>
     <span class="decor ring" aria-hidden="true"></span>
@@ -109,6 +110,7 @@ export async function mount(root) {
     if (suppressClick && e.target.closest('.thing')) { e.preventDefault(); e.stopPropagation(); }
   }, true);
   desk.addEventListener('dragstart', e => e.preventDefault());
+  $('#desk-cd').addEventListener('click', () => { sound.play('click'); openPlayer(); });
   $('#desk-reset').addEventListener('click', () => { saved = {}; lsSet('bg.desk', saved); applyPos(); sound.play('paper'); });
   const onResize = () => { applyPos(); fitTitle(); };
   window.addEventListener('resize', onResize);
