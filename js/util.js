@@ -194,7 +194,9 @@ export const ICON = {
   logo: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3c2 4 6 6 10 5-2 4-1 9 2 12-4 0-8 3-9 7-2-3-6-5-10-4 1-4-1-9-5-11 4-1 8-4 9-8z" fill="#FFD84A" stroke="#fff" stroke-width="1.5"/><circle cx="13" cy="15" r="1.6"/><circle cx="19" cy="15" r="1.6"/><path d="M13.5 19.5c1.5 1.2 3.5 1.2 5 0" stroke="#000" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>'
 };
 
-export const SECTIONS = [
+// Sections switched off for now. Remove an id from this list to bring the section back (the portfolio is 'stuff').
+export const HIDDEN_SECTIONS = ['stuff'];
+const ALL_SECTIONS = [
   { id: 'booth', name: 'Фотобудка', short: 'Фотобудка', hint: 'Четыре кадра, восемь фильтров, одна полоска', icon: 'booth' },
   { id: 'wall', name: 'Стена дня', short: 'Стена', hint: 'Общий коллаж, каждый день с чистого листа', icon: 'wall' },
   { id: 'run', name: 'Игры', short: 'Игры', hint: 'Забег дизайнера, мемори, змейка и тренажёр', icon: 'run' },
@@ -203,3 +205,4 @@ export const SECTIONS = [
   { id: 'stuff', name: 'Мои работы', short: 'Работы', hint: 'Постеры, 3D и всякие эксперименты', icon: 'stuff' },
   { id: 'capsule', name: 'Капсула времени', short: 'Капсула', hint: 'Все стены, которые мы сделали, по датам', icon: 'capsule' }
 ];
+export const SECTIONS = ALL_SECTIONS.filter(s => !HIDDEN_SECTIONS.includes(s.id));
