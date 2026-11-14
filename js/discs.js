@@ -18,7 +18,7 @@ export const DISCS = [
 export const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '');
 const SKIP = /karaoke|instrumental|remix|\blive\b|acoustic|re-?recorded|tribute|made famous|originally performed|cover|edit\)|mix[)\]]|version\)/i;
 
-const LANG = /spanish|español|french|german|italian|japanese|portuguese|mandarin|chinese|korean/i;
+const LANG = /spanish|español|french|german|italian|japanese|portug|mandarin|chinese|korean|version - clean/i;
 // Apple's search stopped returning tracks marked explicit (since autumn 2025), so a song can
 // quietly go missing; the player simply skips it.
 // The original studio recording: right artist, right title, no karaoke or remixes, earliest release wins.
