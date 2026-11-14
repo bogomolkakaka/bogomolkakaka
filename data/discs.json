@@ -1,0 +1,354 @@
+{
+ "updated": "2026-11-14",
+ "source": "Apple Music previews (iTunes Search API)",
+ "discs": {
+  "britney": [
+   {
+    "title": "...Baby One More Time",
+    "artist": "Britney Spears",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/49/2d/12/492d127a-ae83-a0cd-97b6-10d34d4a56f5/mzaf_694336938043858459.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/baby-one-more-time/268284599?i=268284600&uo=4",
+    "year": "1998"
+   },
+   {
+    "title": "Oops!...I Did It Again",
+    "artist": "Britney Spears",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/2b/75/de/2b75de2a-3ce0-055d-3abd-6c7cef246358/mzaf_13109649561881352352.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/oops-i-did-it-again/269969836?i=269969904&uo=4",
+    "year": "2000"
+   },
+   {
+    "title": "Lucky",
+    "artist": "Britney Spears",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/a5/0b/d6/a50bd60b-7295-1351-9f52-230bf4f8638c/mzaf_15075916858908336688.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/lucky/267954486?i=267954592&uo=4",
+    "year": "2000"
+   },
+   {
+    "title": "Stronger",
+    "artist": "Britney Spears",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/67/39/f1/6739f184-89d9-4594-513e-62b15c2ca63c/mzaf_3223653369358724164.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/stronger/267954486?i=267954493&uo=4",
+    "year": "2000"
+   },
+   {
+    "title": "I'm a Slave 4 U",
+    "artist": "Britney Spears",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/08/55/d9/0855d920-0187-7c3e-00fa-5a0b1bb25b16/mzaf_1277698847036341522.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/im-a-slave-4-u/269969836?i=269969903&uo=4",
+    "year": "2001"
+   },
+   {
+    "title": "Toxic",
+    "artist": "Britney Spears",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/7f/67/46/7f674672-5505-535a-996d-c4ba4f113cd2/mzaf_6662705981703159171.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/toxic/269969836?i=269969902&uo=4",
+    "year": "2003"
+   },
+   {
+    "title": "Everytime",
+    "artist": "Britney Spears",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b9/7d/5d/b97d5dbf-4772-92f3-2b34-db66cda5c226/mzaf_13911509301919193154.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/everytime/269969836?i=269969931&uo=4",
+    "year": "2003"
+   },
+   {
+    "title": "Gimme More (Remastered)",
+    "artist": "Britney Spears",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/6f/e0/e0/6fe0e033-ddff-b9e2-c9e9-5e57ddc0cd84/mzaf_4956507918908265812.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/gimme-more-remastered/686778973?i=686780571&uo=4",
+    "year": "2007"
+   },
+   {
+    "title": "Womanizer (Remastered)",
+    "artist": "Britney Spears",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/94/52/24/945224f0-fb28-28fe-0438-14b287a9f40a/mzaf_1547658235946393711.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/womanizer-remastered/686778973?i=686780576&uo=4",
+    "year": "2008"
+   },
+   {
+    "title": "Circus (Remastered)",
+    "artist": "Britney Spears",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/47/6c/bc/476cbce6-009c-bc4d-cd1b-5857d50279c0/mzaf_16145161359057904932.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/circus-remastered/686778973?i=686780578&uo=4",
+    "year": "2008"
+   },
+   {
+    "title": "Till the World Ends",
+    "artist": "Britney Spears",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/0f/09/90/0f099047-cd36-05e7-bc7a-0073b7d0313d/mzaf_2543056117143541757.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/till-the-world-ends/686778973?i=686780584&uo=4",
+    "year": "2011"
+   }
+  ],
+  "aguilera": [
+   {
+    "title": "Genie in a Bottle",
+    "artist": "Christina Aguilera",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e9/63/7c/e9637c84-3cbe-ad95-a5be-b6962ed54e08/mzaf_11300153256112368673.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/genie-in-a-bottle/1308542675?i=1308542773&uo=4",
+    "year": "1999"
+   },
+   {
+    "title": "What a Girl Wants",
+    "artist": "Christina Aguilera",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/07/5e/27/075e272a-1c3b-ed92-ed24-6eb9150e128f/mzaf_7885141226279522232.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/what-a-girl-wants/1308542675?i=1308542774&uo=4",
+    "year": "1999"
+   },
+   {
+    "title": "Come on over Baby (All I Want Is You) [Radio Version]",
+    "artist": "Christina Aguilera",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/98/97/1a/98971ade-db5b-e943-910c-d21d3e108c30/mzaf_3663252827977474975.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/come-on-over-baby-all-i-want-is-you-radio-version/1308542675?i=1308543489&uo=4",
+    "year": "1999"
+   },
+   {
+    "title": "Dirrty (feat. Redman)",
+    "artist": "Christina Aguilera",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/17/3a/83/173a8320-2ef0-0b1b-f4f9-24296af14759/mzaf_12540633043612673465.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/dirrty-feat-redman/279647264?i=279647295&uo=4",
+    "year": "2002"
+   },
+   {
+    "title": "Beautiful",
+    "artist": "Christina Aguilera",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/1f/a2/cf/1fa2cfca-5eb6-c361-02fd-665280d57212/mzaf_14355860194011638271.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/beautiful/279647264?i=279647290&uo=4",
+    "year": "2002"
+   },
+   {
+    "title": "Fighter",
+    "artist": "Christina Aguilera",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ce/95/bc/ce95bcf6-cdd5-cd53-96dd-f5470299b51c/mzaf_15117044671867761615.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/fighter/1649571367?i=1649572158&uo=4",
+    "year": "2002"
+   },
+   {
+    "title": "Ain't No Other Man",
+    "artist": "Christina Aguilera",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/1f/7b/33/1f7b3384-8f92-70c8-467b-0ff841da2d0e/mzaf_540190231270090687.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/aint-no-other-man/402298887?i=402298905&uo=4",
+    "year": "2006"
+   },
+   {
+    "title": "Candyman",
+    "artist": "Christina Aguilera",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/65/fc/e9/65fce93a-0337-dfa2-c420-6b9c65160b98/mzaf_10621270855697174191.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/candyman/402298887?i=402298943&uo=4",
+    "year": "2006"
+   }
+  ],
+  "nsync": [
+   {
+    "title": "Bye Bye Bye",
+    "artist": "*NSYNC",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1a/32/9c/1a329cf1-36cf-6640-ce59-03829364cb0e/mzaf_11426051634661119883.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/bye-bye-bye/303095504?i=303095572&uo=4",
+    "year": "2000"
+   },
+   {
+    "title": "It's Gonna Be Me",
+    "artist": "*NSYNC",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/93/8c/76/938c7620-b37c-61c1-b5bc-30f94c3c43c3/mzaf_6551977862679927641.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/its-gonna-be-me/899265616?i=899265761&uo=4",
+    "year": "2000"
+   },
+   {
+    "title": "This I Promise You",
+    "artist": "*NSYNC",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/97/e7/b4/97e7b4d7-5675-a0f3-580e-d9166c9d8344/mzaf_2326258872187498149.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/this-i-promise-you/303171298?i=303171501&uo=4",
+    "year": "2000"
+   },
+   {
+    "title": "Pop",
+    "artist": "*NSYNC",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/75/6f/98/756f981e-5080-8b95-4e8e-77d411e08ca7/mzaf_1998959409783558145.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/pop/303178981?i=303178994&uo=4",
+    "year": "2001"
+   },
+   {
+    "title": "Gone",
+    "artist": "*NSYNC",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/05/20/3f/05203fea-e211-eaa6-2044-87f043e469a2/mzaf_2823921310644525453.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/gone/303178981?i=303179000&uo=4",
+    "year": "2001"
+   },
+   {
+    "title": "Girlfriend",
+    "artist": "*NSYNC",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/53/76/c9/5376c908-5ede-b4b3-3fc8-7c7af201956a/mzaf_977736666776043326.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/girlfriend/303178981?i=303178998&uo=4",
+    "year": "2001"
+   }
+  ],
+  "avril": [
+   {
+    "title": "Complicated",
+    "artist": "Avril Lavigne",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d5/82/55/d58255cd-4bd1-c339-1584-591e9d1305ee/mzaf_14546367220838781682.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/complicated/315025768?i=315025823&uo=4",
+    "year": "2002"
+   },
+   {
+    "title": "Sk8er Boi",
+    "artist": "Avril Lavigne",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/e5/5d/cf/e55dcfa0-7512-6287-e89d-741fe71080c7/mzaf_7785083572268777793.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/sk8er-boi/315025768?i=315025826&uo=4",
+    "year": "2002"
+   },
+   {
+    "title": "I'm with You",
+    "artist": "Avril Lavigne",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ef/1e/54/ef1e5406-eabd-fd30-ba25-cca051608367/mzaf_15345095558424127211.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/im-with-you/315025768?i=315025828&uo=4",
+    "year": "2002"
+   },
+   {
+    "title": "My Happy Ending",
+    "artist": "Avril Lavigne",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/d2/92/d3/d292d3ec-5805-07f1-353c-3dcfe72adaea/mzaf_12534376627609072066.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/my-happy-ending/323395449?i=323395690&uo=4",
+    "year": "2004"
+   },
+   {
+    "title": "Nobody's Home",
+    "artist": "Avril Lavigne",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f3/c6/3e/f3c63e0c-3bad-e0af-798c-e7f82645d3bc/mzaf_9375663155524861045.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/nobodys-home/1744964938?i=1744965329&uo=4",
+    "year": "2004"
+   },
+   {
+    "title": "Girlfriend (feat. Lil Mama) [Dr. Luke Mix]",
+    "artist": "Avril Lavigne",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f6/ef/45/f6ef4517-5e98-f818-693b-58aa9693d5bb/mzaf_13919108699754439175.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/girlfriend-feat-lil-mama-dr-luke-mix/268993318?i=268994189&uo=4",
+    "year": "2007"
+   },
+   {
+    "title": "When You're Gone",
+    "artist": "Avril Lavigne",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/05/57/e6/0557e674-f2ff-833c-51de-a495472524bf/mzaf_12659770412498203923.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/when-youre-gone/268993318?i=268993517&uo=4",
+    "year": "2007"
+   },
+   {
+    "title": "What the Hell",
+    "artist": "Avril Lavigne",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/68/c6/01/68c60125-37ee-f1fa-8b73-f6e70c6fd720/mzaf_10701661864647973839.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/what-the-hell/1744964938?i=1744964947&uo=4",
+    "year": "2011"
+   }
+  ],
+  "hits00": [
+   {
+    "title": "Crazy in Love (feat. JAŸ-Z)",
+    "artist": "Beyoncé",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/7a/7f/b3/7a7fb397-c707-f7a6-93be-1db3cd1c7fcb/mzaf_10719026518601275807.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/crazy-in-love-feat-ja%C3%BF-z/201274359?i=201274644&uo=4",
+    "year": "2003"
+   },
+   {
+    "title": "Hollaback Girl",
+    "artist": "Gwen Stefani",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/aa/ab/dd/aaabdd89-7ca3-e6fe-86d1-e00b054d9332/mzaf_6128231353075845529.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/hollaback-girl/1491226765?i=1491226770&uo=4",
+    "year": "2004"
+   },
+   {
+    "title": "Since U Been Gone",
+    "artist": "Kelly Clarkson",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/8d/e7/24/8de72427-cabf-27c4-563f-5be2e83da122/mzaf_8282882240981789361.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/since-u-been-gone/275765354?i=275765380&uo=4",
+    "year": "2004"
+   },
+   {
+    "title": "Promiscuous (feat. Timbaland)",
+    "artist": "Nelly Furtado",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ec/a9/0c/eca90caa-eafb-ecd2-e81f-474ef65b827b/mzaf_17866378336261677147.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/promiscuous-feat-timbaland/1442463545?i=1442463848&uo=4",
+    "year": "2006"
+   },
+   {
+    "title": "SexyBack (feat. Timbaland)",
+    "artist": "Justin Timberlake",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1a/f4/7b/1af47ba3-a363-5716-4dd9-6aea4fe35e3f/mzaf_13609262275263691829.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/sexyback-feat-timbaland/400946401?i=400946435&uo=4",
+    "year": "2006"
+   },
+   {
+    "title": "Umbrella (feat. JAŸ-Z)",
+    "artist": "Rihanna",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/7b/45/22/7b452241-882c-409b-3a9b-23306b14286a/mzaf_8588243939716013218.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/umbrella-feat-ja%C3%BF-z/1441154435?i=1441154437&uo=4",
+    "year": "2007"
+   },
+   {
+    "title": "Hot n Cold",
+    "artist": "Katy Perry",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/e2/4e/9b/e24e9b91-647c-8ffd-25c1-10d03dbad1b8/mzaf_11247937394420766584.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/hot-n-cold/715891425?i=715891658&uo=4",
+    "year": "2008"
+   }
+  ],
+  "hits10": [
+   {
+    "title": "TiK ToK",
+    "artist": "Kesha",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ca/c4/5d/cac45d18-3920-16ab-33b9-5b85cc5e394b/mzaf_18125601085374059686.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/tik-tok/381237317?i=381237322&uo=4",
+    "year": "2009"
+   },
+   {
+    "title": "Firework",
+    "artist": "Katy Perry",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ab/27/3b/ab273b22-1eb1-dd49-5332-5ef70c35683b/mzaf_4912325324633099647.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/firework/716192216?i=716192625&uo=4",
+    "year": "2010"
+   },
+   {
+    "title": "Just the Way You Are",
+    "artist": "Bruno Mars",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/04/c9/ee/04c9eeea-24ca-2198-17ea-c1c1436cb953/mzaf_16637738980836746910.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/just-the-way-you-are/576654788?i=576655095&uo=4",
+    "year": "2010"
+   },
+   {
+    "title": "We Found Love (feat. Calvin Harris)",
+    "artist": "Rihanna",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c2/9c/c0/c29cc06d-aaf0-6b59-2f54-b1444d4b510c/mzaf_10052677462366170180.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/we-found-love-feat-calvin-harris/1443105016?i=1443105360&uo=4",
+    "year": "2011"
+   },
+   {
+    "title": "Call Me Maybe",
+    "artist": "Carly Rae Jepsen",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/21/33/25/213325eb-dd81-d4a9-930c-ccf50b302b5f/mzaf_5834608989797619743.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/call-me-maybe/1442997662?i=1442997912&uo=4",
+    "year": "2011"
+   },
+   {
+    "title": "What Makes You Beautiful",
+    "artist": "One Direction",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/f1/b3/56/f1b356b5-8591-4dce-af6e-ee482d73f799/mzaf_12873669089313914993.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/what-makes-you-beautiful/481400052?i=481400053&uo=4",
+    "year": "2011"
+   },
+   {
+    "title": "Shake It Off",
+    "artist": "Taylor Swift",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/11/d5/6d/11d56d4a-ce23-e793-8681-70dc4d35d931/mzaf_5886436202259848624.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/shake-it-off/1440933512?i=1440933651&uo=4",
+    "year": "2014"
+   },
+   {
+    "title": "Problem (feat. Iggy Azalea)",
+    "artist": "Ariana Grande",
+    "src": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/4c/c9/50/4cc95078-06c6-1013-3fb8-0bd07c7f6ad8/mzaf_9428786960160659541.plus.aac.p.m4a",
+    "url": "https://music.apple.com/us/album/problem-feat-iggy-azalea/1762836487?i=1762836495&uo=4",
+    "year": "2014"
+   }
+  ]
+ }
+}
