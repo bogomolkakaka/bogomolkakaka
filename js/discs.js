@@ -8,9 +8,9 @@ export const DISCS = [
   { id: 'nsync', title: 'NSYNC', artist: '*NSYNC', bg: '#244EE7', ink: '#fff', ac: '#CFE0FF', pat: 'grid',
     tracks: ['Bye Bye Bye', "It's Gonna Be Me", 'This I Promise You', 'Pop', 'Gone', 'Girlfriend'] },
   { id: 'avril', title: 'Аврил', artist: 'Avril Lavigne', bg: '#000000', ink: '#FFB8D9', ac: '#FFB8D9', pat: 'stripes',
-    tracks: ['Complicated', 'Sk8er Boi', "I'm with You", 'My Happy Ending', "Nobody's Home", 'Girlfriend', "When You're Gone", 'What the Hell', "Here's to Never Growing Up"] },
+    tracks: ['Complicated', 'Sk8er Boi', "I'm with You", "Don't Tell Me", 'My Happy Ending', "Nobody's Home", 'Keep Holding On', 'Girlfriend', "When You're Gone", 'What the Hell', "Here's to Never Growing Up"] },
   { id: 'hits00', title: 'Хиты 2000-х', bg: '#FFD84A', ink: '#000', ac: '#244EE7', pat: 'dots', mix: true,
-    tracks: [['Beyoncé', 'Crazy in Love'], ['Gwen Stefani', 'Hollaback Girl'], ['Kelly Clarkson', 'Since U Been Gone'], ['Nelly Furtado', 'Promiscuous'], ['Justin Timberlake', 'SexyBack'], ['Rihanna', 'Umbrella'], ['Lady Gaga', 'Poker Face'], ['Katy Perry', 'Hot N Cold']] },
+    tracks: [['Beyoncé', 'Crazy in Love'], ['Gwen Stefani', 'Hollaback Girl'], ['Kelly Clarkson', 'Since U Been Gone'], ['Nelly Furtado', 'Promiscuous'], ['Justin Timberlake', 'SexyBack'], ['Rihanna', 'Umbrella'], ['Lady Gaga', 'Poker Face'], ['Katy Perry', 'Hot N Cold'], ['Kylie Minogue', "Can't Get You Out of My Head"], ['Leona Lewis', 'Bleeding Love']] },
   { id: 'hits10', title: 'Хиты 2010-х', bg: '#CFE0FF', ink: '#000', ac: '#E8291F', pat: 'sun', mix: true,
     tracks: [['Kesha', 'TiK ToK'], ['Katy Perry', 'Firework'], ['Bruno Mars', 'Just the Way You Are'], ['Rihanna', 'We Found Love'], ['Carly Rae Jepsen', 'Call Me Maybe'], ['One Direction', 'What Makes You Beautiful'], ['Taylor Swift', 'Shake It Off'], ['Ariana Grande', 'Problem']] }
 ];
@@ -18,11 +18,16 @@ export const DISCS = [
 export const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '');
 const SKIP = /karaoke|instrumental|remix|\blive\b|acoustic|re-?recorded|tribute|made famous|originally performed|cover|edit\)|mix[)\]]|version\)/i;
 
+const LANG = /spanish|español|french|german|italian|japanese|portuguese|mandarin|chinese|korean/i;
+// Apple's search stopped returning tracks marked explicit (since autumn 2025), so a song can
+// quietly go missing; the player simply skips it.
 // The original studio recording: right artist, right title, no karaoke or remixes, earliest release wins.
 export function best(results, artist, title) {
   const a = norm(artist), t = norm(title);
-  const ok = (results || []).filter(r => r.previewUrl && r.kind === 'song' && norm(r.artistName).includes(a) && norm(r.trackName).startsWith(t) && (SKIP.test(title) || !SKIP.test(r.trackName + ' ' + (r.collectionName || ''))));
-  ok.sort((x, y) => String(x.releaseDate).localeCompare(String(y.releaseDate)));
+  const ok = (results || []).filter(r => r.previewUrl && r.kind === 'song' && norm(r.artistName).includes(a) && norm(r.trackName).startsWith(t) && !LANG.test(r.trackName) && (SKIP.test(title) || !SKIP.test(r.trackName + ' ' + (r.collectionName || ''))));
+  // the plain title first (no "feat." or version notes), then the earliest release
+  const plain = r => (norm(r.trackName) === t ? 0 : 1);
+  ok.sort((x, y) => plain(x) - plain(y) || String(x.releaseDate).localeCompare(String(y.releaseDate)));
   const r = ok[0];
   return r ? { title: r.trackName, artist: r.artistName, src: r.previewUrl, url: r.trackViewUrl || '', year: String(r.releaseDate || '').slice(0, 4) } : null;
 }
