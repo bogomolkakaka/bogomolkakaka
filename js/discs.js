@@ -16,7 +16,7 @@ export const DISCS = [
 ];
 
 export const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '');
-const SKIP = /karaoke|instrumental|remix|\blive\b|acoustic|re-?recorded|tribute|made famous|originally performed|cover|edit\)|mix\)|version\)/i;
+const SKIP = /karaoke|instrumental|remix|\blive\b|acoustic|re-?recorded|tribute|made famous|originally performed|cover|edit\)|mix[)\]]|version\)/i;
 
 // The original studio recording: right artist, right title, no karaoke or remixes, earliest release wins.
 export function best(results, artist, title) {
@@ -27,11 +27,18 @@ export function best(results, artist, title) {
   return r ? { title: r.trackName, artist: r.artistName, src: r.previewUrl, url: r.trackViewUrl || '', year: String(r.releaseDate || '').slice(0, 4) } : null;
 }
 
+// One song by name; if covers and karaoke crowd it out, ask again by the song title alone.
+async function one(artist, title, search) {
+  const name = artist.replace('*', '');
+  return best(await search({ term: `${name} ${title}`, limit: 25 }), artist, title)
+    || best(await search({ term: title, attribute: 'songTerm', limit: 200 }), artist, title);
+}
+
 // Every catalogue question a disc needs, in order. `search(params)` returns the raw results array.
 export async function lookupDisc(disc, search) {
   if (disc.mix) {
     const list = [];
-    for (const [artist, title] of disc.tracks) list.push(best(await search({ term: `${artist} ${title}`, limit: 15 }), artist, title));
+    for (const [artist, title] of disc.tracks) list.push(await one(artist, title, search));
     return list.filter(Boolean);
   }
   const name = disc.artist.replace('*', '');
@@ -39,6 +46,6 @@ export async function lookupDisc(disc, search) {
   const all = await search({ term: name, attribute: 'artistTerm', limit: 200 });
   disc.tracks.forEach((title, k) => { list[k] = best(all, disc.artist, title); });
   // a hit missing from the artist's top 200: ask for it by name
-  for (let k = 0; k < list.length; k++) if (!list[k]) list[k] = best(await search({ term: `${name} ${disc.tracks[k]}`, limit: 15 }), disc.artist, disc.tracks[k]);
+  for (let k = 0; k < list.length; k++) if (!list[k]) list[k] = await one(disc.artist, disc.tracks[k], search);
   return list.filter(Boolean);
 }
