@@ -1,0 +1,60 @@
+# Once a month (and whenever the disc list changes) GitHub looks up the 30-second
+# Apple Music previews for the CD player and saves them to data/discs.json.
+# Visitors' browsers then never have to reach the Apple catalogue themselves,
+# which often does not open from Russia.
+name: Диски для плеера
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 4 1 * *'
+  push:
+    branches: [main]
+    paths:
+      - js/discs.js
+      - scripts/build-discs.mjs
+      - .github/workflows/discs.yml
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: discs
+  cancel-in-progress: false
+
+jobs:
+  discs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Look up the previews
+        run: node scripts/build-discs.mjs
+
+      - name: Save the list and publish the site
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898208+github-actions[bot]@users.noreply.github.com'
+          git add data/discs.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Диски: свежий список отрывков'
+            git push origin HEAD:main
+          fi
+          # the site is served from the gh-pages branch: give it the same files as main
+          git fetch origin gh-pages
+          if [ "$(git rev-parse 'HEAD^{tree}')" != "$(git rev-parse 'origin/gh-pages^{tree}')" ]; then
+            c=$(git commit-tree 'HEAD^{tree}' -p origin/gh-pages -m 'Публикация: диски для плеера')
+            git push origin "$c:refs/heads/gh-pages"
+            gh api -X POST "repos/${{ github.repository }}/pages/builds" >/dev/null || true
+          fi

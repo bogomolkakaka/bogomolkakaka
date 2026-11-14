@@ -3,38 +3,36 @@
 // The music keeps playing while you move between sections; a small spinning disc in the taskbar controls it.
 import { $, $$, esc, ICON, openModal, lsGet, lsSet, reducedMotion } from './util.js';
 
-export const DISCS = [
-  { id: 'britney', title: 'Бритни', artist: 'Britney Spears', bg: '#FFB8D9', ink: '#000', ac: '#E8291F', pat: 'hearts',
-    tracks: ['...Baby One More Time', 'Oops!... I Did It Again', 'Lucky', 'Stronger', "I'm a Slave 4 U", 'Toxic', 'Everytime', 'Gimme More', 'Womanizer', 'Circus', 'Till the World Ends'] },
-  { id: 'aguilera', title: 'Агилера', artist: 'Christina Aguilera', bg: '#E8291F', ink: '#fff', ac: '#FFD84A', pat: 'bolts',
-    tracks: ['Genie in a Bottle', 'What a Girl Wants', 'Come On Over Baby (All I Want Is You)', 'Dirrty', 'Beautiful', 'Fighter', "Ain't No Other Man", 'Candyman'] },
-  { id: 'nsync', title: 'NSYNC', artist: '*NSYNC', bg: '#244EE7', ink: '#fff', ac: '#CFE0FF', pat: 'grid',
-    tracks: ['Bye Bye Bye', "It's Gonna Be Me", 'This I Promise You', 'Pop', 'Gone', 'Girlfriend'] },
-  { id: 'avril', title: 'Аврил', artist: 'Avril Lavigne', bg: '#000000', ink: '#FFB8D9', ac: '#FFB8D9', pat: 'stripes',
-    tracks: ['Complicated', 'Sk8er Boi', "I'm with You", 'My Happy Ending', "Nobody's Home", 'Girlfriend', "When You're Gone", 'What the Hell', "Here's to Never Growing Up"] },
-  { id: 'hits00', title: 'Хиты 2000-х', bg: '#FFD84A', ink: '#000', ac: '#244EE7', pat: 'dots', mix: true,
-    tracks: [['Beyoncé', 'Crazy in Love'], ['Gwen Stefani', 'Hollaback Girl'], ['Kelly Clarkson', 'Since U Been Gone'], ['Nelly Furtado', 'Promiscuous'], ['Justin Timberlake', 'SexyBack'], ['Rihanna', 'Umbrella'], ['Lady Gaga', 'Poker Face'], ['Katy Perry', 'Hot N Cold']] },
-  { id: 'hits10', title: 'Хиты 2010-х', bg: '#CFE0FF', ink: '#000', ac: '#E8291F', pat: 'sun', mix: true,
-    tracks: [['Kesha', 'TiK ToK'], ['Katy Perry', 'Firework'], ['Bruno Mars', 'Just the Way You Are'], ['Rihanna', 'We Found Love'], ['Carly Rae Jepsen', 'Call Me Maybe'], ['One Direction', 'What Makes You Beautiful'], ['Taylor Swift', 'Shake It Off'], ['Ariana Grande', 'Problem']] }
-];
+import { DISCS, lookupDisc } from './discs.js';
+export { DISCS };
 const API = 'https://itunes.apple.com/search';
 const TTL = 3 * 864e5;
 const SILENT = 'data:audio/wav;base64,UklGRnQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==';
 
-const P = { disc: null, list: [], i: -1, playing: false, loading: false, error: '', unlocked: false, modal: null };
+const P = { disc: null, list: [], i: -1, playing: false, loading: false, error: '', unlocked: false, modal: null, started: false, fails: 0, wd: 0, wdMs: 15000 };
 const audio = new Audio();
 audio.preload = 'auto';
 audio.setAttribute('playsinline', '');
 const subs = new Set();
 const emit = () => { subs.forEach(f => f()); renderMini(); media(); };
 
-/* ---------- catalogue lookup (JSONP, so it works from any static host) ---------- */
+/* ---------- the song lists ----------
+   data/discs.json is built on GitHub's servers once a month (scripts/build-discs.mjs), because the
+   Apple catalogue often does not open from Russia. The browser only falls back to asking Apple
+   itself when that file is missing. */
+let READY = null;
+const ready = fetch('data/discs.json', { cache: 'no-cache' })
+  .then(r => (r.ok ? r.json() : null))
+  .then(j => { READY = (j && j.discs) || {}; })
+  .catch(() => { READY = {}; });
+const readyList = disc => (READY && READY[disc.id] && READY[disc.id].length ? READY[disc.id] : null);
+
 let cbn = 0;
 function jsonp(params) {
   return new Promise((res, rej) => {
     const name = `__cd${++cbn}_${Date.now().toString(36)}`;
     const s = document.createElement('script');
-    const t = setTimeout(() => done(new Error('timeout')), 12000);
+    const t = setTimeout(() => done(new Error('timeout')), 8000);
     function done(err, data) { clearTimeout(t); try { delete window[name]; } catch (e) { window[name] = undefined; } s.remove(); err ? rej(err) : res(data); }
     window[name] = d => done(null, d);
     s.onerror = () => done(new Error('net'));
@@ -42,29 +40,14 @@ function jsonp(params) {
     document.head.appendChild(s);
   });
 }
-const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '');
-const SKIP = /karaoke|instrumental|remix|\blive\b|acoustic|re-?recorded|tribute|made famous|originally performed|cover|edit\)|mix\)|version\)/i;
-function best(results, artist, title) {
-  const a = norm(artist), t = norm(title);
-  const ok = (results || []).filter(r => r.previewUrl && r.kind === 'song' && norm(r.artistName).includes(a) && norm(r.trackName).startsWith(t) && (SKIP.test(title) || !SKIP.test(r.trackName + ' ' + (r.collectionName || ''))));
-  ok.sort((x, y) => String(x.releaseDate).localeCompare(String(y.releaseDate)));
-  const r = ok[0];
-  return r ? { title: r.trackName, artist: r.artistName, src: r.previewUrl, url: r.trackViewUrl || '', year: String(r.releaseDate || '').slice(0, 4) } : null;
-}
 async function resolve(disc) {
+  await ready;
+  const have = readyList(disc);
+  if (have) return have;
   const cached = lsGet('bg.cd.' + disc.id, null);
   if (cached && Date.now() - cached.t < TTL && cached.list.length) return cached.list;
-  let list;
-  if (disc.mix) {
-    list = await Promise.all(disc.tracks.map(([artist, title]) => jsonp({ term: `${artist} ${title}`, limit: 15 }).then(d => best(d.results, artist, title)).catch(() => null)));
-  } else {
-    const d = await jsonp({ term: disc.artist.replace('*', ''), attribute: 'artistTerm', limit: 200 });
-    list = disc.tracks.map(title => best(d.results, disc.artist, title));
-    // a hit missing from the artist's top 200: ask for it by name (at most three extra requests)
-    const missing = list.map((x, k) => x ? -1 : k).filter(k => k >= 0).slice(0, 3);
-    await Promise.all(missing.map(k => jsonp({ term: `${disc.artist.replace('*', '')} ${disc.tracks[k]}`, limit: 15 }).then(r => { list[k] = best(r.results, disc.artist, disc.tracks[k]); }).catch(() => {})));
-  }
-  list = list.filter(Boolean);
+  let failed = 0;
+  const list = await lookupDisc(disc, params => jsonp(params).then(d => d.results || []).catch(e => { if (++failed > 1) throw e; return []; }));
   if (list.length) lsSet('bg.cd.' + disc.id, { t: Date.now(), list });
   return list;
 }
@@ -79,8 +62,11 @@ function unlock() {
 export async function loadDisc(id, autoplay = true) {
   const disc = DISCS.find(d => d.id === id); if (!disc) return;
   unlock();
-  P.disc = disc; P.list = []; P.i = -1; P.loading = true; P.error = ''; P.playing = false;
-  emit();
+  P.disc = disc; P.list = []; P.i = -1; P.error = ''; P.playing = false;
+  // the ready list is already in memory: start right inside the tap, iPhone likes that best
+  const have = readyList(disc);
+  if (have) { P.list = have; P.loading = false; if (autoplay) playTrack(0); else emit(); return; }
+  P.loading = true; emit();
   try {
     const list = await resolve(disc);
     if (P.disc !== disc) return;
@@ -96,15 +82,46 @@ export function playTrack(i) {
   if (!P.list.length) return;
   unlock();
   P.i = (i + P.list.length) % P.list.length;
-  audio.src = P.list[P.i].src;
+  const src = P.list[P.i].src;
+  audio.src = src;
+  P.playing = true; P.error = ''; P.started = false;
+  watch(src);
   const p = audio.play();
-  P.playing = true; P.error = '';
-  if (p) p.catch(() => { P.playing = false; emit(); });
+  if (p) p.catch(e => {
+    if (audio.src !== src) return;
+    clearTimeout(P.wd);
+    P.playing = false;
+    // the browser wants a tap first: one press on play is enough
+    if (e && e.name === 'NotAllowedError') P.error = 'Нажми ▶, чтобы включить музыку.';
+    emit();
+  });
   emit();
+}
+// a song that neither plays nor fails (the connection just hangs) counts as failed after a while
+function watch(src) {
+  clearTimeout(P.wd);
+  P.wd = setTimeout(() => { if (audio.src === src && P.playing && !P.started) fail(); }, P.wdMs);
+}
+function fail() {
+  clearTimeout(P.wd);
+  P.fails++;
+  if (P.fails >= 3) {
+    audio.pause(); P.playing = false;
+    P.error = 'Отрывки сейчас не загружаются: сервер Apple Music не отвечает из твоей сети. Попробуй чуть позже или с другим интернетом.';
+    emit(); return;
+  }
+  P.error = 'Этот отрывок не загрузился, включаю следующий.'; emit();
+  const at = P.i;
+  setTimeout(() => { if (P.i === at && P.fails && P.fails < 3) next(); }, 900);
 }
 export function toggle() {
   if (P.i < 0) { if (P.list.length) playTrack(0); return; }
-  if (audio.paused) { unlock(); audio.play().catch(() => {}); P.playing = true; } else { audio.pause(); P.playing = false; }
+  if (audio.paused) {
+    unlock(); P.error = '';
+    if (P.fails >= 3) { P.fails = 0; playTrack(P.i); return; }
+    audio.play().catch(() => {}); P.playing = true;
+    if (!P.started) watch(audio.src);
+  } else { audio.pause(); P.playing = false; }
   emit();
 }
 export function next() {
@@ -119,7 +136,8 @@ export const nowPlaying = () => (P.i >= 0 ? P.list[P.i] : null);
 audio.addEventListener('ended', () => { if (audio.src !== SILENT && P.i >= 0) next(); });
 audio.addEventListener('pause', () => { if (P.playing && audio.src !== SILENT && !audio.ended) { P.playing = false; emit(); } });
 audio.addEventListener('play', () => { if (audio.src !== SILENT && !P.playing) { P.playing = true; emit(); } });
-audio.addEventListener('error', () => { if (audio.src && audio.src !== SILENT && P.i >= 0) { P.error = 'Этот отрывок не загрузился, включаю следующий.'; emit(); setTimeout(next, 900); } });
+audio.addEventListener('error', () => { if (audio.src && audio.src !== SILENT && P.i >= 0) fail(); });
+audio.addEventListener('playing', () => { if (audio.src === SILENT) return; P.started = true; P.fails = 0; clearTimeout(P.wd); if (P.error) { P.error = ''; emit(); } });
 
 // lock screen and headphone buttons on phones
 function media() {
@@ -209,4 +227,4 @@ export function openPlayer() {
   return m;
 }
 // test hook (automated checks only)
-window.__cd = { P, audio, DISCS, loadDisc, playTrack, next, toggle };
+window.__cd = { P, audio, DISCS, loadDisc, playTrack, next, toggle, ready };
