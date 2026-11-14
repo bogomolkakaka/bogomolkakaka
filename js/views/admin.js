@@ -42,7 +42,7 @@ function render() {
   R.innerHTML = `<div class="page admin"><a class="back" href="#/">${ICON.back}На рабочий стол</a>
     <div class="page-head"><div><h1 class="page-title">Студия</h1><p class="page-sub">привет, хозяйка</p></div>
       <div class="admin-who"><span>${esc(state.email)}</span><button class="btn btn--ghost btn--small" type="button" id="a-out">Выйти</button></div></div>
-    <p class="notice notice--blue">Фигурки и работы редактируются прямо на их страницах: открой <a href="#/objects">Маленькие объекты</a> или <a href="#/stuff">Мои работы</a> и нажми «Студия». Свои советы фильмов добавляй прямо в <a href="#/films">Видеопрокате</a>.</p>
+    <p class="notice notice--blue">Фигурки редактируются прямо на их странице: открой <a href="#/objects">Маленькие объекты</a> и нажми «Студия». Свои советы фильмов добавляй прямо в <a href="#/films">Видеопрокате</a>.</p>
     <div class="admin-tabs" role="tablist">${tabs.map(([k, n]) => `<button class="chip" role="tab" type="button" data-tab="${k}" aria-selected="${tab === k}" aria-pressed="${tab === k}">${n}</button>`).join('')}</div>
     <div id="a-body" class="admin-body"><p>Загружаю…</p></div></div>`;
   $('#a-out', R).addEventListener('click', () => admin.signOut());

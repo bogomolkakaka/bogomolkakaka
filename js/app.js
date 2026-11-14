@@ -1,5 +1,6 @@
 import { CONFIG } from './config.js';
-import { $, $$, esc, h, ICON, SECTIONS, sound, toast, zoned, reducedMotion, rand, closeTopModal } from './util.js';
+import { $, $$, esc, h, ICON, SECTIONS, HIDDEN_SECTIONS, sound, toast, zoned, reducedMotion, rand, closeTopModal } from './util.js';
+import { renderMini } from './player.js';
 import { initStore, state } from './store.js';
 import { BUILTIN, stickerURL } from './stickers.js';
 
@@ -26,7 +27,7 @@ function parseRoute() {
   const raw = location.hash.replace(/^#\/?/, '');
   const parts = raw.split('/').filter(Boolean).map(decodeURIComponent);
   let id = parts[0] || 'desk';
-  if (!VIEWS[id]) id = 'desk';
+  if (!VIEWS[id] || HIDDEN_SECTIONS.includes(id)) id = 'desk';
   return { id, params: parts.slice(1) };
 }
 
@@ -66,9 +67,11 @@ function renderTaskbar() {
     <button class="tb-start" id="tb-start" type="button" aria-expanded="false" aria-controls="startmenu">${ICON.logo}<b>${esc(CONFIG.SITE_NAME)}</b></button>
     <div class="tb-tabs">${tabs.map(t => `<a class="tb-tab" href="#/${t.id === 'desk' ? '' : t.id}" ${t.id === id ? 'aria-current="page"' : ''} title="${esc(t.name)}">${ICON[t.icon]}<span>${esc(t.short || t.name)}</span></a>`).join('')}</div>
     <div class="tb-right">
+      <span class="tb-cdwrap" id="tb-cd"></span>
       <button class="tb-icon" id="tb-sound" type="button" aria-pressed="${!sound.muted}" aria-label="${sound.muted ? 'Включить звук' : 'Выключить звук'}" title="${sound.muted ? 'Звук выключен' : 'Звук включён'}">${sound.muted ? ICON.mute : ICON.sound}</button>
       <span class="tb-clock" id="tb-clock" title="Время студии (${esc(CONFIG.TIMEZONE)})"></span>
     </div>`;
+  renderMini();
   tick();
 }
 function tick() {
