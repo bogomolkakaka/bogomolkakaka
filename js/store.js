@@ -1,6 +1,6 @@
 // Data layer. "cloud" = Supabase (shared by everyone); "local" = this browser only (demo mode until the database is connected).
 import { CONFIG } from './config.js';
-import { lsGet, lsSet, uid as newId, todayKey, addDays, hashStr, blobToDataURL } from './util.js';
+import { lsGet, lsSet, uid as newId, todayKey, addDays, hashStr, blobToDataURL, resizeToBlob } from './util.js';
 
 const CLOUD = !!(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY);
 const SB_URL = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm';
@@ -17,6 +17,8 @@ function friendly(err) {
   if (/daily_limit/.test(raw)) return new StoreError('Сегодня ты добавил(а) уже много. Оставь место другим и приходи завтра.', 'limit');
   if (/too_long/.test(raw)) return new StoreError('Текст слишком длинный. Уложись в 280 символов.', 'long');
   if (/bad_link/.test(raw)) return new StoreError('Ссылка должна начинаться с https:// или http://', 'link');
+  if (/bad_cover/.test(raw)) return new StoreError('Обложка не подошла. Загрузи картинку JPEG или PNG ещё раз.', 'cover');
+  if (/cover_limit/.test(raw)) return new StoreError('На сегодня хватит обложек. Приходи завтра.', 'limit');
   if (/row-level security|violates|permission denied|JWT|not authorized/i.test(raw)) return new StoreError('Это нельзя изменить: это не твоё или день уже в архиве.', 'denied');
   if (/Anonymous sign-ins are disabled/i.test(raw)) return new StoreError('Гостевые публикации выключены в настройках базы.', 'anon');
   if (/maximum allowed size|Payload too large|too large/i.test(raw)) return new StoreError('Картинка слишком большая. Попробуй поменьше.', 'size');
@@ -85,7 +87,7 @@ function notePace(day) { pace.stamps.push(Date.now()); lsSet('bg.count.' + day, 
 export async function upload(bucket, blob, ext) {
   if (state.mode !== 'cloud') return blobToDataURL(blob);
   await ensureGuest();
-  const path = (bucket === 'wall' ? `${state.uid}/${todayKey()}/` : `${bucket === 'media' ? 'm' : bucket}/`) + newId() + '.' + ext;
+  const path = (bucket === 'wall' ? `${state.uid}/${todayKey()}/` : bucket === 'covers' ? `${state.uid}/` : `${bucket === 'media' ? 'm' : bucket}/`) + newId() + '.' + ext;
   must(await sb.storage.from(bucket).upload(path, blob, { contentType: blob.type, upsert: false, cacheControl: '31536000' }));
   return sb.storage.from(bucket).getPublicUrl(path).data.publicUrl;
 }
@@ -270,8 +272,11 @@ function normRec(r) {
   const links = Array.isArray(r.links) ? r.links.filter(l => l && /^https?:\/\/[^\s"'<>]+$/i.test(l.url)).slice(0, 3).map(l => ({ url: String(l.url).slice(0, 500), label: String(l.label || '').slice(0, 40) })) : [];
   return { id: String(r.id), kind: r.kind === 'series' ? 'series' : 'film', title: String(r.title || '').slice(0, 120), year: String(r.year || '').slice(0, 9), genre: String(r.genre || '').slice(0, 40),
     note: String(r.note || '').slice(0, 600), author: String(r.author || '').slice(0, 40), links, by_owner: !!r.by_owner, status: ['approved', 'pending', 'rejected'].includes(r.status) ? r.status : 'pending',
-    owner: r.owner, demo: !!r.demo, created_at: r.created_at || '' };
+    cover: okCover(r.cover) ? String(r.cover) : '', owner: r.owner, demo: !!r.demo, created_at: r.created_at || '' };
 }
+// a cover is our own uploaded file (cloud), a small data: picture (demo mode) or a bundled demo asset
+const okCover = c => typeof c === 'string' && (/^https:\/\/[^\s"'<>]+$/i.test(c) || /^data:image\/(jpeg|png|webp);base64,/.test(c) || /^assets\/[\w\/.-]+$/.test(c) || /^blob:/.test(c));
+const CKEY = 'bg.rec.covers';
 export const recs = {
   async list() {
     if (state.mode === 'cloud') return must(await sb.from('recs').select('*').order('created_at', { ascending: false }).limit(500)).map(normRec);
@@ -284,7 +289,7 @@ export const recs = {
     const stamps = lsGet('bg.rec.stamps', []).filter(t => now - t < 864e5);
     if (!state.admin && stamps.filter(t => now - t < 6e5).length >= 3) throw new StoreError('Слишком быстро. Подожди несколько минут и попробуй снова.', 'slow');
     if (!state.admin && stamps.length >= 10) throw new StoreError('На сегодня хватит советов. Приходи завтра.', 'limit');
-    const row = { kind: rec.kind, title: rec.title, year: rec.year, genre: rec.genre, note: rec.note, author: rec.author, links: rec.links };
+    const row = { kind: rec.kind, title: rec.title, year: rec.year, genre: rec.genre, note: rec.note, author: rec.author, links: rec.links, cover: rec.cover || '' };
     let out;
     if (state.mode === 'cloud') { await ensureGuest(); out = normRec(must(await sb.from('recs').insert({ ...row, owner: state.uid }).select().single())); }
     else { out = normRec({ ...row, id: newId(), status: 'pending', owner: state.uid, created_at: new Date().toISOString() }); lsSet(RKEY, [out, ...lsGet(RKEY, [])]); }
@@ -292,6 +297,30 @@ export const recs = {
     return out;
   },
   async update(id, patch) { must(await sb.from('recs').update(patch).eq('id', id)); },
+  // Covers: a picture file from the visitor's phone or computer, shrunk to poster size before upload.
+  async uploadCover(file) {
+    const { blob } = await resizeToBlob(file, state.mode === 'cloud' ? 720 : 420, 'image/jpeg', state.mode === 'cloud' ? .84 : .78);
+    return upload('covers', blob, 'jpg');
+  },
+  // A guest proposes a cover for a tape that has none; it waits for the owner's approval.
+  async suggestCover(recId, cover) {
+    if (state.mode === 'cloud') { await ensureGuest(); must(await sb.from('rec_covers').insert({ rec_id: recId, cover, owner: state.uid })); return; }
+    lsSet(CKEY, { ...lsGet(CKEY, {}), [recId]: cover });
+  },
+  async myCovers() {
+    if (state.mode !== 'cloud') return lsGet(CKEY, {});
+    if (!state.uid) return {};
+    const rows = must(await sb.from('rec_covers').select('rec_id,cover,status').eq('owner', state.uid).eq('status', 'pending'));
+    return Object.fromEntries(rows.map(r => [r.rec_id, r.cover]));
+  },
+  async coverQueue() {
+    const rows = must(await sb.from('rec_covers').select('*').eq('status', 'pending').order('created_at', { ascending: true }).limit(100));
+    const ids = [...new Set(rows.map(r => r.rec_id))];
+    const items = ids.length ? must(await sb.from('recs').select('id,title,year,kind').in('id', ids)) : [];
+    const by = new Map(items.map(i => [i.id, i]));
+    return rows.map(r => ({ ...r, rec: by.get(r.rec_id) || { title: '—' } }));
+  },
+  async setCoverStatus(id, status) { must(await sb.from('rec_covers').update({ status }).eq('id', id)); },
   async remove(id) {
     if (state.mode === 'cloud') { must(await sb.from('recs').delete().eq('id', id)); return; }
     lsSet(RKEY, lsGet(RKEY, []).filter(r => r.id !== id));
