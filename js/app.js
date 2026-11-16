@@ -10,6 +10,7 @@ const VIEWS = {
   wall: () => import('./views/wall.js'),
   capsule: () => import('./views/capsule.js'),
   run: () => import('./views/run.js'),
+  blog: () => import('./views/blog.js'),
   objects: () => import('./views/objects.js'),
   stuff: () => import('./views/stuff.js'),
   films: () => import('./views/films.js'),
