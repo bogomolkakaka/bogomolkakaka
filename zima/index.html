@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Зимняя площадь · bogomolka</title>
+<meta name="description" content="Живая зимняя иллюстрация: ёлка, гирлянды, каток и жители площади.">
+<meta name="theme-color" content="#E9E9F3">
+<meta property="og:title" content="Зимняя площадь">
+<meta property="og:description" content="Живая зимняя иллюстрация: ёлка, гирлянды, каток и жители площади.">
+<meta property="og:image" content="scene-small.jpg">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="scene-small.jpg" as="image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#2B2358;      /* цвет линий иллюстрации */
+  --bg:#E9E9F3;       /* цвет снега и неба */
+  --violet:#C27CFF;   /* фиолетовый домиков */
+}
+*{box-sizing:border-box}
+html{background:var(--bg);-webkit-text-size-adjust:100%}
+body{margin:0;color:var(--ink);font:500 15px/1.2 "Golos Text",system-ui,-apple-system,sans-serif;overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
+
+/* Сцена стоит на месте, а длинная «дорожка» под ней даёт странице прокрутку. */
+.view{position:fixed;left:0;top:0;width:100%;height:100vh;height:100lvh;overflow:hidden;background:var(--bg)}
+#gl,#snow{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+#gl{touch-action:pan-y}
+#snow{pointer-events:none}
+#flat{position:absolute;left:0;top:0;display:none;max-width:none;height:auto;transform-origin:0 0;will-change:transform}
+#track{width:1px;height:200vh;pointer-events:none}
+
+.bar{position:fixed;z-index:5;top:calc(12px + env(safe-area-inset-top,0px));left:calc(12px + env(safe-area-inset-left,0px));right:calc(12px + env(safe-area-inset-right,0px));display:flex;justify-content:space-between;align-items:center;gap:12px;pointer-events:none}
+.pill{pointer-events:auto;display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 16px 0 13px;border:2px solid var(--ink);border-radius:999px;background:rgba(255,255,255,.9);color:var(--ink);font:600 15px/1 "Golos Text",system-ui,sans-serif;text-decoration:none;box-shadow:3px 3px 0 var(--violet);cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.pill:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--violet)}
+.pill svg{width:18px;height:18px;flex:none}
+.round{width:42px;padding:0;justify-content:center}
+.pill:focus-visible{outline:3px solid var(--violet);outline-offset:3px}
+
+.hint{position:fixed;z-index:4;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));margin:0;transform:translateX(-50%);padding:9px 16px;border:2px solid var(--ink);border-radius:999px;background:rgba(255,255,255,.9);font-weight:600;white-space:nowrap;pointer-events:none;transition:opacity .6s ease,transform .6s ease}
+.hint span{display:inline-block;animation:nudge 1.6s ease-in-out infinite}
+.hint.gone{opacity:0;transform:translate(-50%,10px)}
+@keyframes nudge{0%,100%{transform:translateY(-1px)}50%{transform:translateY(3px)}}
+.again{position:fixed;z-index:4;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%)}
+.again:active{transform:translate(calc(-50% + 2px),2px)}
+.again[hidden]{display:none}
+
+.loader{position:fixed;z-index:3;inset:0;display:grid;place-items:center;margin:0;font-weight:600;letter-spacing:.01em;transition:opacity .5s ease;pointer-events:none}
+.loader.gone{opacity:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.hint span{animation:none}}
+</style>
+</head>
+<body>
+<h1 class="sr">Зимняя площадь</h1>
+<div class="view" id="view">
+  <canvas id="gl" role="img" aria-label="Иллюстрация «Зимняя площадь»: ёлка с гирляндами, закрытый офис, удалёнщики в окнах, горка «Бесстрашные», снеговик, Дед Мороз с подарками, шарик невыгоревших и каток."></canvas>
+  <img id="flat" alt="Иллюстрация «Зимняя площадь»">
+  <canvas id="snow" aria-hidden="true"></canvas>
+</div>
+<div id="track" aria-hidden="true"></div>
+
+<header class="bar">
+  <a class="pill" href="../" aria-label="Вернуться в студию bogomolka">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>bogomolka
+  </a>
+  <button class="pill round" id="play" type="button" aria-pressed="false" aria-label="Автопрокрутка" title="Автопрокрутка">
+    <svg id="ico-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>
+    <svg id="ico-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="display:none"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+  </button>
+</header>
+<p class="hint" id="hint">листай вниз <span aria-hidden="true">↓</span></p>
+<button class="pill again" id="again" type="button" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>сначала
+</button>
+<p class="loader" id="loader">Зажигаю гирлянды…</p>
+
+<script>
+(() => {
+'use strict';
+
+/* ------------------------------------------------------------------
+   Настройки. Картинка меряется в «единицах»: её ширина — 1000.
+   Верхние 27 единиц обрезаны (там в макете съехал кусок гирлянды).
+------------------------------------------------------------------ */
+const IW = 1000, Y0 = 27, Y1 = 711, IH = Y1 - Y0;
+const SPEED = 20;            // скорость автопрокрутки, единиц в секунду
+const PAUSE_AFTER_TOUCH = 4500;
+
+const qs = new URLSearchParams(location.search);
+const DEBUG = qs.has('debug');
+const FIXED_T = qs.has('t') ? parseFloat(qs.get('t')) : null;
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const MOTION = REDUCED ? 0 : (qs.has('amp') ? parseFloat(qs.get('amp')) : 1);
+
+/* Маршрут камеры: сверху вниз, змейкой по площади.
+   На широком экране боковые движения почти исчезают, остаётся спуск вниз. */
+const ROUTE = [
+  [120,205],[300,215],[480,195],[615,205],[880,175],
+  [905,300],[765,345],[625,395],[430,385],[130,395],
+  [160,560],[335,560],[605,590],[815,580],[935,600]
+];
+
+/* Жители. c — центр зоны, r — её радиусы, k — доля зоны, которая двигается целиком
+   (дальше движение плавно сходит на нет), p — точка опоры.
+   rot — покачивание в градусах, s/sx/sy — «дыхание», tx/ty — сдвиг в единицах,
+   w — скорость, ph — сдвиг по времени, burst — [период, длина, смещение] для жестов «время от времени». */
+const ACTORS = [
+  // верх: офис, отдых, ёлочная звезда, снежный ангел, удалёнщики
+  {c:[214,142],r:[30,50],k:.62,p:[214,142],ty:2.2,w:.8},                       // спускается по трубе
+  {c:[290,180],r:[22,16],k:.5, p:[292,192],rot:4,w:1.3,ph:1},                  // лежит на ёлке
+  {c:[292,252],r:[44,58],k:.6, p:[292,302],rot:2.2,w:1.1,ph:2},                // с табличкой «отдых»
+  {c:[306,212],r:[32,14],k:.5, p:[322,224],rot:5,w:4.5,burst:[6.5,2.4,.5]},    //   машет табличкой
+  {c:[260,281],r:[30,14],k:.5, p:[260,281],rot:3,ty:1.6,tx:1,w:.9,ph:.5},      // бумажный самолётик
+  {c:[398,230],r:[46,32],k:.6, p:[398,240],rot:2.2,ty:1.2,w:1,ph:3},           // в надувном круге
+  {c:[483,157],r:[42,38],k:.55,p:[483,157],rot:5,s:.03,w:.7},                  // звезда на ёлке
+  {c:[553,222],r:[28,17],k:.5, p:[553,200],sx:.07,w:2.2,burst:[7,3,1]},        // снежный ангел: ноги
+  {c:[533,188],r:[17,10],k:.45,p:[548,191],rot:10,w:2.2,burst:[7,3,1]},        //   и рука
+  {c:[622,205],r:[22,20],k:.55,p:[622,218],rot:5,w:1.4,ph:2},                  // звёздочка в снегу
+  {c:[728,164],r:[11,11],k:.45,p:[729,174],rot:9,w:1,burst:[5,2.6,2]},         // выглядывает из-за ёлки
+  {c:[842,118],r:[17,16],k:.55,p:[842,131],rot:6,w:1.2,ph:4},                  // удалёнщик-цветок
+  {c:[926,115],r:[19,18],k:.55,p:[926,129],rot:5,w:1,ph:1},                    // удалёнщик-звезда
+  {c:[855,197],r:[17,15],k:.55,p:[855,212],rot:6,w:.9,ph:5},                   // удалёнщик-треугольник
+  {c:[726,252],r:[17,11],k:.5, p:[726,252],rot:3,ty:1.5,w:1.1,ph:2},           // самолётик у горки
+  // середина: горка, снеговик, «2026», олени, ярмарка, записки на ёлке
+  {c:[712,338],r:[80,56],k:.62,p:[712,345],rot:1.6,ty:1,w:.8},                 // едет в ватрушке
+  {c:[797,330],r:[30,17],k:.5, p:[770,332],rot:6,w:5,burst:[4.5,2,0]},         //   болтает ногами
+  {c:[772,378],r:[32,17],k:.5, p:[742,370],rot:-6,w:5,burst:[4.5,2,0]},
+  {c:[666,372],r:[24,28],k:.55,p:[668,394],rot:5,w:1.1,burst:[6,3.5,1]},       // снеговик
+  {c:[620,380],r:[20,24],k:.55,p:[622,401],rot:5,w:1.1,ph:3},                  // прячется за снеговиком
+  {c:[886,385],r:[38,68],k:.6, p:[886,450],rot:1.4,tx:.8,w:1.6},               // строит «2026»
+  {c:[24,298], r:[26,30],k:.55,p:[36,316], rot:5,w:.9,burst:[7,3,0]},          // олень слева
+  {c:[134,236],r:[20,32],k:.55,p:[142,262],rot:4,w:.8,burst:[8,3,3.5]},        // олень в арке
+  {c:[63,398], r:[16,18],k:.55,p:[64,413], rot:4,w:1.1},                       // эльф в ларьке
+  {c:[100,397],r:[12,10],k:.5, p:[100,405],rot:7,w:1.3,ph:2},                  //   и его сосед
+  {c:[461,297],r:[18,20],k:.5, p:[461,281],rot:5,w:1.7},                       // записки на ёлке
+  {c:[577,330],r:[26,22],k:.5, p:[560,313],rot:4,w:1.5,ph:2},
+  {c:[383,385],r:[28,23],k:.5, p:[385,366],rot:4,w:1.6,ph:4},
+  // низ: кот, Дед Мороз, шарик невыгоревших, каток
+  {c:[360,487],r:[22,16],k:.55,p:[360,501],sy:.035,w:1.8},                     // кот дышит
+  {c:[376,480],r:[8,10], k:.45,p:[373,490],rot:12,w:7,burst:[4,2,1]},          //   и машет хвостом
+  {c:[302,470],r:[38,34],k:.55,p:[305,502],rot:4,w:1,ph:1},                    // звезда с подарком
+  {c:[405,507],r:[30,30],k:.55,p:[405,536],rot:3.5,w:1.1,ph:3},                // Дед Мороз
+  {c:[372,605],r:[30,50],k:.6, p:[372,652],rot:3,sy:.025,w:9,burst:[3.6,1.4,0]},// малыш в шапке-мишке
+  {c:[250,585],r:[16,22],k:.5, p:[258,607],rot:4,w:1.3},                       // телефон фотографа
+  {c:[306,588],r:[34,32],k:.55,p:[306,620],rot:3,w:.9,ph:2},                   // фотограф
+  {c:[186,612],r:[56,96],k:.6, p:[186,708],rot:1.2,w:.9},                      // треугольник в красном
+  {c:[172,575],r:[30,26],k:.55,p:[180,600],rot:4,w:1,ph:1.5},
+  {c:[172,624],r:[17,21],k:.55,p:[173,641],rot:12,w:7,burst:[5,2.2,0]},        //   машет рукой
+  {c:[160,545],r:[12,12],k:.5, p:[160,545],s:.12,w:2,ph:0},                    // звёздочки вокруг него
+  {c:[188,545],r:[12,12],k:.5, p:[188,545],s:.12,w:2,ph:1.1},
+  {c:[218,547],r:[12,12],k:.5, p:[218,547],s:.12,w:2,ph:2.3},
+  {c:[210,577],r:[12,12],k:.5, p:[210,577],s:.12,w:2,ph:3.1},
+  {c:[135,578],r:[12,12],k:.5, p:[135,578],s:.12,w:2,ph:4.2},
+  {c:[118,587],r:[9,9],  k:.5, p:[118,587],s:.12,w:2,ph:5.3},
+  {c:[117,620],r:[13,13],k:.5, p:[117,620],s:.12,w:2,ph:.6},
+  {c:[30,475], r:[17,24],k:.5, p:[30,475], s:.16,rot:8,w:1.6,ph:0},            // белые искры на шарике
+  {c:[63,540], r:[19,28],k:.5, p:[63,540], s:.16,rot:8,w:1.6,ph:2},
+  {c:[238,483],r:[16,22],k:.5, p:[238,483],s:.16,rot:8,w:1.6,ph:4},
+  {c:[626,592],r:[76,80],k:.6, p:[616,664],rot:2,tx:2,w:.9},                   // фигурист в синем
+  {c:[637,512],r:[28,16],k:.5, p:[637,512],rot:3,ty:1.6,w:1,ph:1},             // самолётик над катком
+  {c:[818,545],r:[95,52],k:.55,p:[826,602],rot:3,w:1.1,ph:2},                  // фигуристка-цветок
+  {c:[898,630],r:[26,26],k:.5, p:[878,606],rot:6,w:1.1,ph:2},                  //   и её конёк
+  {c:[950,530],r:[55,92],k:.6, p:[945,620],sy:.018,sx:-.01,w:1.3},             // эльф справа дышит
+  {c:[961,468],r:[22,20],k:.55,p:[961,490],rot:3.5,w:.7,ph:1},
+  {c:[937,676],r:[68,40],k:.6, p:[937,712],s:.02,w:1}                          // сонные облачка
+];
+ACTORS.forEach((a, i) => { if (a.ph == null) a.ph = (i * 2.399) % 6.283; });
+
+const $ = (s) => document.querySelector(s);
+const view = $('#view'), glc = $('#gl'), snowc = $('#snow'), flat = $('#flat'), track = $('#track');
+const playBtn = $('#play'), hint = $('#hint'), again = $('#again'), loader = $('#loader');
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const LVH = (window.CSS && CSS.supports && CSS.supports('height', '100lvh')) ? '100lvh' : '100vh';
+
+/* ---------------- Камера и маршрут ---------------- */
+let vw = 0, vh = 0, dpr = 1, S = 1, Vw = 0, Vh = 0;
+let path = [], cum = [], L = 0;
+
+function catmull(p0, p1, p2, p3, t) {
+  const t2 = t * t, t3 = t2 * t;
+  return 0.5 * (2 * p1 + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (-p0 + 3 * p1 - 3 * p2 + p3) * t3);
+}
+function buildPath() {
+  const n = ROUTE.length, pts = [];
+  for (let i = 0; i < n - 1; i++) {
+    const a = ROUTE[Math.max(i - 1, 0)], b = ROUTE[i], c = ROUTE[i + 1], d = ROUTE[Math.min(i + 2, n - 1)];
+    for (let j = 0; j < 40; j++) {
+      const t = j / 40;
+      pts.push([catmull(a[0], b[0], c[0], d[0], t), catmull(a[1], b[1], c[1], d[1], t)]);
+    }
+  }
+  pts.push(ROUTE[n - 1].slice());
+  const xmin = Vw / 2, xmax = IW - Vw / 2, ymin = Y0 + Vh / 2, ymax = Y1 - Vh / 2;
+  const cl = (v, lo, hi) => lo > hi ? (lo + hi) / 2 : clamp(v, lo, hi);
+  let q = pts.map(p => [cl(p[0], xmin, xmax), cl(p[1], ymin, ymax)]);
+  for (let pass = 0; pass < 10; pass++) {             // сглаживаем углы, которые дала рамка
+    const r = [q[0]];
+    for (let i = 1; i < q.length - 1; i++) r.push([(q[i - 1][0] + 2 * q[i][0] + q[i + 1][0]) / 4, (q[i - 1][1] + 2 * q[i][1] + q[i + 1][1]) / 4]);
+    r.push(q[q.length - 1]);
+    q = r;
+  }
+  path = [q[0]]; cum = [0];
+  for (let i = 1; i < q.length; i++) {
+    const last = path[path.length - 1];
+    const d = Math.hypot(q[i][0] - last[0], q[i][1] - last[1]);
+    if (d < 1e-3) continue;
+    path.push(q[i]); cum.push(cum[cum.length - 1] + d);
+  }
+  L = cum[cum.length - 1] * S;
+}
+function camAt(px) {
+  const u = clamp(px / S, 0, cum[cum.length - 1]);
+  let lo = 0, hi = cum.length - 1;
+  while (hi - lo > 1) { const m = (lo + hi) >> 1; if (cum[m] <= u) lo = m; else hi = m; }
+  if (hi === lo) return path[lo];
+  const t = (u - cum[lo]) / Math.max(1e-6, cum[hi] - cum[lo]);
+  return [path[lo][0] + (path[hi][0] - path[lo][0]) * t, path[lo][1] + (path[hi][1] - path[lo][1]) * t];
+}
+
+function layout() {
+  const rect = view.getBoundingClientRect();
+  const nw = Math.round(rect.width), nh = Math.round(rect.height);
+  const nd = Math.min(window.devicePixelRatio || 1, 2);
+  if (nw === vw && nh === vh && nd === dpr && L) return false;
+  const oldL = L, frac = L ? camPos / L : 0;
+  vw = nw; vh = nh; dpr = nd;
+  const aspect = vw / vh;
+  const f = clamp(0.62 + (aspect - 0.5) * (0.76 - 0.62) / (1.6 - 0.5), 0.62, 0.76);  // какую долю высоты видно
+  S = Math.max(vh / (IH * f), vw / IW);
+  Vw = vw / S; Vh = vh / S;
+  buildPath();
+  track.style.height = `calc(${LVH} + ${Math.ceil(L)}px)`;
+  glc.width = Math.round(vw * dpr); glc.height = Math.round(vh * dpr);
+  snowc.width = Math.round(vw * dpr); snowc.height = Math.round(vh * dpr);
+  flat.style.width = (IW * S) + 'px';
+  initSnow();
+  if (oldL) { const p = frac * L; camPos = autoPos = p; window.scrollTo(0, p); }
+  return true;
+}
+
+/* ---------------- Движение жителей ---------------- */
+function signal(a, t) {
+  let v = Math.sin(a.w * t + a.ph) * 0.78 + Math.sin(a.w * 2.17 * t + a.ph * 1.7 + 1.3) * 0.22;
+  if (a.burst) {
+    const P = a.burst[0], B = a.burst[1], off = a.burst[2];
+    const x = (((t + off) % P) + P) % P;
+    const e = x < B ? Math.sin(Math.PI * x / B) : 0;
+    v *= e * e;
+  }
+  return v * MOTION;
+}
+
+/* ---------------- WebGL ---------------- */
+let gl = null, prog = null, MAXA = 0, U = null, loc = {}, texScene = null, texLights = null;
+let sceneReady = false, lightsReady = false, isGL2 = false;
+
+const VS = 'attribute vec2 aPos;void main(){gl_Position=vec4(aPos,0.0,1.0);}';
+const FS = (max) => `
+precision highp float;
+#define MAXA ${max}
+uniform sampler2D uTex;
+uniform sampler2D uLights;
+uniform vec2 uRes;
+uniform vec3 uCam;
+uniform float uTime;
+uniform float uLightsOn;
+uniform int uN;
+uniform vec4 uA[MAXA * 3];
+void main(){
+  vec2 p = uCam.xy + vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y) * uCam.z;
+  vec2 disp = vec2(0.0);
+  for (int i = 0; i < MAXA; i++) {
+    if (i >= uN) break;
+    vec4 R = uA[i * 3];
+    vec2 q = (p - R.xy) * R.zw;
+    float d2 = dot(q, q);
+    if (d2 >= 1.0) continue;
+    vec4 M = uA[i * 3 + 1];
+    vec4 T = uA[i * 3 + 2];
+    float w = 1.0 - smoothstep(T.z, 1.0, sqrt(d2));
+    vec2 src = vec2(M.x * p.x + M.y * p.y, M.z * p.x + M.w * p.y) + T.xy;
+    disp += w * (src - p);
+  }
+  vec2 s = p + disp;
+  vec2 uv = vec2(s.x / ${IW.toFixed(1)}, (s.y - ${Y0.toFixed(1)}) / ${IH.toFixed(1)});
+  vec3 col = texture2D(uTex, clamp(uv, 0.0, 1.0)).rgb;
+  vec3 Lm = texture2D(uLights, clamp(uv, 0.0, 1.0)).rgb;
+  float tw = 0.5 + 0.5 * sin(uTime * 1.7 + Lm.g * 6.2831);
+  tw = tw * tw * (3.0 - 2.0 * tw);
+  col = mix(col, col * 0.84, Lm.r * (1.0 - tw) * 0.65 * uLightsOn);
+  col += Lm.r * tw * (col * 0.55 + 0.1) * uLightsOn;
+  col += Lm.b * tw * 0.22 * vec3(1.0, 0.97, 0.9) * uLightsOn;
+  gl_FragColor = vec4(col, 1.0);
+}`;
+
+function initGL() {
+  const opts = { antialias: false, alpha: false, depth: false, stencil: false, premultipliedAlpha: false, preserveDrawingBuffer: DEBUG, powerPreference: 'high-performance' };
+  try { gl = glc.getContext('webgl2', opts); isGL2 = !!gl; if (!gl) gl = glc.getContext('webgl', opts) || glc.getContext('experimental-webgl', opts); } catch (e) { gl = null; }
+  if (!gl) return false;
+  const maxVec = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS) || 64;
+  MAXA = Math.max(1, Math.min(ACTORS.length, Math.floor((maxVec - 16) / 3)));
+  const sh = (type, src) => {
+    const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { console.warn(gl.getShaderInfoLog(s)); return null; }
+    return s;
+  };
+  const vs = sh(gl.VERTEX_SHADER, VS), fs = sh(gl.FRAGMENT_SHADER, FS(MAXA));
+  if (!vs || !fs) { gl = null; return false; }
+  prog = gl.createProgram(); gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { console.warn(gl.getProgramInfoLog(prog)); gl = null; return false; }
+  gl.useProgram(prog);
+  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const ap = gl.getAttribLocation(prog, 'aPos'); gl.enableVertexAttribArray(ap); gl.vertexAttribPointer(ap, 2, gl.FLOAT, false, 0, 0);
+  ['uTex', 'uLights', 'uRes', 'uCam', 'uTime', 'uLightsOn', 'uN', 'uA'].forEach(n => loc[n] = gl.getUniformLocation(prog, n));
+  U = new Float32Array(MAXA * 12);
+  texScene = makeTex(); texLights = makeTex();
+  gl.uniform1i(loc.uTex, 0); gl.uniform1i(loc.uLights, 1);
+  glc.addEventListener('webglcontextlost', (e) => { e.preventDefault(); useFlat(); }, false);
+  return true;
+}
+function makeTex() {
+  const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([233, 233, 243, 255]));
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  return t;
+}
+function upload(tex, img, mips) {
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+  if (mips && isGL2) { gl.generateMipmap(gl.TEXTURE_2D); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); }
+  else gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+}
+function loadImg(src) {
+  return new Promise((res, rej) => { const i = new Image(); i.decoding = 'async'; i.onload = () => res(i); i.onerror = rej; i.src = src; });
+}
+
+let visibleActors = 0;
+function drawGL(t, cx, cy) {
+  const ox = cx - Vw / 2, oy = cy - Vh / 2;
+  let n = 0;
+  for (let i = 0; i < ACTORS.length && n < MAXA; i++) {
+    const a = ACTORS[i];
+    if (a.c[0] + a.r[0] < ox || a.c[0] - a.r[0] > ox + Vw || a.c[1] + a.r[1] < oy || a.c[1] - a.r[1] > oy + Vh) continue;
+    const v = signal(a, t);
+    if (Math.abs(v) < 1e-4) continue;
+    const th = (a.rot || 0) * v * Math.PI / 180;
+    const sx = 1 + ((a.sx || 0) + (a.s || 0)) * v, sy = 1 + ((a.sy || 0) + (a.s || 0)) * v;
+    const tx = (a.tx || 0) * v, ty = (a.ty || 0) * v;
+    const c = Math.cos(th), sn = Math.sin(th);
+    const m00 = c / sx, m01 = sn / sx, m10 = -sn / sy, m11 = c / sy;
+    const qx = a.p[0] + tx, qy = a.p[1] + ty;
+    const o = n * 12;
+    U[o] = a.c[0]; U[o + 1] = a.c[1]; U[o + 2] = 1 / a.r[0]; U[o + 3] = 1 / a.r[1];
+    U[o + 4] = m00; U[o + 5] = m01; U[o + 6] = m10; U[o + 7] = m11;
+    U[o + 8] = a.p[0] - (m00 * qx + m01 * qy); U[o + 9] = a.p[1] - (m10 * qx + m11 * qy); U[o + 10] = a.k; U[o + 11] = 0;
+    n++;
+  }
+  visibleActors = n;
+  gl.viewport(0, 0, glc.width, glc.height);
+  gl.uniform2f(loc.uRes, glc.width, glc.height);
+  gl.uniform3f(loc.uCam, ox, oy, 1 / (S * dpr));
+  gl.uniform1f(loc.uTime, t);
+  gl.uniform1f(loc.uLightsOn, lightsReady ? (REDUCED ? 0.5 : 1) : 0);
+  gl.uniform1i(loc.uN, n);
+  gl.uniform4fv(loc.uA, U);
+  gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, texScene);
+  gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, texLights);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+
+/* Если WebGL нет — показываем картинку без оживления, но с прокруткой и снегом. */
+let flatMode = false;
+function useFlat() {
+  flatMode = true; gl = null;
+  glc.style.display = 'none'; flat.style.display = 'block';
+  flat.onload = () => { sceneReady = true; ready(); };
+  flat.src = 'scene-4096.webp';
+}
+function drawFlat(cx, cy) {
+  const ox = cx - Vw / 2, oy = cy - Vh / 2;
+  flat.style.transform = `translate3d(${(-ox * S).toFixed(2)}px,${(-(oy - Y0) * S).toFixed(2)}px,0)`;
+}
+
+/* ---------------- Снег ---------------- */
+const sctx = snowc.getContext('2d');
+let flakes = [];
+function initSnow() {
+  const count = REDUCED || qs.has('nosnow') ? 0 : Math.round(clamp(vw * vh / 6500, 50, 260));
+  const big = vw > 700 ? 1.25 : 1;
+  flakes = [];
+  for (let i = 0; i < count; i++) {
+    const z = Math.random();
+    flakes.push({ x: Math.random() * vw, y: Math.random() * vh, z, r: (0.9 + z * 2.3) * big, sp: 14 + z * 40, ph: Math.random() * 6.283, a: 0.45 + z * 0.5 });
+  }
+}
+function drawSnow(dt, t, dx, dy) {
+  sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  sctx.clearRect(0, 0, vw, vh);
+  const wind = Math.sin(t * 0.13) * 8;
+  sctx.fillStyle = '#fff';
+  for (const f of flakes) {
+    const par = 0.55 + f.z * 0.55;
+    f.y += f.sp * dt - dy * par;
+    f.x += (Math.sin(t * 0.8 + f.ph) * (4 + f.z * 10) + wind * (0.4 + f.z)) * dt - dx * par;
+    if (f.y > vh + 8) { f.y -= vh + 16; f.x = Math.random() * vw; }
+    else if (f.y < -8) { f.y += vh + 16; f.x = Math.random() * vw; }
+    if (f.x > vw + 8) f.x -= vw + 16; else if (f.x < -8) f.x += vw + 16;
+    if (f.z > 0.75) {
+      sctx.globalAlpha = f.a * 0.22;
+      sctx.beginPath(); sctx.arc(f.x, f.y, f.r * 2.1, 0, 6.2832); sctx.fill();
+    }
+    sctx.globalAlpha = f.a;
+    sctx.beginPath(); sctx.arc(f.x, f.y, f.r, 0, 6.2832); sctx.fill();
+  }
+  sctx.globalAlpha = 1;
+  if (DEBUG) drawDebug();
+}
+function drawDebug() {
+  const ox = cam[0] - Vw / 2, oy = cam[1] - Vh / 2;
+  sctx.lineWidth = 1.5;
+  ACTORS.forEach((a, i) => {
+    sctx.strokeStyle = 'rgba(255,0,90,.9)';
+    sctx.beginPath(); sctx.ellipse((a.c[0] - ox) * S, (a.c[1] - oy) * S, a.r[0] * S, a.r[1] * S, 0, 0, 6.2832); sctx.stroke();
+    sctx.strokeStyle = 'rgba(0,140,255,.9)';
+    sctx.beginPath(); sctx.ellipse((a.c[0] - ox) * S, (a.c[1] - oy) * S, a.r[0] * S * a.k, a.r[1] * S * a.k, 0, 0, 6.2832); sctx.stroke();
+    sctx.fillStyle = 'rgba(0,160,60,1)'; sctx.fillRect((a.p[0] - ox) * S - 3, (a.p[1] - oy) * S - 3, 6, 6);
+    sctx.fillStyle = '#000'; sctx.font = '11px sans-serif'; sctx.fillText(String(i), (a.c[0] - ox) * S + 3, (a.c[1] - oy) * S - 3);
+  });
+  sctx.fillStyle = '#fff';
+}
+
+/* ---------------- Прокрутка ---------------- */
+let auto = !REDUCED && !qs.has('noauto') && !qs.has('p');
+let started = false, ended = false, activeBefore = false;
+let autoPos = 0, camPos = 0, resumeAt = Infinity, speedK = 0, lastSet = -1;
+let cam = [0, 0], prevCam = null, hintTimer = 0;
+
+function setPlayIcon() {
+  playBtn.setAttribute('aria-pressed', String(auto));
+  $('#ico-pause').style.display = auto ? '' : 'none';
+  $('#ico-play').style.display = auto ? 'none' : '';
+}
+function hideHint() { hint.classList.add('gone'); }
+function userMoved() {
+  resumeAt = performance.now() + PAUSE_AFTER_TOUCH;
+  speedK = 0; lastSet = -1;
+  hideHint();
+}
+['wheel', 'touchstart', 'touchmove', 'keydown'].forEach(ev => addEventListener(ev, (e) => {
+  if (ev === 'keydown' && !['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' ', 'Spacebar'].includes(e.key)) return;
+  userMoved();
+}, { passive: true }));
+glc.addEventListener('pointerdown', userMoved, { passive: true });
+
+playBtn.addEventListener('click', () => {
+  auto = !auto; setPlayIcon();
+  if (auto) {
+    if (ended || window.scrollY >= L - 2) restart();
+    else { resumeAt = performance.now() + 250; speedK = 0; }
+  }
+});
+again.addEventListener('click', () => { auto = true; setPlayIcon(); restart(); });
+function restart() {
+  ended = false; again.hidden = true;
+  window.scrollTo({ top: 0, behavior: REDUCED ? 'auto' : 'smooth' });
+  resumeAt = performance.now() + 2200; speedK = 0; lastSet = -1;
+}
+
+let resizeTimer = 0;
+addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(layout, 120); });
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
+function ready() {
+  if (started) return;
+  started = true;
+  loader.classList.add('gone');
+  if (qs.has('p')) { const p = clamp(parseFloat(qs.get('p')) || 0, 0, 1) * L; window.scrollTo(0, p); camPos = p; }
+  resumeAt = performance.now() + 1600;
+  hintTimer = setTimeout(() => { if (auto) hideHint(); }, 5200);
+}
+
+/* ---------------- Кадр ---------------- */
+const t0 = performance.now();
+let last = t0;
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  const t = FIXED_T != null ? FIXED_T : (now - t0) / 1000;
+
+  const active = auto && started && !ended && now >= resumeAt;
+  if (active) {
+    if (!activeBefore) { autoPos = window.scrollY; lastSet = -1; }
+    if (lastSet >= 0 && Math.abs(window.scrollY - lastSet) > 4) {
+      userMoved();                                  // человек взялся за полосу прокрутки
+    } else {
+      speedK = Math.min(1, speedK + dt / 1.6);
+      const ease = speedK * speedK * (3 - 2 * speedK);
+      autoPos = Math.min(L, autoPos + SPEED * S * ease * dt);
+      window.scrollTo(0, autoPos);
+      lastSet = window.scrollY;
+    }
+  }
+  activeBefore = active && now >= resumeAt;
+  const target = activeBefore ? autoPos : window.scrollY;
+  camPos += (target - camPos) * (1 - Math.exp(-dt * 9));
+  if (Math.abs(target - camPos) < 0.05) camPos = target;
+
+  if (!ended && started && camPos >= L - 2 && L > 0) {
+    ended = true; again.hidden = false; hideHint();
+  } else if (ended && camPos < L - 40) {
+    ended = false; again.hidden = true;
+  }
+
+  cam = camAt(camPos);
+  if (sceneReady) {
+    if (gl) drawGL(t, cam[0], cam[1]);
+    else if (flatMode) drawFlat(cam[0], cam[1]);
+  }
+  const dx = prevCam ? (cam[0] - prevCam[0]) * S : 0, dy = prevCam ? (cam[1] - prevCam[1]) * S : 0;
+  prevCam = cam;
+  drawSnow(FIXED_T != null ? 0 : dt, t, dx, dy);
+  requestAnimationFrame(frame);
+}
+
+/* ---------------- Старт ---------------- */
+setPlayIcon();
+if (REDUCED) hint.querySelector('span').style.animation = 'none';
+layout();
+if (initGL()) {
+  const maxTex = gl.getParameter(gl.MAX_TEXTURE_SIZE) || 4096;
+  loadImg('scene-small.jpg').then(img => {
+    if (!gl) return;
+    upload(texScene, img, true); sceneReady = true; ready();
+    const big = maxTex >= 5120 ? 'scene-5120.webp' : (maxTex >= 4096 ? 'scene-4096.webp' : null);
+    if (big) return loadImg(big).then(b => { if (gl) upload(texScene, b, true); });
+  }).catch(() => { if (!sceneReady) useFlat(); });
+  loadImg('lights.png').then(img => { if (!gl) return; upload(texLights, img, false); lightsReady = true; }).catch(() => {});
+} else {
+  useFlat();
+}
+requestAnimationFrame(frame);
+window.__zima = { get L() { return L; }, get cam() { return cam; }, get S() { return S; }, get n() { return visibleActors; }, get maxa() { return MAXA; }, get gl2() { return isGL2; } };
+})();
+</script>
+</body>
+</html>
