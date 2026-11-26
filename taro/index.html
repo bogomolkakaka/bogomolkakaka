@@ -36,11 +36,9 @@ header,main,footer{position:relative;z-index:1}
 .band{padding:clamp(24px,4vw,56px) max(5vw,16px)}
 .wrap{max-width:1140px;margin:0 auto}
 .top{display:flex;justify-content:space-between;align-items:center;gap:0 20px;flex-wrap:wrap;padding:12px max(5vw,16px) 0}
-.club{display:flex;align-items:center;gap:8px;min-height:44px;padding:0;border:0;background:none;font-weight:800;font-size:17px}
+.club{display:flex;align-items:center;gap:8px;min-height:44px;font-weight:800;font-size:17px}
 .club i{width:14px;height:14px;border-radius:50%;background:var(--paper);border:2px solid var(--k)}
 .links{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px}
-.home{min-height:44px;padding:0 18px;border-radius:999px;border:2px solid var(--line);background:none;color:var(--ink);font-weight:700;font-size:15px}
-.home:hover{border-color:var(--ink)}
 .links a{display:inline-flex;align-items:center;min-height:44px;color:var(--soft);font-size:14px;font-weight:600;text-decoration:none}
 .links a:hover{color:var(--ink);text-decoration:underline}
 .dot{display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--lav);border:2px solid var(--k);flex:none}
@@ -161,8 +159,8 @@ header,main,footer{position:relative;z-index:1}
 <canvas id="snow" aria-hidden="true"></canvas>
 
 <header class="top">
-<button class="club" id="logo" type="button"><i></i>Самозваное таро</button>
-<nav class="links"><button class="home" id="home" type="button" hidden>← На главную</button><a href="https://setka.ru/communities/018f8673-5cea-423b-8170-6d46bdd5fdcd">Клуб «Самозванец» в Сетке</a></nav>
+<span class="club"><i></i>Самозваное таро</span>
+<nav class="links"><a href="https://setka.ru/communities/018f8673-5cea-423b-8170-6d46bdd5fdcd">Клуб «Самозванец» в Сетке</a></nav>
 </header>
 
 <main>
@@ -448,7 +446,6 @@ if(anim&&!reduce()){flip.classList.add('closed');void flip.offsetWidth;setTimeou
 function show(v,anim){
 st.view=v;
 ['intro','quiz','result'].forEach(id=>{$(id).hidden=id!==v});
-$('home').hidden=v==='intro';
 if(v==='intro')renderFan();
 if(v==='quiz')renderQ();
 if(v==='result')renderR(anim);
@@ -467,8 +464,6 @@ else show('result',true);
 }
 
 $('start').addEventListener('click',()=>{st.i=0;st.picks=[];show('quiz')});
-$('logo').addEventListener('click',()=>show('intro'));
-$('home').addEventListener('click',()=>show('intro'));
 $('answers').addEventListener('click',e=>pick(e.target.closest('.ans')));
 $('back').addEventListener('click',()=>{if(st.i===0)show('intro');else{st.i--;renderQ()}});
 $('again').addEventListener('click',()=>{st.i=0;st.picks=[];show('intro')});
