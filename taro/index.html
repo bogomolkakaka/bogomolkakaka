@@ -5,53 +5,62 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Самозваное таро · bogomolka</title>
 <meta name="description" content="Тест по мотивам клуба «Самозванец»: двенадцать вопросов, и колода покажет, какой самозванец живёт внутри тебя.">
-<meta name="theme-color" content="#244EE7">
+<meta name="theme-color" content="#C47DF7">
 <meta property="og:title" content="Самозваное таро">
 <meta property="og:description" content="Двенадцать вопросов, и колода покажет, какой самозванец живёт внутри тебя.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='5' y='2' width='22' height='28' rx='4' fill='%23244EE7'/%3E%3Cpath d='M16 8l2.2 5.8L24 16l-5.8 2.2L16 24l-2.2-5.8L8 16l5.8-2.2z' fill='%23FF5FA2'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='3' width='20' height='26' rx='4' fill='%23C47DF7' stroke='%23121016' stroke-width='2.5'/%3E%3Ccircle cx='16' cy='16' r='4.5' fill='%23FAF8FD' stroke='%23121016' stroke-width='2'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Yeseva+One&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Onest:wght@400;600;800&display=swap">
 <style>
-/* VOICE occasion: a party test with a wink, warm irony, never mean
-   IDEA a risograph-printed tarot deck: cobalt ink and fluorescent pink on paper cards
-   PICTURE the cards themselves: a fanned deck, the question card, your arcana flipping over
-   COLOUR cobalt #244EE7 field edge to edge, paper #FFFCF5 cards, riso pink #FF5FA2, card ink #10206E
-   TYPE Yeseva One for names and titles + Manrope for text
-   LAYOUT laptop: title beside start, fan below; quiz card left, answers right; result card left, reading right. Phone: title, card, controls */
-:root{color-scheme:dark;--bg:#244EE7;--bg2:#1B3BC4;--paper:#FFFCF5;--ink:#10206E;--pink:#FF5FA2;--soft:rgba(255,255,255,.82);--line:rgba(255,255,255,.3);--shadow:rgba(6,14,70,.45)}
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#15288F;--bg2:#0F1E70}}
-:root[data-theme=dark]{--bg:#15288F;--bg2:#0F1E70}
+/* VOICE клуб анонимных специалистов с синдромом самозванца: тепло, с самоиронией
+   IDEA колода таро, нарисованная тушью и приколотая к лавандовой стене клуба, за окном идёт снег
+   PICTURE сами карты: веер колоды, карта с вопросом, твой аркан, который переворачивается
+   COLOUR лаванда #C47DF7, слива #2B1A45, бумага #FAF8FD, чёрная тушь #121016 с карандашным зерном, белый снег
+   TYPE Onest + рукописный Caveat, как у клуба
+   LAYOUT ноутбук: заголовок и старт рядом, веер ниже; вопрос слева, ответы справа; аркан слева, текст справа. Телефон: заголовок, карта, кнопки */
+:root{color-scheme:light;--bg:#C47DF7;--ink:#121016;--soft:#2E2240;--line:rgba(18,16,22,.3);--acc:#2B1A45;--on-acc:#F4F0FA;--sel:#2B1A45;--sel-ink:#F4F0FA;--shadow:rgba(43,26,69,.4);
+--paper:#FAF8FD;--k:#121016;--lav:#C47DF7;--lav2:#E4CCFB;--plum:#2B1A45;
+--grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .2 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#2B1A45;--ink:#F4F0FA;--soft:#D8CEE8;--line:rgba(244,240,250,.3);--acc:#C47DF7;--on-acc:#121016;--sel:#C47DF7;--sel-ink:#121016;--shadow:rgba(0,0,0,.45)}}
+:root[data-theme=dark]{color-scheme:dark;--bg:#2B1A45;--ink:#F4F0FA;--soft:#D8CEE8;--line:rgba(244,240,250,.3);--acc:#C47DF7;--on-acc:#121016;--sel:#C47DF7;--sel-ink:#121016;--shadow:rgba(0,0,0,.45)}
 *{box-sizing:border-box;min-width:0}
 html,body{margin:0}
-body{background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cpath d='M34 22l2.4 7.6 7.6 2.4-7.6 2.4-2.4 7.6-2.4-7.6-7.6-2.4 7.6-2.4z' fill='%23FF5FA2' opacity='.5'/%3E%3Ccircle cx='120' cy='60' r='1.6' fill='white' opacity='.45'/%3E%3Cpath d='M140 130l1.6 5 5 1.6-5 1.6-1.6 5-1.6-5-5-1.6 5-1.6z' fill='white' opacity='.35'/%3E%3Ccircle cx='62' cy='146' r='1.3' fill='white' opacity='.4'/%3E%3C/svg%3E");color:#fff;font:17px/1.55 Manrope,system-ui,sans-serif;overflow-x:clip;-webkit-font-smoothing:antialiased}
-h1,h2,.num,.nm,.qt,.voice,.qhead{font-family:'Yeseva One',Georgia,serif;font-weight:400}
-a{color:#fff;text-underline-offset:3px}
-button{font:inherit;cursor:pointer}
+body{background:var(--grain),var(--bg);color:var(--ink);font:17px/1.55 Onest,system-ui,sans-serif;overflow-x:clip;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:inherit;text-underline-offset:3px}
 [hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+#snow{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+header,main,footer{position:relative;z-index:1}
 .band{padding:clamp(24px,4vw,56px) max(5vw,16px)}
 .wrap{max-width:1140px;margin:0 auto}
-.top{display:flex;justify-content:space-between;align-items:center;gap:4px 20px;flex-wrap:wrap;padding:12px max(5vw,16px) 0}
-.logo{display:flex;align-items:center;gap:8px;font:22px 'Yeseva One',Georgia,serif;background:none;border:0;color:#fff;padding:0;min-height:44px}
-.logo svg{width:22px;height:22px}
-.top a{font-size:14px;color:var(--soft)}
-.s{fill:none;stroke:var(--ink);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
-.s2{fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round}
-.sp{fill:none;stroke:var(--pink);stroke-width:4;stroke-linecap:round}
-.p{fill:var(--pink)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:0 20px;flex-wrap:wrap;padding:12px max(5vw,16px) 0}
+.club{display:flex;align-items:center;gap:8px;min-height:44px;padding:0;border:0;background:none;font-weight:800;font-size:17px}
+.club i{width:14px;height:14px;border-radius:50%;background:var(--paper);border:2px solid var(--k)}
+.links{display:flex;flex-wrap:wrap;gap:0 18px}
+.links a{display:inline-flex;align-items:center;min-height:44px;color:var(--soft);font-size:14px;font-weight:600;text-decoration:none}
+.links a:hover{color:var(--ink);text-decoration:underline}
+.dot{display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--lav);border:2px solid var(--k);flex:none}
+.s{fill:none;stroke:var(--k);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.s2{fill:none;stroke:var(--k);stroke-width:2;stroke-linecap:round}
+.sp{fill:none;stroke:var(--lav);stroke-width:4;stroke-linecap:round}
+.p{fill:var(--lav)}
+.l{fill:var(--lav2)}
 .w{fill:var(--paper)}
-.i{fill:var(--ink)}
-.g{fill:rgba(255,95,162,.35)}
-.t{fill:var(--ink);font:800 16px Manrope,sans-serif}
-.q{fill:var(--ink);font:40px 'Yeseva One',Georgia,serif}
-.card{width:var(--w,200px);aspect-ratio:7/11;flex:none;background:var(--paper);color:var(--ink);border-radius:12px;padding:7px;box-shadow:5px 7px 0 var(--shadow);container-type:inline-size}
-.fr{height:100%;border:2px solid var(--ink);border-radius:7px;box-shadow:inset 0 0 0 3px var(--paper),inset 0 0 0 4.5px var(--ink);display:grid;grid-template-rows:auto minmax(0,1fr) auto;justify-items:center;text-align:center;padding:8cqw 7cqw 9cqw}
-.num{font-size:12cqw;line-height:1}
-.art{position:relative;width:100%;margin:4cqw 0}
-.art svg{position:absolute;inset:0;width:100%;height:100%}
-.nm{font-size:10cqw;line-height:1.08;text-wrap:balance;min-height:2.2em;display:grid;place-items:center}
+.i{fill:var(--k)}
+.g{fill:rgba(196,125,247,.4)}
+.t{fill:var(--k);font:800 16px Onest,sans-serif}
+.q{fill:var(--k);font:700 52px Caveat,cursive}
+.card{position:relative;width:var(--w,200px);aspect-ratio:7/11;flex:none;background:var(--grain),var(--paper);color:var(--k);border-radius:14px;padding:7px;box-shadow:4px 6px 0 var(--shadow);container-type:inline-size}
+.card::after,.ans::after,.sheet::after{content:"";position:absolute;inset:0;border:2.5px solid var(--k);border-radius:inherit;filter:url(#wob);pointer-events:none}
+.fr{height:100%;border:1.5px solid var(--k);border-radius:8px;display:grid;grid-template-rows:auto minmax(0,1fr) auto;justify-items:center;text-align:center;padding:6cqw 6cqw 7cqw}
+.num{font:700 15cqw/1 Caveat,cursive}
+.art{position:relative;width:100%;margin:3cqw 0}
+.art svg,.qart svg{position:absolute;inset:0;width:100%;height:100%;filter:url(#wob)}
+.nm{font:700 12cqw/1 Caveat,cursive;text-wrap:balance;min-height:2em;display:grid;place-items:center}
 .intro{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);grid-template-areas:"t c" "f f";gap:8px clamp(24px,5vw,72px);align-items:end}
-.intro h1{grid-area:t;font-size:clamp(40px,6.6vw,84px);line-height:1.02;letter-spacing:-.01em;margin:0;text-wrap:balance}
+.intro h1{grid-area:t;font:700 clamp(64px,10vw,128px)/.86 Caveat,cursive;margin:0;text-wrap:balance}
 .ctrl{grid-area:c}
 .lead{margin:0 0 10px;font-size:18px;max-width:46ch}
 .note{margin:0 0 18px;color:var(--soft);font-size:15px}
@@ -63,34 +72,31 @@ button{font:inherit;cursor:pointer}
 .seg label{position:relative;display:inline-flex}
 .seg input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
 .pill{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:999px;border:2px solid var(--line);font-weight:600;font-size:15px}
-.seg input:checked+.pill{background:var(--paper);color:var(--ink);border-color:var(--paper)}
-.seg input:focus-visible+.pill{outline:3px solid #fff;outline-offset:2px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 28px;border:0;border-radius:999px;background:var(--pink);color:var(--ink);font-weight:800;font-size:18px;box-shadow:4px 5px 0 var(--shadow);transition:transform .12s}
-.btn:hover{transform:translate(-1px,-2px)}
-.btn:active{transform:translate(2px,3px);box-shadow:1px 1px 0 var(--shadow)}
-.btn:focus-visible,.ans:focus-visible,.ghost:focus-visible,.logo:focus-visible{outline:3px solid #fff;outline-offset:3px}
-.ghost{min-height:44px;padding:0 18px;border-radius:999px;border:2px solid var(--line);background:none;color:#fff;font-weight:600;font-size:15px}
-.ghost:hover{border-color:#fff}
+.seg input:checked+.pill{background:var(--acc);color:var(--on-acc);border-color:var(--acc)}
+.seg input:focus-visible+.pill{outline:3px solid var(--ink);outline-offset:2px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 28px;border:0;border-radius:999px;background:var(--k);color:#F4F0FA;font-weight:800;font-size:18px;box-shadow:0 0 0 4px var(--lav2),0 0 0 6px var(--k);transition:transform .12s}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(1px)}
+.ghost{min-height:44px;padding:0 18px;border-radius:999px;border:2px solid var(--line);background:none;color:var(--ink);font-weight:600;font-size:15px}
+.ghost:hover{border-color:var(--ink)}
 .qgrid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(20px,4vw,56px);align-items:stretch}
 .qcard{width:100%;aspect-ratio:auto;min-height:440px}
-.qcard .fr{grid-template-rows:auto auto 1fr;justify-items:stretch;text-align:left;padding:22px 24px 28px}
-.qhead{display:flex;justify-content:space-between;align-items:baseline;font-size:30px;line-height:1}
-.qhead small{font:600 14px Manrope,sans-serif;opacity:.7}
-.qart{position:relative;height:130px;margin:16px 0}
-.qart svg{position:absolute;inset:0;width:100%;height:100%}
-.qt{font-size:clamp(24px,2.6vw,32px);line-height:1.15;margin:0;align-self:end;text-wrap:balance}
+.qcard .fr{grid-template-rows:auto auto 1fr;justify-items:stretch;text-align:left;padding:20px 24px 28px}
+.qhead{display:flex;justify-content:space-between;align-items:baseline;font:700 42px/1 Caveat,cursive}
+.qhead small{font:600 14px Onest,sans-serif;opacity:.7}
+.qart{position:relative;height:130px;margin:14px 0}
+.qt{font-size:clamp(22px,2.5vw,30px);font-weight:800;line-height:1.2;letter-spacing:-.01em;margin:0;align-self:end;text-wrap:balance}
 .side{display:flex;flex-direction:column;gap:14px}
 .pips{display:flex;gap:5px}
-.pip{flex:1;height:8px;border-radius:4px;background:rgba(255,255,255,.22)}
-.pip.on{background:var(--pink)}
-.pip.cur{background:#fff}
+.pip{flex:1;height:8px;border-radius:4px;background:var(--line)}
+.pip.on{background:var(--acc)}
+.pip.cur{background:var(--paper);box-shadow:0 0 0 1.5px var(--k)}
 .count{margin:0;font-size:15px;color:var(--soft)}
-.answers{display:grid;gap:12px}
-.ans{display:flex;gap:14px;align-items:center;width:100%;text-align:left;background:var(--paper);color:var(--ink);border:0;border-radius:14px;padding:15px 18px;font-weight:600;font-size:17px;line-height:1.35;min-height:60px;box-shadow:4px 5px 0 var(--shadow);transition:transform .12s,background .12s}
+.answers{display:grid;gap:14px}
+.ans{position:relative;display:flex;gap:14px;align-items:center;width:100%;text-align:left;background:var(--grain),var(--paper);color:var(--k);border:0;border-radius:16px;padding:15px 18px;font-weight:600;font-size:17px;line-height:1.35;min-height:60px;box-shadow:3px 4px 0 var(--shadow);transition:transform .12s}
 .ans:hover{transform:translate(-1px,-2px)}
-.ans.sel{background:var(--pink)}
-.ans.sel .p{fill:var(--ink)}
-.ans svg{width:20px;height:20px;flex:none}
+.ans.sel{background:var(--sel);color:var(--sel-ink)}
+.ans.sel .dot{background:var(--paper)}
 .qnav{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-top:auto;padding-top:6px}
 .keys{font-size:14px;color:var(--soft)}
 .rgrid{display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(24px,5vw,64px);align-items:start}
@@ -99,49 +105,48 @@ button{font:inherit;cursor:pointer}
 .flip.closed .inner{transform:rotateY(180deg);transition:none}
 .inner .card{position:absolute;inset:0;width:100%;height:100%;-webkit-backface-visibility:hidden;backface-visibility:hidden;transform:rotateY(0)}
 .inner .card.b{transform:rotateY(180deg)}
-.lab{display:flex;gap:8px;align-items:center;font-size:15px;color:var(--soft);margin:0}
-.lab svg{width:16px;height:16px;flex:none}
-.rd h2{font-size:clamp(36px,4.8vw,56px);line-height:1.04;margin:8px 0 10px;text-wrap:balance}
+.lab{display:flex;gap:8px;align-items:center;font-size:15px;font-weight:600;color:var(--soft);margin:0}
+.rd h2{font:700 clamp(50px,6.6vw,78px)/.92 Caveat,cursive;margin:10px 0 12px;text-wrap:balance}
 .tag{font-size:20px;line-height:1.4;margin:0 0 22px;max-width:40ch}
 .blk{border-top:1.5px solid var(--line);padding:14px 0 16px}
 .blk h3{margin:0 0 4px;font-size:15px;font-weight:800}
 .blk p{margin:0;max-width:62ch}
-.voice{font-size:clamp(22px,2.4vw,28px);line-height:1.2}
-.deep{background:var(--bg2)}
-.lay{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:clamp(28px,5vw,72px);align-items:start}
-.lay h2,.deck-h h2{font-size:clamp(30px,3.4vw,40px);line-height:1.05;margin:0 0 6px}
+.voice{font:700 clamp(30px,3.2vw,38px)/1.05 Caveat,cursive}
+.sheet{--ink:#121016;--soft:#585166;--line:rgba(18,16,22,.22);position:relative;background:var(--grain),var(--paper);color:var(--ink);border-radius:26px;padding:clamp(20px,3.4vw,40px);box-shadow:5px 7px 0 var(--shadow)}
+.lay{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:clamp(28px,5vw,64px);align-items:start}
+.sheet h2,.deck-h h2{font-size:clamp(28px,3.2vw,38px);font-weight:800;letter-spacing:-.03em;line-height:1.05;margin:0 0 6px}
 .sub{margin:0 0 18px;color:var(--soft)}
 .bars{display:grid;gap:10px}
 .bar{display:grid;grid-template-columns:minmax(0,9.5em) minmax(0,1fr) 2ch;gap:12px;align-items:center;font-size:15px}
-.bar .tr{height:12px;border-radius:6px;background:rgba(255,255,255,.16);overflow:hidden}
-.bar .fl{height:100%;border-radius:6px;background:var(--pink)}
+.bar .tr{height:14px;border-radius:7px;background:var(--lav2);overflow:hidden}
+.bar .fl{height:100%;border-radius:7px;background:var(--lav);box-shadow:inset 0 0 0 1.5px var(--k)}
 .bar.top{font-weight:800}
-.bar.top .fl{background:#fff}
+.bar.top .fl{background:var(--plum);box-shadow:none}
 .bar .c{text-align:right;font-variant-numeric:tabular-nums}
 .second{display:flex;gap:18px;align-items:center;margin-bottom:24px}
-.second .card{--w:118px}
-.second h3{font:24px/1.1 'Yeseva One',Georgia,serif;margin:6px 0 6px}
+.second .card{--w:118px;box-shadow:3px 4px 0 rgba(43,26,69,.3)}
+.second h3{font:700 32px/1 Caveat,cursive;margin:6px 0 8px}
 .second p{margin:0}
-.share{border:2px solid var(--line);border-radius:14px;padding:16px 18px}
+.share{border:2px dashed var(--line);border-radius:16px;padding:16px 18px}
 .share h3{margin:0 0 6px;font-size:15px;font-weight:800}
-.share .txt{margin:0 0 14px;font-size:16px}
-.acts{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.share .txt{margin:0 0 16px;font-size:16px}
+.acts{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
 .status{font-size:14px;color:var(--soft);min-height:1.4em;margin:10px 0 0}
 .deck-h{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap}
-.deck-h .acts{margin-bottom:6px}
+.deck-h .acts{margin-bottom:6px;gap:10px}
 .deck{display:flex;gap:24px;overflow-x:auto;scroll-snap-type:x mandatory;padding:16px 6px 28px;scrollbar-width:thin}
 .it{flex:none;width:clamp(170px,19vw,210px);scroll-snap-align:start}
 .it .card{--w:100%}
-.it h3{font:20px/1.15 'Yeseva One',Georgia,serif;margin:18px 0 6px;font-weight:400}
+.it h3{font:700 28px/1 Caveat,cursive;margin:18px 0 6px}
 .it p{margin:0;font-size:15px;color:var(--soft)}
-.foot{padding:26px max(5vw,16px) 40px;color:var(--soft);font-size:14px;display:flex;justify-content:space-between;gap:10px 24px;flex-wrap:wrap;border-top:1px solid var(--line)}
+.foot{padding:26px max(5vw,16px) 40px;color:var(--soft);font-size:14px;display:flex;justify-content:space-between;gap:10px 24px;flex-wrap:wrap;border-top:1.5px solid var(--line)}
 .foot p{margin:0;max-width:62ch}
 @media(max-width:760px){
 .intro{grid-template-columns:minmax(0,1fr);grid-template-areas:"t" "f" "c"}
 .fan{padding:18px 0 22px}
 .qgrid,.rgrid,.lay{grid-template-columns:minmax(0,1fr)}
 .qcard{min-height:0}
-.qart{height:70px;margin:10px 0}
+.qart{height:70px;margin:8px 0}
 .flip{position:relative;top:0;justify-self:center;--w:min(64vw,260px)}
 .keys{display:none}
 .ans{font-size:16px;min-height:56px;padding:13px 16px}
@@ -150,9 +155,12 @@ button{font:inherit;cursor:pointer}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><filter id="wob" x="-4%" y="-4%" width="108%" height="108%"><feTurbulence type="fractalNoise" baseFrequency=".04" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="4.5" xChannelSelector="R" yChannelSelector="G"/></filter></defs></svg>
+<canvas id="snow" aria-hidden="true"></canvas>
+
 <header class="top">
-<button class="logo" id="logo" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="p" d="M10 1 12.7 7.3 19 10 12.7 12.7 10 19 7.3 12.7 1 10 7.3 7.3Z"/></svg>Самозваное таро</button>
-<a href="https://setka.ru/communities/018f8673-5cea-423b-8170-6d46bdd5fdcd">По мотивам сообщества «Самозванец» в Сетке</a>
+<button class="club" id="logo" type="button"><i></i>Самозваное таро</button>
+<nav class="links"><a href="../">← в студию bogomolka</a><a href="https://setka.ru/communities/018f8673-5cea-423b-8170-6d46bdd5fdcd">Клуб «Самозванец» в Сетке</a></nav>
 </header>
 
 <main>
@@ -170,7 +178,7 @@ button{font:inherit;cursor:pointer}
 <label><input type="radio" name="g" id="g-x" value="x" checked><span class="pill">Без разницы</span></label>
 </div>
 <button class="btn" id="start" type="button">Вытянуть карты</button>
-<p class="note" style="margin:14px 0 0">12 вопросов · пара минут · 10 арканов и один секретный</p>
+<p class="note" style="margin:16px 0 0">12 вопросов · пара минут · 10 арканов и один секретный</p>
 </div>
 </div>
 </section>
@@ -196,7 +204,7 @@ button{font:inherit;cursor:pointer}
 <div class="wrap rgrid">
 <div class="flip" id="flip"></div>
 <div class="rd">
-<p class="lab"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="p" d="M10 1 12.7 7.3 19 10 12.7 12.7 10 19 7.3 12.7 1 10 7.3 7.3Z"/></svg>Твой аркан</p>
+<p class="lab"><i class="dot"></i>Твой аркан</p>
 <h2 id="rName"></h2>
 <p class="tag" id="rTag"></p>
 <div class="blk"><h3>Кто ты</h3><p id="rWho"></p></div>
@@ -207,8 +215,9 @@ button{font:inherit;cursor:pointer}
 </div>
 </div>
 </div>
-<div class="band deep">
-<div class="wrap lay">
+<div class="band" style="padding-top:0">
+<div class="wrap sheet">
+<div class="lay">
 <div>
 <h2>Твой расклад</h2>
 <p class="sub">Сколько раз каждая карта выпала в твоих ответах.</p>
@@ -221,6 +230,7 @@ button{font:inherit;cursor:pointer}
 <p class="txt" id="shareTxt"></p>
 <div class="acts"><button class="btn" id="copy" type="button">Скопировать</button><button class="ghost" id="again" type="button">Пройти ещё раз</button></div>
 <p class="status" id="status" aria-live="polite"></p>
+</div>
 </div>
 </div>
 </div>
@@ -239,31 +249,30 @@ button{font:inherit;cursor:pointer}
 
 <footer class="foot">
 <p>Тест — не психологическая диагностика. Он прочитал одну статью про синдром самозванца и сразу решил, что эксперт.</p>
-<a href="https://setka.ru/communities/018f8673-5cea-423b-8170-6d46bdd5fdcd">Сообщество «Самозванец» в Сетке</a>
+<a href="https://setka.ru/communities/018f8673-5cea-423b-8170-6d46bdd5fdcd">Клуб «Самозванец» в Сетке</a>
 </footer>
 
 <script>
 {
 const R=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
 const f1=n=>Math.round(n*10)/10;
-const spark=(x,y,r,c)=>{const k=r*.3;return `<path class="${c}" d="M${x} ${y-r}L${x+k} ${y-k}L${x+r} ${y}L${x+k} ${y+k}L${x} ${y+r}L${x-k} ${y+k}L${x-r} ${y}L${x-k} ${y-k}Z"/>`};
 const sv=s=>`<svg viewBox="0 0 120 120" aria-hidden="true">${s}</svg>`;
 let spokes='',pegs='',star='';
-for(let j=0;j<8;j++){const a=j*Math.PI/4,b=a+Math.PI/8;spokes+=`<path class="s" d="M${f1(60+17*Math.cos(a))} ${f1(64+17*Math.sin(a))}L${f1(60+38*Math.cos(a))} ${f1(64+38*Math.sin(a))}"/>`;pegs+=`<circle class="p" cx="${f1(60+38*Math.cos(b))}" cy="${f1(64+38*Math.sin(b))}" r="3.6"/>`}
+for(let j=0;j<8;j++){const a=j*Math.PI/4,b=a+Math.PI/8;spokes+=`<path class="s" d="M${f1(60+17*Math.cos(a))} ${f1(64+17*Math.sin(a))}L${f1(60+38*Math.cos(a))} ${f1(64+38*Math.sin(a))}"/>`;pegs+=`<circle class="p s2" cx="${f1(60+38*Math.cos(b))}" cy="${f1(64+38*Math.sin(b))}" r="3.6"/>`}
 for(let j=0;j<10;j++){const a=-Math.PI/2+j*Math.PI/5,r=j%2?18:44;star+=`${f1(60+r*Math.cos(a))},${f1(64+r*Math.sin(a))} `}
 const ART={
-back:sv(`${spark(20,20,7,'p')}${spark(100,20,7,'p')}${spark(60,108,6,'p')}<path class="s" d="M60 22 100 92H20Z"/><path class="w s" d="M36 68Q60 46 84 68 60 90 36 68Z"/><circle class="p s" cx="60" cy="68" r="9"/><circle class="i" cx="60" cy="68" r="3.4"/>`),
-shut:sv(`<path class="s" d="M40 6 60 40 80 6"/><rect class="p s" x="34" y="38" width="52" height="66" rx="7"/><rect class="w s" x="52" y="44" width="16" height="5" rx="2.5"/><circle class="w s" cx="60" cy="68" r="12"/><circle class="i" cx="55.5" cy="65" r="1.8"/><circle class="i" cx="64.5" cy="65" r="1.8"/><path class="s" d="M54 71q6 6 12 0"/><path class="s" d="M46 90h28M50 97h20"/>${spark(102,30,9,'p')}${spark(18,74,6,'w s2')}`),
-mag:sv(`<rect class="p s" x="26" y="60" width="56" height="44" rx="3"/><rect class="w s" x="22" y="48" width="64" height="14" rx="3"/><path class="s" d="M54 48v56"/><path class="w s" d="M54 48C42 30 30 42 54 48ZM54 48C66 30 78 42 54 48Z"/><path class="s" style="stroke-width:6" d="M80 56 102 26"/>${spark(104,22,11,'p s2')}${spark(92,52,5,'p')}${spark(20,28,7,'p')}`),
-kurs:sv(`<rect class="w s" x="22" y="88" width="72" height="14" rx="2"/><rect class="p s" x="28" y="74" width="64" height="14" rx="2"/><rect class="w s" x="24" y="60" width="66" height="14" rx="2"/><path class="s2" d="M32 95h20M36 81h14M30 67h18"/><path class="w s" d="M42 42v10c0 7 36 7 36 0V42"/><path class="p s" d="M60 20 98 34 60 48 22 34Z"/><path class="s" d="M98 34v18"/><circle class="p s" cx="98" cy="55" r="3.5"/>${spark(106,84,6,'p')}`),
-imp:sv(`<path class="w s" d="M24 14h40l18 18v76H24Z"/><path class="s" d="M64 14v18h18"/><path class="s2" d="M32 44h26M32 52h34M32 60h20"/><text class="t" x="31" y="88">v12</text><circle class="g s" cx="78" cy="76" r="18"/><path class="s" style="stroke-width:8" d="M91 89 106 104"/>${spark(102,24,7,'p')}`),
-kol:sv(`<path class="sp" d="M6 52h14M2 64h16M6 76h14"/><circle class="p s" cx="38" cy="30" r="10"/><circle class="p s" cx="82" cy="30" r="10"/><path class="s" d="M42 92 34 104M78 92 86 104"/><circle class="w s" cx="60" cy="64" r="32"/><path class="s2" d="M60 36v5M60 87v5M32 64h5M83 64h5"/><path class="s" d="M60 64 57 46M60 64 61 38"/><circle class="i" cx="60" cy="64" r="3"/>${spark(106,92,7,'p')}`),
-otsh:sv(`<path class="s" d="M60 6v8"/><circle class="s" cx="60" cy="19" r="5"/><path class="sp" d="M28 60H16M104 60H92M32 38l-8-8M88 38l8-8M32 84l-8 8M88 84l8-8"/><path class="p s" d="M42 34 60 24 78 34Z"/><rect class="w s" x="42" y="34" width="36" height="50" rx="4"/><path class="p s" d="M60 74c-10-7-5-18 0-26 5 8 10 19 0 26Z"/><rect class="p s" x="38" y="84" width="44" height="10" rx="3"/>`),
-fort:sv(`<path class="p s" d="M60 24 52 10H68Z"/><circle class="w s" cx="60" cy="64" r="38"/>${spokes}${pegs}<circle class="w s" cx="60" cy="64" r="17"/><circle class="p" cx="55" cy="59" r="5.5"/><circle class="p" cx="65" cy="59" r="5.5"/><circle class="p" cx="55" cy="69" r="5.5"/><circle class="p" cx="65" cy="69" r="5.5"/><circle class="i" cx="60" cy="64" r="2.2"/>`),
-star:sv(`${spark(18,22,7,'p')}${spark(104,104,6,'p')}<circle class="i" cx="100" cy="28" r="2.4"/><polygon class="p s" points="${star.trim()}"/><text class="q" x="60" y="78" text-anchor="middle">?</text>`),
-luna:sv(`<path class="p s" d="M70 18A46 46 0 1 0 70 102 50 50 0 0 1 70 18Z"/><path class="w s" d="M12 60Q26 48 40 60 26 72 12 60Z"/><circle class="i" cx="26" cy="60" r="4.5"/>${spark(96,32,10,'w s2')}${spark(90,86,6,'p')}<circle class="i" cx="106" cy="60" r="2.5"/>`),
-tsar:sv(`<path class="p s" d="M26 82 20 42 42 60 60 30 78 60 100 42 94 82Z"/><rect class="w s" x="24" y="82" width="72" height="16" rx="3"/><circle class="i" cx="42" cy="90" r="3"/><circle class="p s2" cx="60" cy="90" r="4"/><circle class="i" cx="78" cy="90" r="3"/><circle class="w s" cx="20" cy="40" r="5"/><circle class="w s" cx="60" cy="27" r="5"/><circle class="w s" cx="100" cy="40" r="5"/><circle class="w s" cx="104" cy="16" r="11"/><path class="s" d="M98 16l4 4 7-8"/>${spark(16,108,6,'p')}`),
-sam:sv(`<path class="w s" d="M44 32 48 16 54 26 60 12 66 26 72 16 76 32Z"/><path class="s" d="M16 56 4 48M104 56 116 48"/><path class="p s" d="M14 54C28 40 48 44 60 52 72 44 92 40 106 54 104 74 88 84 74 76 68 72 64 68 60 68 56 68 52 72 46 76 32 84 16 74 14 54Z"/><ellipse class="w s" cx="40" cy="60" rx="10" ry="6.5"/><ellipse class="w s" cx="80" cy="60" rx="10" ry="6.5"/>${spark(60,100,8,'p')}`)
+back:sv(`<path class="s" d="M60 20 102 94H18Z"/><path class="w s" d="M34 68Q60 44 86 68 60 92 34 68Z"/><circle class="p s" cx="60" cy="68" r="10"/><circle class="i" cx="60" cy="68" r="3.6"/>`),
+shut:sv(`<path class="s" d="M40 6 60 40 80 6"/><rect class="p s" x="34" y="38" width="52" height="66" rx="7"/><rect class="w s" x="52" y="44" width="16" height="5" rx="2.5"/><circle class="w s" cx="60" cy="68" r="12"/><circle class="i" cx="55.5" cy="65" r="1.8"/><circle class="i" cx="64.5" cy="65" r="1.8"/><path class="s" d="M54 71q6 6 12 0"/><path class="s" d="M46 90h28M50 97h20"/>`),
+mag:sv(`<rect class="p s" x="26" y="60" width="56" height="44" rx="3"/><rect class="w s" x="22" y="48" width="64" height="14" rx="3"/><path class="s" d="M54 48v56"/><path class="w s" d="M54 48C42 30 30 42 54 48ZM54 48C66 30 78 42 54 48Z"/><path class="s" style="stroke-width:6" d="M80 56 100 28"/><circle class="w s" cx="103" cy="24" r="6"/>`),
+kurs:sv(`<rect class="w s" x="22" y="88" width="72" height="14" rx="2"/><rect class="p s" x="28" y="74" width="64" height="14" rx="2"/><rect class="l s" x="24" y="60" width="66" height="14" rx="2"/><path class="s2" d="M32 95h20M36 81h14M30 67h18"/><path class="w s" d="M42 42v10c0 7 36 7 36 0V42"/><path class="p s" d="M60 20 98 34 60 48 22 34Z"/><path class="s" d="M98 34v18"/><circle class="p s" cx="98" cy="55" r="3.5"/>`),
+imp:sv(`<path class="w s" d="M24 14h40l18 18v76H24Z"/><path class="s" d="M64 14v18h18"/><path class="s2" d="M32 44h26M32 52h34M32 60h20"/><text class="t" x="31" y="88">v12</text><circle class="g s" cx="78" cy="76" r="18"/><path class="s" style="stroke-width:8" d="M91 89 106 104"/>`),
+kol:sv(`<path class="sp" d="M6 52h14M2 64h16M6 76h14"/><circle class="p s" cx="38" cy="30" r="10"/><circle class="p s" cx="82" cy="30" r="10"/><path class="s" d="M42 92 34 104M78 92 86 104"/><circle class="w s" cx="60" cy="64" r="32"/><path class="s2" d="M60 36v5M60 87v5M32 64h5M83 64h5"/><path class="s" d="M60 64 57 46M60 64 61 38"/><circle class="i" cx="60" cy="64" r="3"/>`),
+otsh:sv(`<path class="s" d="M60 6v8"/><circle class="s" cx="60" cy="19" r="5"/><path class="sp" d="M28 60H16M104 60H92M32 38l-8-8M88 38l8-8M32 84l-8 8M88 84l8-8"/><path class="p s" d="M42 34 60 24 78 34Z"/><rect class="l s" x="42" y="34" width="36" height="50" rx="4"/><path class="w s" d="M60 74c-10-7-5-18 0-26 5 8 10 19 0 26Z"/><rect class="p s" x="38" y="84" width="44" height="10" rx="3"/>`),
+fort:sv(`<path class="p s" d="M60 24 52 10H68Z"/><circle class="w s" cx="60" cy="64" r="38"/>${spokes}${pegs}<circle class="l s" cx="60" cy="64" r="17"/><circle class="p" cx="55" cy="59" r="5.5"/><circle class="p" cx="65" cy="59" r="5.5"/><circle class="p" cx="55" cy="69" r="5.5"/><circle class="p" cx="65" cy="69" r="5.5"/><circle class="i" cx="60" cy="64" r="2.2"/>`),
+star:sv(`<polygon class="p s" points="${star.trim()}"/><text class="q" x="60" y="80" text-anchor="middle">?</text>`),
+luna:sv(`<path class="p s" d="M70 18A46 46 0 1 0 70 102 50 50 0 0 1 70 18Z"/><path class="w s" d="M12 60Q26 48 40 60 26 72 12 60Z"/><circle class="i" cx="26" cy="60" r="4.5"/><circle class="l s2" cx="96" cy="34" r="6"/><circle class="i" cx="104" cy="62" r="2.5"/><circle class="i" cx="90" cy="88" r="2"/>`),
+tsar:sv(`<path class="p s" d="M26 82 20 42 42 60 60 30 78 60 100 42 94 82Z"/><rect class="w s" x="24" y="82" width="72" height="16" rx="3"/><circle class="i" cx="42" cy="90" r="3"/><circle class="l s2" cx="60" cy="90" r="4"/><circle class="i" cx="78" cy="90" r="3"/><circle class="w s" cx="20" cy="40" r="5"/><circle class="w s" cx="60" cy="27" r="5"/><circle class="w s" cx="100" cy="40" r="5"/><circle class="w s" cx="104" cy="16" r="11"/><path class="s" d="M98 16l4 4 7-8"/>`),
+sam:sv(`<path class="w s" d="M44 32 48 16 54 26 60 12 66 26 72 16 76 32Z"/><path class="s" d="M16 56 4 48M104 56 116 48"/><path class="p s" d="M14 54C28 40 48 44 60 52 72 44 92 40 106 54 104 74 88 84 74 76 68 72 64 68 60 68 56 68 52 72 46 76 32 84 16 74 14 54Z"/><ellipse class="w s" cx="40" cy="60" rx="10" ry="6.5"/><ellipse class="w s" cx="80" cy="60" rx="10" ry="6.5"/>`)
 };
 
 const A={
@@ -345,7 +354,7 @@ tag:{x:'Говорят, царь-то… настоящий.',m:'Говорят,
 who:'Твой внутренний самозванец давно на пенсии и заходит разве что на чай. Ты умеешь сказать «спасибо» на похвалу, спросить, когда не знаешь, и признать ошибку без драмы. Сомнения бывают у всех, просто у тебя они не управляют государством. Редкая карта. Поздравляем, ваше величество.',
 power:'Спокойная уверенность — та, которой не нужны доказательства.',
 voice:'Я знаю не всё. И это нормально.',
-advice:'Поделись секретом: расскажи в сообществе, как ты {договорил|ся|ась} со своим самозванцем. Кому-то это сейчас очень нужно.',
+advice:'Поделись секретом: расскажи в клубе, как ты {договорил|ся|ась} со своим самозванцем. Кому-то это сейчас очень нужно.',
 rev:'Когда-то и ты {сомневал|ся|ась} во всём. Просто это было давно, и ты об этом не рассказываешь.',
 hint:'Спокойная уверенность в тебе уже есть. Дай ей больше слова.'},
 sam:{n:'XXII',name:'Самозванец самозванцев',sh:'Секретная',
@@ -378,14 +387,14 @@ const st={g:'x',i:0,picks:[],view:'intro'};
 const $=id=>document.getElementById(id);
 const T=s=>s.replace(/\{([^{}|]*)\|([^{}|]*)\|([^{}|]*)\}/g,(m,b,ms,fs)=>st.g==='f'?b+fs:st.g==='m'?b+ms:b+ms+'('+fs+')');
 const tx=v=>typeof v==='string'?T(v):T(v[st.g]||v.x);
-const dot='<svg viewBox="0 0 20 20" aria-hidden="true"><path class="p" d="M10 1 12.7 7.3 19 10 12.7 12.7 10 19 7.3 12.7 1 10 7.3 7.3Z"/></svg>';
+const dot='<i class="dot"></i>';
 const card=(k,cls)=>`<div class="card ${cls||''}"><div class="fr"><span class="num">${A[k].n}</span><div class="art">${ART[k]}</div><span class="nm">${tx(A[k].name)}</span></div></div>`;
 const reduce=()=>window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 let busy=false;
 
 function renderFan(){
 const ks=['imp','luna','back','tsar','mag'],rs=[-14,-7,0,7,14],ys=[18,6,0,6,18];
-$('fan').innerHTML=ks.map((k,j)=>card(k).replace('class="card "',`class="card" style="--r:${rs[j]}deg;--y:${ys[j]}px;z-index:${j===2?5:5-Math.abs(j-2)}"`)).join('');
+$('fan').innerHTML=ks.map((k,j)=>card(k).replace('class="card "',`class="card" style="--r:${rs[j]}deg;--y:${ys[j]}px;z-index:${5-Math.abs(j-2)}"`)).join('');
 }
 function renderDeck(){
 $('deck').innerHTML=ORDER.concat('sam').map(k=>`<div class="it">${card(k)}<h3>${tx(A[k].name)}</h3><p>${tx(A[k].tag)}</p></div>`).join('');
@@ -480,6 +489,20 @@ const step=d=>{const it=$('deck').querySelector('.it');const w=it?it.getBounding
 $('prev').addEventListener('click',()=>step(-1));
 $('next').addEventListener('click',()=>step(1));
 $('deck').addEventListener('keydown',e=>{if(e.key==='ArrowLeft'){e.preventDefault();step(-1)}if(e.key==='ArrowRight'){e.preventDefault();step(1)}});
+
+/* снег: белые точки плавно падают и чуть покачиваются */
+const cv=$('snow'),cx=cv.getContext&&cv.getContext('2d');
+let W=0,H=0,flakes=[],raf=0,lastT=0,rsz=0;
+const flake=top=>{const r=.9+Math.random()**2*2.6;return{x:Math.random()*W,y:top?-8:Math.random()*H,r,v:14+r*13+Math.random()*10,a:5+Math.random()*16,ph:Math.random()*6.283,w:.35+Math.random()*.7,o:.5+Math.random()*.45}};
+const paint=()=>{cx.clearRect(0,0,W,H);cx.fillStyle='#fff';for(const f of flakes){cx.globalAlpha=f.o;cx.beginPath();cx.arc(f.x+Math.sin(f.ph)*f.a,f.y,f.r,0,6.283);cx.fill()}cx.globalAlpha=1};
+const size=()=>{const d=Math.min(2,window.devicePixelRatio||1);W=window.innerWidth;H=window.innerHeight;cv.width=Math.round(W*d);cv.height=Math.round(H*d);cx.setTransform(d,0,0,d,0,0);const n=Math.round(Math.min(150,Math.max(45,W*H/11000)));while(flakes.length<n)flakes.push(flake(false));flakes.length=n;for(const f of flakes){if(f.x>W)f.x=Math.random()*W;if(f.y>H)f.y=Math.random()*H}paint()};
+const tick=t=>{const dt=lastT?Math.min(.05,(t-lastT)/1000):0;lastT=t;for(const f of flakes){f.y+=f.v*dt;f.ph+=f.w*dt;if(f.y>H+8)Object.assign(f,flake(true))}paint();raf=requestAnimationFrame(tick)};
+const play=()=>{cancelAnimationFrame(raf);lastT=0;if(!reduce()&&!document.hidden)raf=requestAnimationFrame(tick)};
+if(cx){
+size();play();
+window.addEventListener('resize',()=>{clearTimeout(rsz);rsz=setTimeout(size,150)});
+document.addEventListener('visibilitychange',play);
+}
 
 const hot=window.claude&&window.claude.hot;
 if(hot&&hot.snapshot)hot.snapshot(()=>({g:st.g,i:st.i,picks:st.picks.slice(),view:st.view}));
