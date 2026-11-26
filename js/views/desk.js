@@ -1,6 +1,6 @@
 import { CONFIG } from '../config.js';
 import { $, $$, esc, h, ICON, sound, lsGet, lsSet, zoned, todayKey, reducedMotion, pick, plural, MONTHS } from '../util.js';
-import { openPlayer } from '../player.js';
+import { openPlayer, myDiscs } from '../player.js';
 import { wall } from '../store.js';
 import { drawMini } from '../wallmini.js';
 
@@ -32,9 +32,9 @@ export async function mount(root) {
     <a class="thing thing--run" href="#/run" data-thing="run"><span class="console"><img src="assets/desk/console.png" alt="Игры: жёлтая игровая консоль" width="489" height="523"><canvas class="console-screen" width="96" height="76" aria-hidden="true"></canvas></span><span class="thing__label">Игры</span></a>
     <a class="thing thing--objects" href="#/objects" data-thing="objects"><img src="assets/desk/toys.png" alt="Маленькие объекты: три фигурки" width="639" height="351"><span class="thing__label">Маленькие объекты</span></a>
     <a class="thing thing--films" href="#/films" data-thing="films"><span class="dvhs-stack" aria-hidden="true"><span class="dvhs dvhs--1"><b>СЕРИАЛЫ</b></span><span class="dvhs dvhs--2"><b>ЛЮБИМОЕ</b></span><span class="dvhs dvhs--3"><b>КИНО</b></span></span><span class="thing__label">Видеопрокат</span></a>
-    <button class="thing thing--cd" type="button" data-thing="cd" id="desk-cd" aria-label="Диски: CD-плеер, поп 2000-х и 2010-х"><span class="dcd" aria-hidden="true">
-      <span class="dcd__case dcd__case--1" style="--bg:#244EE7"><b>NSYNC</b></span><span class="dcd__case dcd__case--2" style="--bg:#000"><b>Аврил</b></span>
-      <span class="dcd__disc"></span><span class="dcd__case dcd__case--3" style="--bg:#FFB8D9"><b>Бритни</b></span></span><span class="thing__label">Диски</span></button>
+    <button class="thing thing--cd" type="button" data-thing="cd" id="desk-cd" aria-label="Диски: CD-плеер с твоей музыкой"><span class="dcd" aria-hidden="true">
+      <span class="dcd__case dcd__case--1" style="--bg:#244EE7"><b>mp3</b></span><span class="dcd__case dcd__case--2" style="--bg:#000"><b>моё</b></span>
+      <span class="dcd__disc"></span><span class="dcd__case dcd__case--3" style="--bg:#FFB8D9"><b>+</b></span></span><span class="thing__label">Диски</span></button>
     <button class="note-phrase" type="button" id="phrase" aria-live="polite"><span>${esc(pick(PHRASES))}</span><small>нажми, чтобы сменить</small></button>
     <span class="decor pencil" aria-hidden="true"></span>
     <span class="decor ring" aria-hidden="true"></span>
@@ -111,6 +111,18 @@ export async function mount(root) {
   }, true);
   desk.addEventListener('dragstart', e => e.preventDefault());
   $('#desk-cd').addEventListener('click', () => { sound.play('click'); openPlayer(); });
+  // the stack shows the visitor's own discs (cases stay generic while there are none)
+  myDiscs().then(discs => {
+    if (!discs.length || !root.isConnected) return;
+    // the front case (the last one in the markup) shows the first disc, the ones behind show the rest
+    const cases = $$('.dcd__case', root).reverse();
+    discs.slice(0, cases.length).forEach((d, k) => {
+      const c = cases[k];
+      c.style.setProperty('--bg', d.bg); c.style.color = d.ink;
+      c.style.backgroundImage = d.cover ? `url('${d.cover}')` : ''; c.style.backgroundSize = 'cover'; c.style.backgroundPosition = 'center';
+      $('b', c).textContent = d.cover ? '' : (d.title.length > 9 ? d.title.slice(0, 8) + '…' : d.title);
+    });
+  }).catch(() => {});
   $('#desk-reset').addEventListener('click', () => { saved = {}; lsSet('bg.desk', saved); applyPos(); sound.play('paper'); });
   const onResize = () => { applyPos(); fitTitle(); };
   window.addEventListener('resize', onResize);
