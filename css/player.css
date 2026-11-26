@@ -28,6 +28,15 @@
 .jewel--dots .jewel__art { background-image: radial-gradient(circle, var(--ac) 0 26%, transparent 28%); background-size: 18% 18%; background-position: 0 0; }
 .jewel--sun .jewel__art { background-image: radial-gradient(circle at 70% 30%, var(--ac) 0 24%, transparent 24.5%), repeating-linear-gradient(0deg, transparent 0 9px, rgba(255, 255, 255, .7) 9px 11px); }
 .jewel--grid .jewel__art b, .jewel--bolts .jewel__art b, .jewel--stripes .jewel__art b { text-shadow: 2px 2px 0 rgba(0, 0, 0, .35); }
+/* a cover picture from the song file */
+.jewel.jewel--cover .jewel__art { background: var(--cover) center / cover no-repeat, var(--bg); }
+.jewel--cover .jewel__art b, .jewel--cover .jewel__art small { display: none; }
+/* the empty case that adds songs */
+.jewel--empty .jewel__art { align-items: center; justify-content: center; padding: 10%; border-style: dashed; background: var(--paper); box-shadow: none; text-align: center; }
+.jewel--empty .jewel__art::after { display: none; }
+.jewel--empty .jewel__art i { font-style: normal; font-family: var(--font-display); font-size: 40cqw; line-height: .9; color: var(--cobalt); }
+.jewel--empty .jewel__art small { color: var(--muted); font-size: max(10px, 8cqw); }
+.cdp__add:hover .jewel__art, .cdp__add:focus-visible .jewel__art { background: var(--soft); border-style: solid; }
 
 /* ---------- the window ---------- */
 .cdp { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(18px, 3vw, 34px); align-items: start; }
@@ -58,10 +67,23 @@
 .cdp__btn { width: 54px; height: 54px; border-radius: 50%; border: 2px solid var(--ink); background: var(--paper); font-size: 18px; box-shadow: 3px 3px 0 var(--ink); color: var(--ink); }
 .cdp__btn--play { width: 64px; height: 64px; background: var(--yellow); font-size: 22px; }
 .cdp__btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
-.cdp__bar { height: 6px; border-radius: 99px; background: var(--soft); overflow: hidden; border: 1.5px solid var(--ink); }
-.cdp__bar i { display: block; height: 100%; width: 0; background: var(--red); }
+.cdp__seek { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; margin: 0; background: transparent; cursor: pointer; --p: 0%; }
+.cdp__seek:disabled { cursor: default; opacity: .5; }
+.cdp__seek::-webkit-slider-runnable-track { height: 8px; border-radius: 99px; border: 1.5px solid var(--ink); background: linear-gradient(90deg, var(--red) var(--p), var(--soft) var(--p)); }
+.cdp__seek::-moz-range-track { height: 5px; border-radius: 99px; border: 1.5px solid var(--ink); background: var(--soft); }
+.cdp__seek::-moz-range-progress { height: 5px; border-radius: 99px; background: var(--red); }
+.cdp__seek::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; margin-top: -6.5px; border-radius: 50%; border: 2px solid var(--ink); background: var(--yellow); }
+.cdp__seek::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--ink); background: var(--yellow); }
+.cdp__seek:focus-visible { outline: 3px solid var(--cobalt); outline-offset: 2px; border-radius: 8px; }
 .cdp__msg { margin: 0; min-height: 0; color: var(--red); font-size: 14px; }
-.cdp__msg:empty { display: none; }
+.cdp__msg:empty, .cdp__note:empty { display: none; }
+.cdp__note { margin: 0; color: var(--cobalt); font-size: 14px; font-weight: 600; }
+.cdp__empty { display: grid; justify-items: start; gap: 10px; padding: 16px; border: 2px dashed var(--ink); border-radius: 16px; }
+.cdp__empty p { margin: 0; }
+.cdp__del { flex: none; width: 32px; height: 32px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--muted); }
+.cdp__del:hover, .cdp__del:focus-visible { background: var(--soft); color: var(--red); }
+.cdp__del svg { width: 14px; height: 14px; }
+.modal__card.is-drop { outline: 3px dashed var(--cobalt); outline-offset: -10px; }
 .cdp__tracks { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; max-height: 300px; overflow: auto; }
 .cdp__tracks li { display: flex; align-items: center; gap: 6px; }
 .cdp__track { flex: 1; min-width: 0; display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 8px 10px; border: 1.5px solid transparent; border-radius: 12px; background: none; text-align: left; color: var(--ink); }
