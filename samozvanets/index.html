@@ -500,7 +500,7 @@ function roughRect(x,X,Y,w,h,col,lw){x.strokeStyle=col;x.lineWidth=lw;x.lineJoin
       for(let i=0;i<n;i++){const t=i/n;pts.push([ax+(bx-ax)*t+(Math.random()-.5)*3,ay+(by-ay)*t+(Math.random()-.5)*3])}};
     seg(X,Y,X+w,Y);seg(X+w,Y,X+w,Y+h);seg(X+w,Y+h,X,Y+h);seg(X,Y+h,X,Y);
     x.beginPath();pts.forEach(([a,b],i)=>i?x.lineTo(a,b):x.moveTo(a,b));x.closePath();x.stroke()}}
-async function compose(scale){try{await Promise.race([document.fonts.load('700 60px Caveat'),wait(2000)])}catch(e){}
+async function compose(scale){try{await Promise.race([document.fonts.load('700 60px Caveat',(B.cap||'')+'Самозванец'),wait(2000)])}catch(e){}
   const W2=640,P=34,G=22,F=W2-2*P,CAP=200,H=P+4*F+3*G+CAP,s=STR[B.strip];
   const c=document.createElement('canvas');c.width=Math.round(W2*scale);c.height=Math.round(H*scale);const x=c.getContext('2d');x.scale(scale,scale);
   x.fillStyle=s.bg;x.fillRect(0,0,W2,H);x.fillStyle=s.dk?'rgba(255,255,255,.05)':'rgba(18,16,22,.07)';
@@ -598,7 +598,7 @@ addEventListener('hashchange',route);
 $('#capIn').value=B.cap;
 renderAll();route();renderBoard();renderStickers();setStatus();
 loadImages().then(()=>{renderBoard();renderStickers()});
-Promise.race([Promise.all([document.fonts.load('700 100px Caveat'),document.fonts.load('600 20px Onest')]),wait(3000)]).catch(()=>{})
+Promise.race([Promise.all([document.fonts.load('700 100px Caveat','ДАНО?!'),document.fonts.load('600 20px Onest','Самозванец')]),wait(3000)]).catch(()=>{})
   .then(()=>{BUILTIN=makeBuiltins();renderStickers()});
 }
 </script>
