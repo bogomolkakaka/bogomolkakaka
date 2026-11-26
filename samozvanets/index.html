@@ -138,7 +138,27 @@ input[type=range]{width:100%;height:32px;accent-color:var(--lav)}
 .status{margin:12px 0 0;color:var(--muted);font-size:14px}
 .dayp{position:sticky;top:16px}
 .dayp h2{margin:0;font:700 40px/1 Caveat,cursive}
-.dsub{margin:2px 0 16px;color:var(--muted)}
+.dhead{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:16px}
+.dsub{margin:2px 0 0;color:var(--muted)}
+.full{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;overflow:auto;padding:max(16px,env(safe-area-inset-top)) max(4vw,16px) max(28px,env(safe-area-inset-bottom));background:var(--bg)}
+.fbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding-bottom:8px}
+.ftitle{flex:1 1 260px}
+.ftitle b{display:block;font:700 clamp(44px,6vw,72px)/1 Caveat,cursive}
+.ftitle span{color:var(--muted)}
+.fboard{flex:1;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;gap:clamp(24px,3vw,48px);padding:26px 0 12px}
+.fboard.one{grid-template-columns:minmax(0,1fr)}
+.fph{display:flex;flex-wrap:wrap;justify-content:center;gap:30px;max-width:min(56vw,760px)}
+.fboard.one .fph{max-width:none}
+.fnotes{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));align-items:start;gap:clamp(18px,2.4vw,30px)}
+.fnote{--e:var(--k);min-height:150px;padding:22px 24px 26px;border-radius:6px;font-size:clamp(19px,1.7vw,23px);line-height:1.35;transform:rotate(var(--r));box-shadow:0 16px 26px -18px rgba(0,0,0,.55)}
+.fnote .tm{display:block;margin-bottom:6px;font:700 30px/1 Caveat,cursive}
+.fnote p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.fpin{position:relative;margin:0;transform:rotate(var(--r))}
+.fpin::before{content:"";position:absolute;z-index:1;top:-11px;left:50%;width:64px;height:22px;margin-left:-32px;background:rgba(196,125,247,.72);transform:rotate(-5deg)}
+.fpin .phb{display:block;padding:0;border:0;background:none}
+.fpin img{display:block;max-width:min(82vw,440px);max-height:74vh;border-radius:3px;box-shadow:0 20px 34px -20px rgba(0,0,0,.65)}
+.fempty{grid-column:1/-1;margin:auto;padding:40px 0;color:var(--muted);text-align:center}
+.fempty b{display:block;color:var(--ink);font:700 60px/1 Caveat,cursive}
 .items{display:grid;gap:12px;margin-bottom:18px}
 .note{--e:var(--k);padding:12px 42px 12px 14px;border-radius:6px;transform:rotate(var(--r))}
 .note p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
@@ -172,7 +192,8 @@ textarea.field{min-height:86px;resize:vertical}
 
 @media (max-width:1060px){.bgrid{grid-template-columns:minmax(0,1fr) auto}.ctl{grid-column:1/-1;grid-row:2}.scol{grid-column:2;grid-row:1}}
 @media (max-width:899px){.board{grid-template-columns:minmax(0,1fr)}.dayp{position:relative;top:0}}
-@media (max-width:640px){.bgrid{grid-template-columns:minmax(0,1fr)}.ctl,.scol{grid-column:auto;grid-row:auto}.tabs{width:100%}.tabs a{flex:1;justify-content:center;padding:0 10px}.lg{display:none}.calh h2{flex-basis:100%;margin-bottom:4px}
+@media (max-width:640px){.ftitle{flex-basis:100%}.fboard{grid-template-columns:minmax(0,1fr)}.fnotes{order:-1}.fph{max-width:none}
+.bgrid{grid-template-columns:minmax(0,1fr)}.ctl,.scol{grid-column:auto;grid-row:auto}.tabs{width:100%}.tabs a{flex:1;justify-content:center;padding:0 10px}.lg{display:none}.calh h2{flex-basis:100%;margin-bottom:4px}
 .day{min-height:0;aspect-ratio:1/1.15;align-items:center;padding:4px}.dchips,.thumb{display:none}.dots{display:flex}.wd,.grid{gap:4px}.wd span{font-size:19px}.calh h2{font-size:26px}}
 @media (prefers-reduced-motion:reduce){.flash.go,.strip{animation:none}.toast{transition:none}}
 </style>
@@ -253,8 +274,7 @@ textarea.field{min-height:86px;resize:vertical}
     <p class="status" id="status"></p>
   </div>
   <aside class="dayp ink" id="dayp" aria-label="Выбранный день">
-    <h2 id="dTitle"></h2>
-    <p class="dsub" id="dSub"></p>
+    <div class="dhead"><div><h2 id="dTitle"></h2><p class="dsub" id="dSub"></p></div><button type="button" class="btn ink" id="dFull">на весь экран</button></div>
     <div class="items" id="items"></div>
     <form class="add" id="addF">
       <textarea class="field" id="noteIn" maxlength="500" placeholder="план, событие или маленькая победа" aria-label="Текст записки"></textarea>
@@ -281,6 +301,16 @@ textarea.field{min-height:86px;resize:vertical}
   <div><img id="lbImg" alt="Лента из фотобудки">
     <div class="row"><button type="button" class="btn pri ink" id="lbSave">сохранить</button><button type="button" class="btn ink" id="lbClose">закрыть</button></div>
     <p>Если сохранить не получилось — зажми картинку и выбери «Сохранить в Фото».</p></div>
+</div>
+<div class="full" id="full" role="dialog" aria-modal="true" aria-label="Доска дня на весь экран" hidden>
+  <div class="fbar">
+    <div class="ftitle"><b id="fDate"></b><span id="fSub"></span></div>
+    <button type="button" class="nav" id="fPrev" aria-label="Предыдущий день">‹</button>
+    <button type="button" class="btn ink" id="fToday">сегодня</button>
+    <button type="button" class="nav" id="fNext" aria-label="Следующий день">›</button>
+    <button type="button" class="nav" id="fClose" aria-label="Закрыть">×</button>
+  </div>
+  <div class="fboard" id="fBoard"></div>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -449,7 +479,9 @@ $('#szIn').oninput=e=>{const st=curSt();if(!st)return;st.s=e.target.value/100;co
 $('#rtIn').oninput=e=>{const st=curSt();if(!st)return;st.r=+e.target.value;const im=layer.querySelectorAll('.stk')[B.stk];if(im)setSt(im,st);renderStrip()};
 function delStk(){const fr=B.frames[B.sel];if(!fr||B.stk<0)return;fr.stickers.splice(B.stk,1);B.stk=-1;renderScreen();renderStrip()}
 $('#stDel').onclick=delStk;$('#stOk').onclick=()=>selStk(-1);
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('#lb').classList.contains('on'))closeLB();else if(B.stk>=0)selStk(-1)}
+document.addEventListener('keydown',e=>{
+  if(fullDay!==null&&!$('#lb').classList.contains('on')){if(e.key==='Escape'){closeFull();return}if(e.key==='ArrowLeft'){shiftFull(-1);return}if(e.key==='ArrowRight'){shiftFull(1);return}}
+  if(e.key==='Escape'){if($('#lb').classList.contains('on'))closeLB();else if(B.stk>=0)selStk(-1)}
   if((e.key==='Delete'||e.key==='Backspace')&&B.stk>=0&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){e.preventDefault();delStk()}});
 
 /* библиотека стикеров: свои рисованные + загруженные */
@@ -548,7 +580,7 @@ function renderBoard(){
       +`<span class="dchips">${notes.slice(0,2).map(x=>`<span class="dchip c-${colorOk(x.color)}">${esc(x.text)}</span>`).join('')}${notes.length>2?`<span class="more">ещё ${notes.length-2}</span>`:''}</span>`
       +`<span class="dots">${Ls.slice(0,4).map(x=>`<i class="c-${x.kind==='photo'?'photo':colorOk(x.color)}"></i>`).join('')}</span>`
       +(ph?`<img class="thumb" src="${esc(srcOf(ph))}" alt="" loading="lazy">`:'')+`</button>`}
-  $('#grid').innerHTML=h;renderDay(by[Bd.sel]||[])}
+  $('#grid').innerHTML=h;renderDay(by[Bd.sel]||[]);renderFull()}
 function renderDay(Ls){const d=parseKey(Bd.sel),w=S.canWrite;
   $('#dTitle').textContent=d.getDate()+' '+MONG[d.getMonth()];$('#dSub').textContent=WDF[d.getDay()]+(Bd.sel===TODAY?', сегодня':'');
   $('#items').innerHTML=Ls.length?Ls.map((x,i)=>{
@@ -588,10 +620,34 @@ $('#lbClose').onclick=closeLB;$('#lb').onclick=e=>{if(e.target.id==='lb')closeLB
 $('#lbSave').onclick=async()=>{try{await saveBlob(lbBlob||await(await fetch($('#lbImg').src)).blob(),lbName)}
   catch(e){toast('Не получилось — зажми картинку и сохрани')}};
 
+/* доска дня на весь экран */
+let fullDay=null,fsIn=false;
+function renderFull(){if(fullDay===null)return;const d=parseKey(fullDay);
+  $('#fDate').textContent=d.getDate()+' '+MONG[d.getMonth()];$('#fSub').textContent=WDF[d.getDay()]+(fullDay===TODAY?', сегодня':'');$('#fToday').hidden=fullDay===TODAY;
+  const Ls=S.items.filter(x=>x.date===fullDay).sort(cmp);
+  const rot=i=>(((i*5)%7)-3)*.7;
+  const ph=Ls.filter(x=>x.kind==='photo'&&srcOf(x)).map((x,i)=>`<figure class="fpin" style="--r:${rot(i+2)}deg"><button type="button" class="phb" data-fph="${esc(x.id)}" aria-label="Открыть ленту"><img src="${esc(srcOf(x))}" alt="Лента из фотобудки"></button></figure>`).join('');
+  const nt=Ls.filter(x=>x.kind==='note').map((x,i)=>`<div class="fnote ink c-${colorOk(x.color)}" style="--r:${rot(i)}deg">${x.time?`<span class="tm">${esc(x.time)}</span>`:''}<p>${esc(x.text)}</p></div>`).join('');
+  const fb=$('#fBoard');fb.classList.toggle('one',!ph||!nt);
+  fb.innerHTML=ph||nt?(ph?`<div class="fph">${ph}</div>`:'')+(nt?`<div class="fnotes">${nt}</div>`:'')
+    :'<div class="fempty"><b>пока пусто</b>Приклей записку или ленту — они появятся здесь.</div>'}
+function openFull(k){fullDay=k;renderFull();$('#full').hidden=false;document.body.style.overflow='hidden';$('#fClose').focus();
+  const el=document.documentElement;if(el.requestFullscreen&&!document.fullscreenElement){try{el.requestFullscreen().then(()=>{fsIn=true}).catch(()=>{})}catch(e){}}}
+function closeFull(){if(fullDay===null)return;fullDay=null;$('#full').hidden=true;document.body.style.overflow='';
+  const was=fsIn;fsIn=false;if(was&&document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});
+  if(location.hash==='#segodnya')location.hash='doska';$('#dFull').focus()}
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&fsIn){fsIn=false;closeFull()}});
+const shiftFull=n=>{const d=parseKey(fullDay);d.setDate(d.getDate()+n);fullDay=key(d);goDay(fullDay)};
+$('#dFull').onclick=()=>openFull(Bd.sel);
+$('#fClose').onclick=closeFull;$('#fPrev').onclick=()=>shiftFull(-1);$('#fNext').onclick=()=>shiftFull(1);
+$('#fToday').onclick=()=>{fullDay=TODAY;goDay(TODAY)};
+$('#fBoard').onclick=e=>{const p=e.target.closest('[data-fph]');if(!p)return;const it=S.items.find(x=>x.id===p.dataset.fph);if(it)openLB(srcOf(it),'samozvanets-doska-'+(it.date||TODAY)+'.jpg')};
+
 /* вкладки */
-function route(){const d=location.hash==='#doska';$('#s-budka').hidden=d;$('#s-doska').hidden=!d;
+function route(){const h=location.hash,d=h==='#doska'||h==='#segodnya';$('#s-budka').hidden=d;$('#s-doska').hidden=!d;
   $('#tabB').toggleAttribute('aria-current',!d);$('#tabD').toggleAttribute('aria-current',d);
-  if(d){$('#tabD').setAttribute('aria-current','page');if(B.live&&!B.busy)stopLive();renderBoard()}else $('#tabB').setAttribute('aria-current','page')}
+  if(d){$('#tabD').setAttribute('aria-current','page');if(B.live&&!B.busy)stopLive();renderBoard()}else $('#tabB').setAttribute('aria-current','page');
+  if(h==='#segodnya'){goDay(TODAY);if(fullDay===null)openFull(TODAY)}else if(fullDay!==null&&!d)closeFull()}
 addEventListener('hashchange',route);
 
 
