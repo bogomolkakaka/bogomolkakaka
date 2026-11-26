@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Самозваное таро · bogomolka</title>
+<meta name="description" content="Тест по мотивам клуба «Самозванец»: двенадцать вопросов, и колода покажет, какой самозванец живёт внутри тебя.">
+<meta name="theme-color" content="#244EE7">
+<meta property="og:title" content="Самозваное таро">
+<meta property="og:description" content="Двенадцать вопросов, и колода покажет, какой самозванец живёт внутри тебя.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='5' y='2' width='22' height='28' rx='4' fill='%23244EE7'/%3E%3Cpath d='M16 8l2.2 5.8L24 16l-5.8 2.2L16 24l-2.2-5.8L8 16l5.8-2.2z' fill='%23FF5FA2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Yeseva+One&display=swap">
+<style>
+/* VOICE occasion: a party test with a wink, warm irony, never mean
+   IDEA a risograph-printed tarot deck: cobalt ink and fluorescent pink on paper cards
+   PICTURE the cards themselves: a fanned deck, the question card, your arcana flipping over
+   COLOUR cobalt #244EE7 field edge to edge, paper #FFFCF5 cards, riso pink #FF5FA2, card ink #10206E
+   TYPE Yeseva One for names and titles + Manrope for text
+   LAYOUT laptop: title beside start, fan below; quiz card left, answers right; result card left, reading right. Phone: title, card, controls */
+:root{color-scheme:dark;--bg:#244EE7;--bg2:#1B3BC4;--paper:#FFFCF5;--ink:#10206E;--pink:#FF5FA2;--soft:rgba(255,255,255,.82);--line:rgba(255,255,255,.3);--shadow:rgba(6,14,70,.45)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#15288F;--bg2:#0F1E70}}
+:root[data-theme=dark]{--bg:#15288F;--bg2:#0F1E70}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cpath d='M34 22l2.4 7.6 7.6 2.4-7.6 2.4-2.4 7.6-2.4-7.6-7.6-2.4 7.6-2.4z' fill='%23FF5FA2' opacity='.5'/%3E%3Ccircle cx='120' cy='60' r='1.6' fill='white' opacity='.45'/%3E%3Cpath d='M140 130l1.6 5 5 1.6-5 1.6-1.6 5-1.6-5-5-1.6 5-1.6z' fill='white' opacity='.35'/%3E%3Ccircle cx='62' cy='146' r='1.3' fill='white' opacity='.4'/%3E%3C/svg%3E");color:#fff;font:17px/1.55 Manrope,system-ui,sans-serif;overflow-x:clip;-webkit-font-smoothing:antialiased}
+h1,h2,.num,.nm,.qt,.voice,.qhead{font-family:'Yeseva One',Georgia,serif;font-weight:400}
+a{color:#fff;text-underline-offset:3px}
+button{font:inherit;cursor:pointer}
+[hidden]{display:none!important}
+.band{padding:clamp(24px,4vw,56px) max(5vw,16px)}
+.wrap{max-width:1140px;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:center;gap:4px 20px;flex-wrap:wrap;padding:12px max(5vw,16px) 0}
+.logo{display:flex;align-items:center;gap:8px;font:22px 'Yeseva One',Georgia,serif;background:none;border:0;color:#fff;padding:0;min-height:44px}
+.logo svg{width:22px;height:22px}
+.top a{font-size:14px;color:var(--soft)}
+.s{fill:none;stroke:var(--ink);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.s2{fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round}
+.sp{fill:none;stroke:var(--pink);stroke-width:4;stroke-linecap:round}
+.p{fill:var(--pink)}
+.w{fill:var(--paper)}
+.i{fill:var(--ink)}
+.g{fill:rgba(255,95,162,.35)}
+.t{fill:var(--ink);font:800 16px Manrope,sans-serif}
+.q{fill:var(--ink);font:40px 'Yeseva One',Georgia,serif}
+.card{width:var(--w,200px);aspect-ratio:7/11;flex:none;background:var(--paper);color:var(--ink);border-radius:12px;padding:7px;box-shadow:5px 7px 0 var(--shadow);container-type:inline-size}
+.fr{height:100%;border:2px solid var(--ink);border-radius:7px;box-shadow:inset 0 0 0 3px var(--paper),inset 0 0 0 4.5px var(--ink);display:grid;grid-template-rows:auto minmax(0,1fr) auto;justify-items:center;text-align:center;padding:8cqw 7cqw 9cqw}
+.num{font-size:12cqw;line-height:1}
+.art{position:relative;width:100%;margin:4cqw 0}
+.art svg{position:absolute;inset:0;width:100%;height:100%}
+.nm{font-size:10cqw;line-height:1.08;text-wrap:balance;min-height:2.2em;display:grid;place-items:center}
+.intro{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);grid-template-areas:"t c" "f f";gap:8px clamp(24px,5vw,72px);align-items:end}
+.intro h1{grid-area:t;font-size:clamp(40px,6.6vw,84px);line-height:1.02;letter-spacing:-.01em;margin:0;text-wrap:balance}
+.ctrl{grid-area:c}
+.lead{margin:0 0 10px;font-size:18px;max-width:46ch}
+.note{margin:0 0 18px;color:var(--soft);font-size:15px}
+.fan{grid-area:f;display:flex;justify-content:center;align-items:flex-end;padding:clamp(24px,4vw,44px) 0 10px;--w:clamp(86px,14vw,176px)}
+.fan .card{margin-inline:calc(var(--w) * -.18);transform:translateY(var(--y)) rotate(var(--r));transform-origin:50% 100%;transition:transform .25s}
+.fan .card:hover{transform:translateY(calc(var(--y) - 14px)) rotate(var(--r))}
+.seg{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 18px}
+.seg>span{font-size:15px;color:var(--soft);margin-right:4px}
+.seg label{position:relative;display:inline-flex}
+.seg input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.pill{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:999px;border:2px solid var(--line);font-weight:600;font-size:15px}
+.seg input:checked+.pill{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+.seg input:focus-visible+.pill{outline:3px solid #fff;outline-offset:2px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 28px;border:0;border-radius:999px;background:var(--pink);color:var(--ink);font-weight:800;font-size:18px;box-shadow:4px 5px 0 var(--shadow);transition:transform .12s}
+.btn:hover{transform:translate(-1px,-2px)}
+.btn:active{transform:translate(2px,3px);box-shadow:1px 1px 0 var(--shadow)}
+.btn:focus-visible,.ans:focus-visible,.ghost:focus-visible,.logo:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.ghost{min-height:44px;padding:0 18px;border-radius:999px;border:2px solid var(--line);background:none;color:#fff;font-weight:600;font-size:15px}
+.ghost:hover{border-color:#fff}
+.qgrid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(20px,4vw,56px);align-items:stretch}
+.qcard{width:100%;aspect-ratio:auto;min-height:440px}
+.qcard .fr{grid-template-rows:auto auto 1fr;justify-items:stretch;text-align:left;padding:22px 24px 28px}
+.qhead{display:flex;justify-content:space-between;align-items:baseline;font-size:30px;line-height:1}
+.qhead small{font:600 14px Manrope,sans-serif;opacity:.7}
+.qart{position:relative;height:130px;margin:16px 0}
+.qart svg{position:absolute;inset:0;width:100%;height:100%}
+.qt{font-size:clamp(24px,2.6vw,32px);line-height:1.15;margin:0;align-self:end;text-wrap:balance}
+.side{display:flex;flex-direction:column;gap:14px}
+.pips{display:flex;gap:5px}
+.pip{flex:1;height:8px;border-radius:4px;background:rgba(255,255,255,.22)}
+.pip.on{background:var(--pink)}
+.pip.cur{background:#fff}
+.count{margin:0;font-size:15px;color:var(--soft)}
+.answers{display:grid;gap:12px}
+.ans{display:flex;gap:14px;align-items:center;width:100%;text-align:left;background:var(--paper);color:var(--ink);border:0;border-radius:14px;padding:15px 18px;font-weight:600;font-size:17px;line-height:1.35;min-height:60px;box-shadow:4px 5px 0 var(--shadow);transition:transform .12s,background .12s}
+.ans:hover{transform:translate(-1px,-2px)}
+.ans.sel{background:var(--pink)}
+.ans.sel .p{fill:var(--ink)}
+.ans svg{width:20px;height:20px;flex:none}
+.qnav{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-top:auto;padding-top:6px}
+.keys{font-size:14px;color:var(--soft)}
+.rgrid{display:grid;grid-template-columns:auto minmax(0,1fr);gap:clamp(24px,5vw,64px);align-items:start}
+.flip{--w:clamp(230px,28vw,330px);width:var(--w);aspect-ratio:7/11;perspective:1400px;position:sticky;top:16px}
+.inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;transition:transform .9s cubic-bezier(.3,.7,.2,1)}
+.flip.closed .inner{transform:rotateY(180deg);transition:none}
+.inner .card{position:absolute;inset:0;width:100%;height:100%;-webkit-backface-visibility:hidden;backface-visibility:hidden;transform:rotateY(0)}
+.inner .card.b{transform:rotateY(180deg)}
+.lab{display:flex;gap:8px;align-items:center;font-size:15px;color:var(--soft);margin:0}
+.lab svg{width:16px;height:16px;flex:none}
+.rd h2{font-size:clamp(36px,4.8vw,56px);line-height:1.04;margin:8px 0 10px;text-wrap:balance}
+.tag{font-size:20px;line-height:1.4;margin:0 0 22px;max-width:40ch}
+.blk{border-top:1.5px solid var(--line);padding:14px 0 16px}
+.blk h3{margin:0 0 4px;font-size:15px;font-weight:800}
+.blk p{margin:0;max-width:62ch}
+.voice{font-size:clamp(22px,2.4vw,28px);line-height:1.2}
+.deep{background:var(--bg2)}
+.lay{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:clamp(28px,5vw,72px);align-items:start}
+.lay h2,.deck-h h2{font-size:clamp(30px,3.4vw,40px);line-height:1.05;margin:0 0 6px}
+.sub{margin:0 0 18px;color:var(--soft)}
+.bars{display:grid;gap:10px}
+.bar{display:grid;grid-template-columns:minmax(0,9.5em) minmax(0,1fr) 2ch;gap:12px;align-items:center;font-size:15px}
+.bar .tr{height:12px;border-radius:6px;background:rgba(255,255,255,.16);overflow:hidden}
+.bar .fl{height:100%;border-radius:6px;background:var(--pink)}
+.bar.top{font-weight:800}
+.bar.top .fl{background:#fff}
+.bar .c{text-align:right;font-variant-numeric:tabular-nums}
+.second{display:flex;gap:18px;align-items:center;margin-bottom:24px}
+.second .card{--w:118px}
+.second h3{font:24px/1.1 'Yeseva One',Georgia,serif;margin:6px 0 6px}
+.second p{margin:0}
+.share{border:2px solid var(--line);border-radius:14px;padding:16px 18px}
+.share h3{margin:0 0 6px;font-size:15px;font-weight:800}
+.share .txt{margin:0 0 14px;font-size:16px}
+.acts{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.status{font-size:14px;color:var(--soft);min-height:1.4em;margin:10px 0 0}
+.deck-h{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap}
+.deck-h .acts{margin-bottom:6px}
+.deck{display:flex;gap:24px;overflow-x:auto;scroll-snap-type:x mandatory;padding:16px 6px 28px;scrollbar-width:thin}
+.it{flex:none;width:clamp(170px,19vw,210px);scroll-snap-align:start}
+.it .card{--w:100%}
+.it h3{font:20px/1.15 'Yeseva One',Georgia,serif;margin:18px 0 6px;font-weight:400}
+.it p{margin:0;font-size:15px;color:var(--soft)}
+.foot{padding:26px max(5vw,16px) 40px;color:var(--soft);font-size:14px;display:flex;justify-content:space-between;gap:10px 24px;flex-wrap:wrap;border-top:1px solid var(--line)}
+.foot p{margin:0;max-width:62ch}
+@media(max-width:760px){
+.intro{grid-template-columns:minmax(0,1fr);grid-template-areas:"t" "f" "c"}
+.fan{padding:18px 0 22px}
+.qgrid,.rgrid,.lay{grid-template-columns:minmax(0,1fr)}
+.qcard{min-height:0}
+.qart{height:70px;margin:10px 0}
+.flip{position:relative;top:0;justify-self:center;--w:min(64vw,260px)}
+.keys{display:none}
+.ans{font-size:16px;min-height:56px;padding:13px 16px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header class="top">
+<button class="logo" id="logo" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="p" d="M10 1 12.7 7.3 19 10 12.7 12.7 10 19 7.3 12.7 1 10 7.3 7.3Z"/></svg>Самозваное таро</button>
+<a href="https://setka.ru/communities/018f8673-5cea-423b-8170-6d46bdd5fdcd">По мотивам сообщества «Самозванец» в Сетке</a>
+</header>
+
+<main>
+<section id="intro" class="band">
+<div class="wrap intro">
+<h1>Самозваное таро</h1>
+<div class="fan" id="fan"></div>
+<div class="ctrl">
+<p class="lead">Двенадцать вопросов — и колода расскажет, какой самозванец живёт внутри тебя. Ну или сделает вид, что расскажет: она сама не до конца уверена, что имеет на это право.</p>
+<p class="note">Отвечай первое, что приходит в голову. Второе обычно приходит от внутреннего критика.</p>
+<div class="seg" role="radiogroup" aria-label="Как к тебе обращаться">
+<span>Как к тебе обращаться:</span>
+<label><input type="radio" name="g" id="g-f" value="f"><span class="pill">Она</span></label>
+<label><input type="radio" name="g" id="g-m" value="m"><span class="pill">Он</span></label>
+<label><input type="radio" name="g" id="g-x" value="x" checked><span class="pill">Без разницы</span></label>
+</div>
+<button class="btn" id="start" type="button">Вытянуть карты</button>
+<p class="note" style="margin:14px 0 0">12 вопросов · пара минут · 10 арканов и один секретный</p>
+</div>
+</div>
+</section>
+
+<section id="quiz" class="band" hidden>
+<div class="wrap qgrid">
+<div class="card qcard"><div class="fr">
+<div class="qhead"><span id="qnum">I</span><small>из XII</small></div>
+<div class="qart" id="qart"></div>
+<p class="qt" id="qt"></p>
+</div></div>
+<div class="side">
+<div class="pips" id="pips"></div>
+<p class="count" id="count"></p>
+<div class="answers" id="answers"></div>
+<div class="qnav"><button class="ghost" id="back" type="button">← Назад</button><span class="keys">Можно отвечать клавишами с цифрами</span></div>
+</div>
+</div>
+</section>
+
+<section id="result" hidden>
+<div class="band">
+<div class="wrap rgrid">
+<div class="flip" id="flip"></div>
+<div class="rd">
+<p class="lab"><svg viewBox="0 0 20 20" aria-hidden="true"><path class="p" d="M10 1 12.7 7.3 19 10 12.7 12.7 10 19 7.3 12.7 1 10 7.3 7.3Z"/></svg>Твой аркан</p>
+<h2 id="rName"></h2>
+<p class="tag" id="rTag"></p>
+<div class="blk"><h3>Кто ты</h3><p id="rWho"></p></div>
+<div class="blk"><h3>Твоя суперсила</h3><p id="rPow"></p></div>
+<div class="blk"><h3>Внутренний голос шепчет</h3><p class="voice" id="rVoice"></p></div>
+<div class="blk"><h3>Совет карты</h3><p id="rAdv"></p></div>
+<div class="blk"><h3>В перевёрнутом положении</h3><p id="rRev"></p></div>
+</div>
+</div>
+</div>
+<div class="band deep">
+<div class="wrap lay">
+<div>
+<h2>Твой расклад</h2>
+<p class="sub">Сколько раз каждая карта выпала в твоих ответах.</p>
+<div class="bars" id="bars"></div>
+</div>
+<div>
+<div class="second" id="second"></div>
+<div class="share">
+<h3>Поделиться в Сетке</h3>
+<p class="txt" id="shareTxt"></p>
+<div class="acts"><button class="btn" id="copy" type="button">Скопировать</button><button class="ghost" id="again" type="button">Пройти ещё раз</button></div>
+<p class="status" id="status" aria-live="polite"></p>
+</div>
+</div>
+</div>
+</div>
+<div class="band">
+<div class="wrap">
+<div class="deck-h">
+<div><h2>Вся колода</h2><p class="sub">Десять арканов и один секретный. Узнаёшь кого-нибудь из коллег?</p></div>
+<div class="acts"><button class="ghost" id="prev" type="button" aria-label="Предыдущие карты">←</button><button class="ghost" id="next" type="button" aria-label="Следующие карты">→</button></div>
+</div>
+<div class="deck" id="deck" tabindex="0" aria-label="Все карты колоды"></div>
+</div>
+</div>
+</section>
+</main>
+
+<footer class="foot">
+<p>Тест — не психологическая диагностика. Он прочитал одну статью про синдром самозванца и сразу решил, что эксперт.</p>
+<a href="https://setka.ru/communities/018f8673-5cea-423b-8170-6d46bdd5fdcd">Сообщество «Самозванец» в Сетке</a>
+</footer>
+
+<script>
+{
+const R=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+const f1=n=>Math.round(n*10)/10;
+const spark=(x,y,r,c)=>{const k=r*.3;return `<path class="${c}" d="M${x} ${y-r}L${x+k} ${y-k}L${x+r} ${y}L${x+k} ${y+k}L${x} ${y+r}L${x-k} ${y+k}L${x-r} ${y}L${x-k} ${y-k}Z"/>`};
+const sv=s=>`<svg viewBox="0 0 120 120" aria-hidden="true">${s}</svg>`;
+let spokes='',pegs='',star='';
+for(let j=0;j<8;j++){const a=j*Math.PI/4,b=a+Math.PI/8;spokes+=`<path class="s" d="M${f1(60+17*Math.cos(a))} ${f1(64+17*Math.sin(a))}L${f1(60+38*Math.cos(a))} ${f1(64+38*Math.sin(a))}"/>`;pegs+=`<circle class="p" cx="${f1(60+38*Math.cos(b))}" cy="${f1(64+38*Math.sin(b))}" r="3.6"/>`}
+for(let j=0;j<10;j++){const a=-Math.PI/2+j*Math.PI/5,r=j%2?18:44;star+=`${f1(60+r*Math.cos(a))},${f1(64+r*Math.sin(a))} `}
+const ART={
+back:sv(`${spark(20,20,7,'p')}${spark(100,20,7,'p')}${spark(60,108,6,'p')}<path class="s" d="M60 22 100 92H20Z"/><path class="w s" d="M36 68Q60 46 84 68 60 90 36 68Z"/><circle class="p s" cx="60" cy="68" r="9"/><circle class="i" cx="60" cy="68" r="3.4"/>`),
+shut:sv(`<path class="s" d="M40 6 60 40 80 6"/><rect class="p s" x="34" y="38" width="52" height="66" rx="7"/><rect class="w s" x="52" y="44" width="16" height="5" rx="2.5"/><circle class="w s" cx="60" cy="68" r="12"/><circle class="i" cx="55.5" cy="65" r="1.8"/><circle class="i" cx="64.5" cy="65" r="1.8"/><path class="s" d="M54 71q6 6 12 0"/><path class="s" d="M46 90h28M50 97h20"/>${spark(102,30,9,'p')}${spark(18,74,6,'w s2')}`),
+mag:sv(`<rect class="p s" x="26" y="60" width="56" height="44" rx="3"/><rect class="w s" x="22" y="48" width="64" height="14" rx="3"/><path class="s" d="M54 48v56"/><path class="w s" d="M54 48C42 30 30 42 54 48ZM54 48C66 30 78 42 54 48Z"/><path class="s" style="stroke-width:6" d="M80 56 102 26"/>${spark(104,22,11,'p s2')}${spark(92,52,5,'p')}${spark(20,28,7,'p')}`),
+kurs:sv(`<rect class="w s" x="22" y="88" width="72" height="14" rx="2"/><rect class="p s" x="28" y="74" width="64" height="14" rx="2"/><rect class="w s" x="24" y="60" width="66" height="14" rx="2"/><path class="s2" d="M32 95h20M36 81h14M30 67h18"/><path class="w s" d="M42 42v10c0 7 36 7 36 0V42"/><path class="p s" d="M60 20 98 34 60 48 22 34Z"/><path class="s" d="M98 34v18"/><circle class="p s" cx="98" cy="55" r="3.5"/>${spark(106,84,6,'p')}`),
+imp:sv(`<path class="w s" d="M24 14h40l18 18v76H24Z"/><path class="s" d="M64 14v18h18"/><path class="s2" d="M32 44h26M32 52h34M32 60h20"/><text class="t" x="31" y="88">v12</text><circle class="g s" cx="78" cy="76" r="18"/><path class="s" style="stroke-width:8" d="M91 89 106 104"/>${spark(102,24,7,'p')}`),
+kol:sv(`<path class="sp" d="M6 52h14M2 64h16M6 76h14"/><circle class="p s" cx="38" cy="30" r="10"/><circle class="p s" cx="82" cy="30" r="10"/><path class="s" d="M42 92 34 104M78 92 86 104"/><circle class="w s" cx="60" cy="64" r="32"/><path class="s2" d="M60 36v5M60 87v5M32 64h5M83 64h5"/><path class="s" d="M60 64 57 46M60 64 61 38"/><circle class="i" cx="60" cy="64" r="3"/>${spark(106,92,7,'p')}`),
+otsh:sv(`<path class="s" d="M60 6v8"/><circle class="s" cx="60" cy="19" r="5"/><path class="sp" d="M28 60H16M104 60H92M32 38l-8-8M88 38l8-8M32 84l-8 8M88 84l8-8"/><path class="p s" d="M42 34 60 24 78 34Z"/><rect class="w s" x="42" y="34" width="36" height="50" rx="4"/><path class="p s" d="M60 74c-10-7-5-18 0-26 5 8 10 19 0 26Z"/><rect class="p s" x="38" y="84" width="44" height="10" rx="3"/>`),
+fort:sv(`<path class="p s" d="M60 24 52 10H68Z"/><circle class="w s" cx="60" cy="64" r="38"/>${spokes}${pegs}<circle class="w s" cx="60" cy="64" r="17"/><circle class="p" cx="55" cy="59" r="5.5"/><circle class="p" cx="65" cy="59" r="5.5"/><circle class="p" cx="55" cy="69" r="5.5"/><circle class="p" cx="65" cy="69" r="5.5"/><circle class="i" cx="60" cy="64" r="2.2"/>`),
+star:sv(`${spark(18,22,7,'p')}${spark(104,104,6,'p')}<circle class="i" cx="100" cy="28" r="2.4"/><polygon class="p s" points="${star.trim()}"/><text class="q" x="60" y="78" text-anchor="middle">?</text>`),
+luna:sv(`<path class="p s" d="M70 18A46 46 0 1 0 70 102 50 50 0 0 1 70 18Z"/><path class="w s" d="M12 60Q26 48 40 60 26 72 12 60Z"/><circle class="i" cx="26" cy="60" r="4.5"/>${spark(96,32,10,'w s2')}${spark(90,86,6,'p')}<circle class="i" cx="106" cy="60" r="2.5"/>`),
+tsar:sv(`<path class="p s" d="M26 82 20 42 42 60 60 30 78 60 100 42 94 82Z"/><rect class="w s" x="24" y="82" width="72" height="16" rx="3"/><circle class="i" cx="42" cy="90" r="3"/><circle class="p s2" cx="60" cy="90" r="4"/><circle class="i" cx="78" cy="90" r="3"/><circle class="w s" cx="20" cy="40" r="5"/><circle class="w s" cx="60" cy="27" r="5"/><circle class="w s" cx="100" cy="40" r="5"/><circle class="w s" cx="104" cy="16" r="11"/><path class="s" d="M98 16l4 4 7-8"/>${spark(16,108,6,'p')}`),
+sam:sv(`<path class="w s" d="M44 32 48 16 54 26 60 12 66 26 72 16 76 32Z"/><path class="s" d="M16 56 4 48M104 56 116 48"/><path class="p s" d="M14 54C28 40 48 44 60 52 72 44 92 40 106 54 104 74 88 84 74 76 68 72 64 68 60 68 56 68 52 72 46 76 32 84 16 74 14 54Z"/><ellipse class="w s" cx="40" cy="60" rx="10" ry="6.5"/><ellipse class="w s" cx="80" cy="60" rx="10" ry="6.5"/>${spark(60,100,8,'p')}`)
+};
+
+const A={
+back:{n:'?',name:'Твой аркан'},
+shut:{n:'0',name:'Шут на испытательном',sh:'Шут',
+tag:'Ещё не знает, что тут положено бояться. И это прекрасно.',
+who:'Ты в начале пути — или просто умеешь каждый раз начинать как впервые. Откликаешься на вакансию, где закрываешь половину требований, берёшься за задачу, о которой вчера только {слышал||а}, и почему-то справляешься. Твой внутренний самозванец пока сам на испытательном сроке и не очень понимает, что тут делает.',
+power:'Смелость новичка: ты уже делаешь, пока остальные дочитывают регламент.',
+voice:'А что, так можно было?',
+advice:'Не дай опыту отнять у тебя лёгкость. Пусть знаний становится больше, а страха — нет.',
+rev:'Наступает в тот день, когда ты впервые слышишь слово «грейд».',
+hint:'Внутри всё ещё живёт стажёр, который ничего не боится. Береги его.'},
+mag:{n:'I',name:'Маг красивой обёртки',sh:'Маг',
+tag:'Может презентовать пустую папку. И это будет лучшая пустая папка в компании.',
+who:'Ты умеешь подать. Слайды — огонь, формулировки уверенные, лицо на созвоне — как у человека, который всё понял ещё вчера. Беда в том, что {сам||а} ты видишь в этом фокус, а не талант: кажется, однажды кто-нибудь заглянет в рукав — а там пусто. Спойлер: там твой опыт. Ты просто {привык||ла} его не замечать.',
+power:'Превращать хаос в историю, в которую верят все. Кроме тебя.',
+voice:'Главное — уверенно. Если что, это была концепция.',
+advice:'Умение подать — тоже навык, а не обман. Фокусник, который годами тренирует руки, — профессионал, а не жулик.',
+rev:'Ты двадцать минут {выбирал||а} шрифт для письма «ок, принято».',
+hint:'Когда страшно, ты делаешь красиво. Работает, кстати.'},
+kurs:{n:'II',name:{x:'Верховная курсистка',f:'Верховная курсистка',m:'Верховный курсист'},sh:{x:'Курсистка',f:'Курсистка',m:'Курсист'},
+tag:'Ещё один курс — и можно будет называть себя специалистом. Точно.',
+who:'У тебя три сертификата, двенадцать сохранённых вебинаров и курс, купленный по скидке «только сегодня». Ты знаешь больше многих, кто уже выступает на конференциях, но всё кажется: ещё чуть-чуть — и буду {готов||а}. Готовность, к сожалению, не продаётся отдельным модулем.',
+power:'Глубина. Если ты что-то объясняешь — то с первоисточником, ссылками и сносками.',
+voice:'Сначала дочитаю. Потом пересмотрю. Потом, может быть, скажу.',
+advice:'Попробуй хоть раз сказать «я знаю» без ссылки на курс. Знания уже твои — их не отберут за непросмотренный урок.',
+rev:'Ты записываешься на курс «Как перестать проходить курсы».',
+hint:'Иногда ты прячешься в учёбу, чтобы не выходить на сцену.'},
+imp:{n:'IV',name:{x:'Император финальной версии',m:'Император финальной версии',f:'Императрица финальной версии'},sh:{x:'Император',m:'Император',f:'Императрица'},
+tag:'final_final_v12_точно_финал_правки2.fig',
+who:'Ты правишь империей, где ничто не бывает готово. Работа принята, заказчик счастлив, коллеги хвалят, а ты видишь кривой отступ в третьем макете и не можешь уснуть. Для тебя 95% — это провал на пять процентов. Планка у тебя такая высокая, что под ней не проходишь даже ты.',
+power:'Видишь то, чего не видит никто: пиксель, запятую, лишний пробел.',
+voice:'Это пока черновик. Не смотрите.',
+advice:'Объяви амнистию одной ошибке в неделю. Империя не рухнет, а ты наконец выспишься.',
+rev:'Ты {отправил||а} файл без последней правки — и никто не заметил. Никто, кроме тебя.',
+hint:'Лупа для поиска ошибок лежит где-то под рукой — на всякий случай.'},
+kol:{n:'VII',name:'Колесница последней ночи',sh:'Колесница',
+tag:'Неделю собирается с силами. Делает всё за ночь. Потом говорит: «повезло».',
+who:'Ты несёшься к дедлайну как колесница: долго стоишь, потом рывок, искры, кофе, 3:47 ночи — и готово. Получается хорошо, но ты в это не веришь: «Если бы я правда {умел||а}, я бы {сделал||а} заранее». Откладывание у тебя не лень, а способ не узнавать, на что ты {способ|ен|на}, когда стараешься на все сто.',
+power:'Делать невозможное за невозможно короткое время.',
+voice:'Завтра начну. Нет, правда.',
+advice:'Начни один раз заранее — не ради продуктивности, а как эксперимент. Если выйдет так же хорошо без адреналина, это будет целиком твоя заслуга, без всякого «повезло».',
+rev:'Ты {закончил||а} за три дня до срока и не знаешь, что делать с этим чувством.',
+hint:'Дедлайн для тебя звучит как стартовый свисток.'},
+otsh:{n:'IX',name:{x:'Отшельник «Я {сам||а}»',m:'Отшельник «Я сам»',f:'Отшельница «Я сама»'},sh:{x:'Отшельник',m:'Отшельник',f:'Отшельница'},
+tag:'Лучше три ночи в документации, чем один вопрос в общем чате.',
+who:'Ты несёшь свой фонарь в одиночку. Попросить о помощи — значит признаться, что ты чего-то не знаешь, а это почти разоблачение. Поэтому ты разбираешься {сам||а}, молча, до трёх ночи, а утром говоришь: «Да там ерунда была». Результат отличный, но засчитываешь ты его, только если никто не помогал.',
+power:'Разобраться можешь в чём угодно. Буквально в чём угодно.',
+voice:'Спрашивать — это для тех, кто не справляется.',
+advice:'Вопрос коллеге — не провал, а скорость. В любой сильной команде больше всего вопросов задают самые сильные.',
+rev:'Ты {задал||а} вопрос в общем чате — и трое ответили, что тоже не знали.',
+hint:'Просить о помощи пока неловко. Попробуй — это не больно.'},
+fort:{n:'X',name:'Колесо «Просто повезло»',sh:'Колесо',
+tag:'Всё в жизни получилось само. Случайно. Двенадцать раз подряд.',
+who:'Повышение? Повезло с руководителем. Проект выстрелил? Удачно совпало. Хвалят? Наверное, из вежливости. Колесо фортуны у тебя крутится в одну сторону: всё хорошее — случайность, всё плохое — закономерность. Статистически, кстати, это очень маловероятно.',
+power:'Скромность, с которой с тобой приятно работать.',
+voice:'Да это несложно было. Любой бы смог.',
+advice:'Заведи заметку «Это {сделал||а} я» и записывай туда всё, за что хвалят. Через месяц перечитай и попробуй снова сказать «просто повезло».',
+rev:'Тебе повезло — и ты впервые {сказал||а} вслух, что {заслужил||а}.',
+hint:'Ты всё ещё отдаёшь удаче то, что {сделал||а} {сам||а}.'},
+star:{n:'XVII',name:'Звезда под сомнением',sh:'Звезда',
+tag:'Всё давалось легко. Пока не перестало.',
+who:'Тебя с детства называли способным человеком: всё схватывалось на лету, без зубрёжки. А потом пришла первая задача, над которой пришлось попотеть, и внутри прозвучало: «Значит, это не моё. Значит, меня переоценили». Только «трудно» не значит «не твоё». Трудно — значит, ты наконец растёшь.',
+power:'Быстро схватываешь — и всё ещё можешь удивить всех, включая себя.',
+voice:'Если пришлось стараться, значит, я не талант.',
+advice:'Перестань мерить способности скоростью. Таланту тоже можно потеть, это не запрещено.',
+rev:'Ты три дня {разбирал|ся|ась} в задаче — и гордишься этим больше, чем всем, что далось легко.',
+hint:'Иногда пугает, когда не получается с первого раза.'},
+luna:{n:'XVIII',name:'Луна «А вдруг узнают»',sh:'Луна',
+tag:'«Есть минутка?» — а у тебя в голове уже идут финальные титры.',
+who:'По ночам ты прокручиваешь сценарии разоблачения. «Есть минутка?» от руководителя — минимум увольнение. Похвала — подозрительно. Тишина в чате — ещё подозрительнее. Твоей тревоге бы в сценаристы: сюжеты закручены мастерски. Но в жизни «есть минутка?» почти всегда заканчивается вопросом, где лежит файл.',
+power:'Предусмотришь любой риск. Даже несуществующий.',
+voice:'Сейчас кто-нибудь задаст тот самый вопрос — и все всё поймут.',
+advice:'Запиши худший сценарий и через неделю проверь, сбылся ли он. Луна врёт — просто очень красиво.',
+rev:'Тебе написали «есть минутка?» — а там просто хотели похвалить.',
+hint:'По ночам иногда мерещится разоблачение.'},
+tsar:{n:'XXI',name:{x:'Царь настоящий',m:'Царь настоящий',f:'Царица настоящая'},sh:{x:'Царь',m:'Царь',f:'Царица'},
+tag:{x:'Говорят, царь-то… настоящий.',m:'Говорят, царь-то… настоящий.',f:'Говорят, царица-то… настоящая.'},
+who:'Твой внутренний самозванец давно на пенсии и заходит разве что на чай. Ты умеешь сказать «спасибо» на похвалу, спросить, когда не знаешь, и признать ошибку без драмы. Сомнения бывают у всех, просто у тебя они не управляют государством. Редкая карта. Поздравляем, ваше величество.',
+power:'Спокойная уверенность — та, которой не нужны доказательства.',
+voice:'Я знаю не всё. И это нормально.',
+advice:'Поделись секретом: расскажи в сообществе, как ты {договорил|ся|ась} со своим самозванцем. Кому-то это сейчас очень нужно.',
+rev:'Когда-то и ты {сомневал|ся|ась} во всём. Просто это было давно, и ты об этом не рассказываешь.',
+hint:'Спокойная уверенность в тебе уже есть. Дай ей больше слова.'},
+sam:{n:'XXII',name:'Самозванец самозванцев',sh:'Секретная',
+tag:'{Обманул||а} даже тест.',
+who:'Твои ответы разбежались по всей колоде, и карты не смогли тебя раскусить. Либо ты очень многогранная личность, либо притворяешься так убедительно, что сбиваешь с толку даже таро. Честно говоря, ровно так и сказал бы самозванец. Мы впечатлены.',
+power:'Неуловимость. Тебя не уложить ни в одну карту.',
+voice:'А это точно про меня? Может, перепройти?',
+advice:'Перепройди тест — или прими, что в тебе живёт целая колода. Это, кстати, и называется «нормальный человек».',
+rev:'Тест не уверен, что имеет право тебя оценивать. Кажется, у него тоже синдром самозванца.',
+hint:''}
+};
+const ORDER=['shut','mag','kurs','imp','kol','otsh','fort','star','luna','tsar'];
+
+const Q=[
+{q:'На общем созвоне тебя хвалят при всех. Первая мысль:',a:[['Это просто задача удачная попалась','fort'],['А в третьем макете отступ кривой — никто не заметил?','imp'],['Сейчас кто-нибудь спросит детали — и всё, конец','luna'],['Приятно. Говорю «спасибо» и не оправдываюсь','tsar']]},
+{q:'В Сетке — вакансия мечты. Из десяти требований ты закрываешь семь.',a:[['Откликаюсь. Остальные три освою по ходу','shut'],['Сначала пройду курс по недостающим. И ещё один, на всякий случай','kurs'],['Откликаюсь, а в сопроводительном слегка… усиливаю формулировки','mag'],['Откликнусь. В последний день. В 23:58','kol']]},
+{q:'Тебе дали задачу, в которой ты пока плаваешь. Что делаешь?',a:[['Молча разбираюсь до трёх ночи — спрашивать неловко','otsh'],['Смотрю четыре туториала и читаю документацию целиком','kurs'],['Паникую: раньше всё получалось сразу, значит, со мной что-то не так','star'],['Пишу коллеге: «Подскажешь, с чего начать?»','tsar']]},
+{q:'Как называется файл, над которым ты сейчас работаешь?',a:[['final_final_v12_точно_финал','imp'],['«Без названия (3)», открыт в два ночи перед сдачей','kol'],['«Проект_ВАУ» — название придумано раньше проекта','mag'],['«тест_просто_попробовать» — и он уже у заказчика','shut']]},
+{q:'Тебя зовут выступить на митапе в роли эксперта.',a:[['Я? Экспертом? Кажется, перепутали адресата','fort'],['Соглашаюсь сразу, тему придумаю потом','shut'],['Соглашусь, когда прочитаю всё, что написано по теме за двадцать лет','kurs'],['Соглашаюсь. Слайды будут бомба, с содержанием разберёмся','mag']]},
+{q:'Что сильнее всего выбивает тебя из колеи?',a:[['Работу приняли, а я вижу в ней пятнадцать недочётов','imp'],['Когда предлагают помощь — будто я {сам||а} не справлюсь','otsh'],['Когда что-то не получается с первого раза','star'],['Сообщение «есть минутка?» без подробностей','luna']]},
+{q:'Пятница, вечер, лента. Бывший однокурсник стал арт-директором.',a:[['Ставлю лайк и листаю дальше — у меня своя дорога','tsar'],['Пишу «поздравляю!» и час думаю, не многовато ли восклицательных знаков','luna'],['Сажусь обновлять портфолио. Целиком. Прямо сейчас, в полночь','kol'],['Записываюсь на курс «Арт-директор за восемь недель»','kurs']]},
+{q:'Коллега просит объяснить то, в чём ты разбираешься.',a:[['Объясняю, но начинаю с «я, конечно, не эксперт, но…»','fort'],['Объясняю, а если не поняли с первого раза — решаю, что я {сам||а} ничего не понимаю','star'],['Проще сделать всё за коллегу. Быстрее и спокойнее','otsh'],['Объясняю с удовольствием. Приятно быть {полезн|ым|ой}','tsar']]},
+{q:'Пришёл фидбэк: десять комплиментов и одно замечание.',a:[['Неделю живу с этим замечанием. Комплименты не помню','luna'],['Расстраиваюсь: раз надо переделывать, может, это вообще не моё','star'],['О, а так можно было? Спасибо, забираю!','shut'],['Спасибо, но я и {сам||а} всё {видел||а}','otsh']]},
+{q:'Твоя рабочая суперспособность, если честно:',a:[['Сделать за ночь то, на что давали неделю','kol'],['Подать что угодно так, что все скажут «вау»','mag'],['Найти ошибку, которую не заметил никто','imp'],['Не бояться — потому что ещё не знаю, чего тут надо бояться','shut']]},
+{q:'Какую фразу ты говоришь чаще других?',a:[['«Да мне просто повезло»','fort'],['«Не надо, я {сам||а}»','otsh'],['«Мне бы ещё подучиться»','kurs'],['«Если трудно — значит, не моё»','star']]},
+{q:'Если бы твой внутренний самозванец был предметом на рабочем столе, это был бы:',a:[['Корона из фольги — блестит, но вдруг кто-то проверит','mag'],['Лупа — чтобы найти ещё одну ошибку','imp'],['Будильник на 4:30 — чтобы успеть до дедлайна','kol'],['Ночник — без него по ночам страшно','luna'],['Кружка «Лучший сотрудник», спрятанная в шкаф','fort']]}
+];
+
+const st={g:'x',i:0,picks:[],view:'intro'};
+const $=id=>document.getElementById(id);
+const T=s=>s.replace(/\{([^{}|]*)\|([^{}|]*)\|([^{}|]*)\}/g,(m,b,ms,fs)=>st.g==='f'?b+fs:st.g==='m'?b+ms:b+ms+'('+fs+')');
+const tx=v=>typeof v==='string'?T(v):T(v[st.g]||v.x);
+const dot='<svg viewBox="0 0 20 20" aria-hidden="true"><path class="p" d="M10 1 12.7 7.3 19 10 12.7 12.7 10 19 7.3 12.7 1 10 7.3 7.3Z"/></svg>';
+const card=(k,cls)=>`<div class="card ${cls||''}"><div class="fr"><span class="num">${A[k].n}</span><div class="art">${ART[k]}</div><span class="nm">${tx(A[k].name)}</span></div></div>`;
+const reduce=()=>window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+let busy=false;
+
+function renderFan(){
+const ks=['imp','luna','back','tsar','mag'],rs=[-14,-7,0,7,14],ys=[18,6,0,6,18];
+$('fan').innerHTML=ks.map((k,j)=>card(k).replace('class="card "',`class="card" style="--r:${rs[j]}deg;--y:${ys[j]}px;z-index:${j===2?5:5-Math.abs(j-2)}"`)).join('');
+}
+function renderDeck(){
+$('deck').innerHTML=ORDER.concat('sam').map(k=>`<div class="it">${card(k)}<h3>${tx(A[k].name)}</h3><p>${tx(A[k].tag)}</p></div>`).join('');
+}
+function renderQ(){
+const q=Q[st.i];
+$('qnum').textContent=R[st.i];
+$('qt').textContent=T(q.q);
+$('qart').innerHTML=ART.back;
+$('answers').innerHTML=q.a.map(([t,k])=>`<button class="ans${st.picks[st.i]===k?' sel':''}" type="button" data-k="${k}">${dot}<span>${T(t)}</span></button>`).join('');
+$('pips').innerHTML=Q.map((_,j)=>`<span class="pip${j===st.i?' cur':st.picks[j]?' on':''}"></span>`).join('');
+$('count').textContent=`Вопрос ${st.i+1} из ${Q.length}`;
+$('back').textContent=st.i===0?'← В начало':'← Назад';
+}
+function score(){
+const s={},last={};
+ORDER.forEach(k=>{s[k]=0;last[k]=-1});
+st.picks.forEach((k,j)=>{if(k&&k in s){s[k]++;last[k]=j}});
+const ranked=ORDER.slice().sort((a,b)=>s[b]-s[a]||last[b]-last[a]);
+const top=s[ranked[0]];
+const tied=ranked.filter(k=>s[k]===top);
+return{s,ranked,tied,main:tied.length>=5?'sam':ranked[0]};
+}
+function renderR(anim){
+const r=score(),k=r.main,a=A[k];
+const flip=$('flip');
+flip.innerHTML=`<div class="inner">${card(k,'f')}${card('back','b')}</div>`;
+$('rName').textContent=tx(a.name);
+$('rTag').textContent=tx(a.tag);
+$('rWho').textContent=tx(a.who);
+$('rPow').textContent=tx(a.power);
+$('rVoice').textContent=`«${tx(a.voice)}»`;
+$('rAdv').textContent=tx(a.advice);
+$('rRev').textContent=tx(a.rev);
+const max=Math.max(1,r.s[r.ranked[0]]);
+const hi=k==='sam'?r.tied:[k];
+$('bars').innerHTML=r.ranked.map(x=>`<div class="bar${hi.includes(x)?' top':''}"><span>${A[x].n} · ${tx(A[x].sh)}</span><div class="tr"><div class="fl" style="width:${Math.round(r.s[x]/max*100)}%"></div></div><span class="c">${r.s[x]}</span></div>`).join('');
+if(k==='sam'){
+$('second').innerHTML=`<div><p class="lab">${dot}В тебе поровну</p><h3>${r.tied.map(x=>tx(A[x].sh)).join(', ')}</h3><p>Поэтому колода выдала секретную карту.</p></div>`;
+}else{
+const k2=r.ranked[1];
+$('second').innerHTML=r.s[k2]>0?`${card(k2)}<div><p class="lab">${dot}Вторая карта расклада</p><h3>${tx(A[k2].name)}</h3><p>${tx(A[k2].hint)}</p></div>`:'';
+}
+let tag=tx(a.tag);if(!/[.!?…]$/.test(tag))tag+='.';
+$('shareTxt').textContent=`Мой аркан в «Самозваном таро» — ${a.n}, ${tx(a.name)}. ${tag} А какой самозванец живёт в тебе?`;
+$('status').textContent='';
+if(anim&&!reduce()){flip.classList.add('closed');void flip.offsetWidth;setTimeout(()=>flip.classList.remove('closed'),380)}else flip.classList.remove('closed');
+}
+function show(v,anim){
+st.view=v;
+['intro','quiz','result'].forEach(id=>{$(id).hidden=id!==v});
+if(v==='intro')renderFan();
+if(v==='quiz')renderQ();
+if(v==='result')renderR(anim);
+window.scrollTo(0,0);
+}
+function pick(btn){
+if(!btn||busy)return;
+busy=true;
+st.picks[st.i]=btn.dataset.k;
+document.querySelectorAll('.ans').forEach(b=>b.classList.toggle('sel',b===btn));
+setTimeout(()=>{
+busy=false;
+if(st.i<Q.length-1){st.i++;renderQ();window.scrollTo(0,0)}
+else show('result',true);
+},reduce()?60:220);
+}
+
+$('start').addEventListener('click',()=>{st.i=0;st.picks=[];show('quiz')});
+$('logo').addEventListener('click',()=>show('intro'));
+$('answers').addEventListener('click',e=>pick(e.target.closest('.ans')));
+$('back').addEventListener('click',()=>{if(st.i===0)show('intro');else{st.i--;renderQ()}});
+$('again').addEventListener('click',()=>{st.i=0;st.picks=[];show('intro')});
+document.addEventListener('keydown',e=>{
+if(st.view!=='quiz'||e.metaKey||e.ctrlKey||e.altKey)return;
+const n='12345'.indexOf(e.key);
+if(n>=0)pick(document.querySelectorAll('.ans')[n]);
+});
+document.querySelectorAll('input[name=g]').forEach(r=>r.addEventListener('change',()=>{
+st.g=r.value;
+try{localStorage.setItem('taro-g',st.g)}catch(err){}
+renderFan();renderDeck();
+if(st.view==='result')renderR(false);
+}));
+$('copy').addEventListener('click',()=>{
+const t=$('shareTxt').textContent;
+const ok=()=>{$('status').textContent='Скопировано — можно вставлять в пост.'};
+const no=()=>{$('status').textContent='Не получилось скопировать автоматически — выдели текст выше и скопируй вручную.'};
+try{navigator.clipboard.writeText(t).then(ok,no)}catch(err){no()}
+});
+const step=d=>{const it=$('deck').querySelector('.it');const w=it?it.getBoundingClientRect().width+24:220;$('deck').scrollBy({left:d*w,behavior:reduce()?'auto':'smooth'})};
+$('prev').addEventListener('click',()=>step(-1));
+$('next').addEventListener('click',()=>step(1));
+$('deck').addEventListener('keydown',e=>{if(e.key==='ArrowLeft'){e.preventDefault();step(-1)}if(e.key==='ArrowRight'){e.preventDefault();step(1)}});
+
+const hot=window.claude&&window.claude.hot;
+if(hot&&hot.snapshot)hot.snapshot(()=>({g:st.g,i:st.i,picks:st.picks.slice(),view:st.view}));
+const start=d=>{
+d=d&&typeof d==='object'?d:{};
+let g=d.g;
+if(!g){try{g=localStorage.getItem('taro-g')}catch(err){}}
+if(['f','m','x'].includes(g))st.g=g;
+if(Array.isArray(d.picks))st.picks=d.picks.filter(k=>typeof k==='string'||k==null).slice(0,Q.length);
+if(Number.isInteger(d.i)&&d.i>=0&&d.i<Q.length)st.i=d.i;
+let v=['intro','quiz','result'].includes(d.view)?d.view:'intro';
+if(v==='result'&&st.picks.filter(Boolean).length<Q.length)v='intro';
+const radio=$('g-'+st.g);if(radio)radio.checked=true;
+renderDeck();
+show(v,false);
+};
+if(hot&&hot.ready)hot.ready(start);else start(hot&&hot.data||{});
+}
+</script>
+</body>
+</html>
