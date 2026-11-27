@@ -26,7 +26,8 @@ const ask = r => new Promise((res, rej) => { r.onsuccess = () => res(r.result); 
 const byOrder = (a, b) => (a.added - b.added) || ((parseInt(a.no, 10) || 0) - (parseInt(b.no, 10) || 0)) || String(a.title).localeCompare(String(b.title));
 export async function listTracks() {
   const t = (await db()).transaction('meta', 'readonly');
-  return (await ask(t.objectStore('meta').getAll())).sort(byOrder);
+  // tidy on the way out too, so songs added before the cleanup also lose download-site marks
+  return (await ask(t.objectStore('meta').getAll())).map(m => ({ ...m, title: tidy(m.title) || m.title, artist: tidy(m.artist), album: tidy(m.album) })).sort(byOrder);
 }
 export async function getSound(id) {
   const t = (await db()).transaction('audio', 'readonly');
@@ -77,9 +78,22 @@ export async function addFile(file, order) {
 // ask the browser to keep the songs even when space runs low (it may say no; that is fine)
 export function keepSafe() { try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) { /* older browsers */ } }
 
-const clean = s => String(s || '').replace(/\u0000/g, '').replace(/\s+/g, ' ').trim().slice(0, 120);
+const clean = s => tidy(String(s || '').replace(/\u0000/g, '').replace(/\s+/g, ' ').trim().slice(0, 120));
+// Music download sites stamp their address into the tags: "Britney Spears [drivemusic.me]",
+// album "drivemusic.me", "Toxic - muzofond.fm". Those marks are removed.
+const SITE = '(?:https?:\\/\\/)?(?:www\\.)?[a-z0-9][a-z0-9-]*\\.(?:me|ru|com|net|org|info|biz|cc|tv|fm|su|io|to|club|pro|site|online|xyz|top|band|mobi|ws|in|ua|by|kz|eu|de|uk|co|pw|life|live|today|music)';
+const SITE_ONLY = new RegExp(`^${SITE}\\/?$`, 'i');
+const SITE_TAG = new RegExp(`\\s*[\\[\\(\\{]\\s*${SITE}\\/?\\s*[\\]\\)\\}]`, 'gi');
+const SITE_TAIL = new RegExp(`\\s*[-–—|:]+\\s*${SITE}\\/?\\s*$`, 'i');
+const SITE_HEAD = new RegExp(`^\\s*${SITE}\\/?\\s*[-–—|:]+\\s*`, 'i');
+export function tidy(v) {
+  let s = String(v || '').trim();
+  if (!s || SITE_ONLY.test(s)) return '';
+  s = s.replace(SITE_TAG, '').replace(SITE_TAIL, '').replace(SITE_HEAD, '').replace(/\s+/g, ' ').trim();
+  return SITE_ONLY.test(s) ? '' : s;
+}
 function nameParts(name) {
-  let base = String(name).replace(/\.[^.]+$/, '').replace(/_/g, ' ').replace(/\s+/g, ' ').trim();
+  let base = tidy(String(name).replace(/\.[^.]+$/, '').replace(/_/g, ' ').replace(/\s+/g, ' ').trim());
   base = base.replace(/^\d{1,3}[\s.\-)]+(?=\S)/, '');
   const k = base.indexOf(' - ');
   if (k > 0) return { artist: base.slice(0, k).trim(), title: base.slice(k + 3).trim() || base };

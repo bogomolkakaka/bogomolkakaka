@@ -84,6 +84,25 @@
 .cdp__del:hover, .cdp__del:focus-visible { background: var(--soft); color: var(--red); }
 .cdp__del svg { width: 14px; height: 14px; }
 .modal__card.is-drop { outline: 3px dashed var(--cobalt); outline-offset: -10px; }
+/* the open playlist: its name sits above the player, clear of the window's close cross */
+.cdp__lh { display: flex; align-items: center; gap: 10px; min-height: 44px; padding-right: 56px; }
+.cdp__lk { flex: none; font-family: var(--font-pixel); font-size: 9px; text-transform: uppercase; color: var(--muted); }
+.cdp__lt { min-width: 0; font-family: var(--font-display); font-weight: 400; font-size: 22px; line-height: 1.1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.cdp__more { flex: none; width: 36px; height: 36px; display: grid; place-items: center; padding: 0 0 6px; border: 1.5px solid var(--ink); border-radius: 50%; background: var(--paper); color: var(--ink); font-size: 20px; font-weight: 700; line-height: 1; }
+.cdp__more:hover, .cdp__more:focus-visible, .cdp__more[aria-expanded="true"] { background: var(--soft); }
+.cdp__tracks .cdp__more { width: 32px; height: 32px; border-color: transparent; background: none; color: var(--muted); }
+.cdp__tracks .cdp__more:hover, .cdp__tracks .cdp__more:focus-visible { border-color: var(--ink); background: var(--soft); color: var(--ink); }
+/* the ⋯ menu */
+.cdp__menu { position: absolute; z-index: 5; min-width: 240px; max-width: calc(100% - 16px); display: grid; gap: 2px; padding: 6px; border: 2px solid var(--ink); border-radius: 14px; background: var(--paper); box-shadow: 4px 4px 0 var(--ink); animation: cardIn .18s ease; }
+.cdp__menu button { display: block; width: 100%; padding: 10px 12px; border: 0; border-radius: 9px; background: none; color: var(--ink); font-size: 14px; font-weight: 600; text-align: left; }
+.cdp__menu button:hover, .cdp__menu button:focus-visible { background: var(--soft); outline: none; }
+.cdp__menu button.is-danger { color: var(--red); }
+.cdp__menu hr { margin: 4px 6px; border: 0; border-top: 1.5px solid var(--soft); }
+/* "new playlist" sits on the shelf as a dashed square */
+.cdp__newbox { display: grid; place-items: center; aspect-ratio: 1; border: 2px dashed var(--muted); border-radius: 6px; color: var(--muted); }
+.cdp__newbox i { font-style: normal; font-family: var(--font-display); font-size: 34px; line-height: 1; }
+.cdp__new:hover .cdp__newbox, .cdp__new:focus-visible .cdp__newbox { border-color: var(--cobalt); color: var(--cobalt); background: var(--soft); }
+.cdp__new .cdp__name { color: var(--muted); }
 .cdp__tracks { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; max-height: 300px; overflow: auto; }
 .cdp__tracks li { display: flex; align-items: center; gap: 6px; }
 .cdp__track { flex: 1; min-width: 0; display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 8px 10px; border: 1.5px solid transparent; border-radius: 12px; background: none; text-align: left; color: var(--ink); }
@@ -110,6 +129,7 @@
 
 @media (max-width: 1360px) { .tb-cd__t { display: none; } .tb-cd { padding: 0 6px; } }
 @media (max-width: 760px) {
+  .cdp__lh { padding-right: 0; }
   .cdp { grid-template-columns: minmax(0, 1fr); gap: 16px; }
   .cdp__cases { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; margin: 0 -20px; padding: 4px 20px 6px; scroll-snap-type: x mandatory; }
   .cdp__cases::-webkit-scrollbar { display: none; }
