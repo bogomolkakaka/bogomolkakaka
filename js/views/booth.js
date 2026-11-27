@@ -41,7 +41,6 @@ function makeFrameThumbs(opts) {
         const cv = document.createElement('canvas'); cv.width = cv.height = T;
         const c = cv.getContext('2d');
         c.fillStyle = '#E9EBF2'; c.fillRect(0, 0, T, T);
-        if (f.id === 'clear') { c.fillStyle = '#D5D8E2'; for (let y = 0; y < T; y += 16) for (let x = (y / 16) % 2 ? 16 : 0; x < T; x += 32) c.fillRect(x, y, 16, 16); }
         const wide = strip.width > strip.height;
         const w = wide ? T * .84 : T * .56, h = w * strip.height / strip.width;
         c.save();
@@ -62,7 +61,7 @@ const filterChips = (current, attr, disabled = false) => FILTERS.map(f => `<butt
 const TEXT_COLORS = ['#000000', '#ffffff', '#244EE7', '#E8291F', '#FFD84A', '#FF7AB6'];
 
 export async function mount(root, params, { go }) {
-  const B = { stage: 'idle', stream: null, facing: 'user', mirror: true, filter: 'digicam', frame: 'classic', raw: [], times: [], overlay: [], caption: '', seed: Math.floor(Math.random() * 1e6), sel: -1, cams: 0, busy: false, custom: [], framesOff: [] };
+  const B = { stage: 'idle', stream: null, facing: 'user', mirror: true, filter: 'digicam', frame: FRAMES[0].id, raw: [], times: [], overlay: [], caption: '', seed: Math.floor(Math.random() * 1e6), sel: -1, cams: 0, busy: false, custom: [], framesOff: [] };
   let raf = 0, alive = true, composeToken = 0;
 
   root.innerHTML = `<div class="page booth-page">
@@ -118,6 +117,7 @@ export async function mount(root, params, { go }) {
     if (B.framesOff.includes(B.frame)) B.frame = (FRAMES.find(f => !B.framesOff.includes(f.id)) || FRAMES[0]).id;
   } catch (e) { /* defaults */ }
   const frames = () => FRAMES.filter(f => !B.framesOff.includes(f.id));
+  const captionLabel = () => B.frame === 'choco' ? 'Название шоколадки' : B.frame === 'film' ? 'Надпись на краю плёнки' : 'Подпись';
 
   /* ---------- panel ---------- */
   // On phones the shutter sits in the booth sign, right where a camera lens would be:
@@ -309,7 +309,6 @@ export async function mount(root, params, { go }) {
     holder.getContext('2d').drawImage(cv, 0, 0);
     const stage = $('#strip-stage', root);
     stage.style.aspectRatio = `${cv.width} / ${cv.height}`;
-    stage.classList.toggle('is-wide', B.frame === 'idcard');
     sizeOverlay();
   }
   function openEditor() {
@@ -329,7 +328,7 @@ export async function mount(root, params, { go }) {
           <div class="filters filters--small" role="radiogroup" aria-label="Фильтр">${filterChips(B.filter, 'data-efilter')}</div></div>
         <div class="panel__group"><h3 class="panel__title">Рамка</h3>
           <div class="frames" role="radiogroup" aria-label="Рамка">${frameChips(frames(), B.frame, 'data-eframe')}</div></div>
-        <div class="field"><label for="caption">${B.frame === 'idcard' ? 'Имя на карточке' : 'Подпись'}</label><input id="caption" maxlength="28" placeholder="${B.frame === 'idcard' ? 'Твоё имя' : 'Что-нибудь коротко'}" value="${esc(B.caption)}"></div>
+        <div class="field"><label for="caption">${captionLabel()}</label><input id="caption" maxlength="28" placeholder="${B.frame === 'choco' ? 'Например, Настёнка' : 'Что-нибудь коротко'}" value="${esc(B.caption)}"></div>
         <div class="panel__group"><h3 class="panel__title">Стикеры</h3>
           <div class="tray" role="list">${stickerBtns.map(s => `<button class="tray__s" type="button" role="listitem" data-sticker="${esc(s.id)}" data-src="${esc(s.id ? '' : s.src)}" aria-label="Добавить стикер: ${esc(s.name)}" title="${esc(s.name)}"><img src="${esc(s.src)}" alt="" ${/^https?:/.test(s.src) ? 'crossorigin="anonymous"' : ''}></button>`).join('')}</div></div>
         <div class="panel__group"><h3 class="panel__title">Надписи</h3>
@@ -452,7 +451,7 @@ export async function mount(root, params, { go }) {
     try {
       const { blob, w, h: hh } = await finalStrip(.6, 'image/jpeg', .84);
       const url = await upload('wall', blob, 'jpg');
-      const ww = B.frame === 'idcard' ? 420 : 230, wh = Math.round(ww * hh / w);
+      const ww = 230, wh = Math.round(ww * hh / w);
       await wall.add({ day: todayKey(), kind: 'strip', x: rand(300, WORLD.w - ww - 300), y: rand(120, Math.max(130, WORLD.h - wh - 80)), w: ww, h: wh, rot: rand(-7, 7), z: Math.floor(Date.now() / 1000) % 1e9, data: { src: url } });
       sound.play('win');
       btn.textContent = 'На стене ✓';
@@ -470,7 +469,7 @@ export async function mount(root, params, { go }) {
     const ef = t.closest('[data-efilter]'); if (ef) { B.filter = ef.dataset.efilter; $$('[data-efilter]', root).forEach(b => b.setAttribute('aria-checked', String(b === ef))); sound.play('click'); recompose(); renderSlots(); return; }
     const efr = t.closest('[data-eframe]'); if (efr) {
       B.frame = efr.dataset.eframe; $$('[data-eframe]', root).forEach(b => b.setAttribute('aria-checked', String(b === efr)));
-      const lab = $('label[for="caption"]', root); if (lab) lab.textContent = B.frame === 'idcard' ? 'Имя на карточке' : 'Подпись';
+      const lab = $('label[for="caption"]', root); if (lab) lab.textContent = captionLabel(); const inp = $('#caption', root); if (inp) inp.placeholder = B.frame === 'choco' ? 'Например, Настёнка' : 'Что-нибудь коротко';
       sound.play('click'); recompose(); return;
     }
     const st = t.closest('[data-sticker]'); if (st) { addSticker(st.dataset.sticker, st.dataset.src || ''); return; }
