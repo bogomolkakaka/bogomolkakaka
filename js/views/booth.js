@@ -1,6 +1,6 @@
 import { CONFIG } from '../config.js';
 import { $, $$, esc, h, ICON, sound, toast, sleep, clamp, todayKey, fmtDay, download, resizeToBlob, fileToImage, rand, reducedMotion, plural } from '../util.js';
-import { FilterEngine, FILTERS } from '../booth-gl.js';
+import { FilterEngine, FILTERS, STAMPS, stampText } from '../booth-gl.js';
 import { FRAMES, geometry, composeStrip, ensureFonts } from '../booth-strip.js';
 import { BUILTIN, stickerURL } from '../stickers.js';
 import { earned } from '../progress.js';
@@ -8,6 +8,27 @@ import { wall, upload, config, stickers as stickerStore, state as storeState } f
 import { WORLD } from '../wallmini.js';
 
 const FW = 800, FH = 600;
+// filter previews: the studio owner's photo run through each real filter, made once per visit
+const SAMPLE = 'assets/booth/sample.jpg';
+const THUMBS = {};
+let thumbsPending = null;
+function makeThumbs() {
+  if (thumbsPending) return thumbsPending;
+  thumbsPending = new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const cv = document.createElement('canvas'); cv.width = cv.height = 192;
+      const eng = new FilterEngine(cv);
+      for (const f of FILTERS) { try { if (eng.render(img, f.id, { time: 1 })) THUMBS[f.id] = cv.toDataURL('image/jpeg', .86); } catch (e) { /* keep the plain photo */ } }
+      const lose = eng.gl && eng.gl.getExtension('WEBGL_lose_context'); if (lose) lose.loseContext();
+      resolve(THUMBS);
+    };
+    img.onerror = () => resolve(THUMBS);
+    img.src = SAMPLE;
+  });
+  return thumbsPending;
+}
+const filterChips = (current, attr, disabled = false) => FILTERS.map(f => `<button class="fchip" type="button" role="radio" aria-checked="${current === f.id}" ${attr}="${f.id}" ${disabled ? 'disabled' : ''}><span class="fchip__img"><img src="${THUMBS[f.id] || SAMPLE}" data-thumb="${f.id}" alt="" draggable="false"></span><span class="fchip__name">${esc(f.name)}</span></button>`).join('');
 const TEXT_COLORS = ['#000000', '#ffffff', '#244EE7', '#E8291F', '#FFD84A', '#FF7AB6'];
 
 export async function mount(root, params, { go }) {
@@ -48,8 +69,15 @@ export async function mount(root, params, { go }) {
   const engine = new FilterEngine(live);
   const workCanvas = document.createElement('canvas'); workCanvas.width = FW; workCanvas.height = FH;
   const worker = new FilterEngine(workCanvas);
-  const dateText = (() => { const [y, m, d] = todayKey().split('-'); return `'${y.slice(2)} ${m} ${d}`; })();
-  $('#datestamp', root).textContent = dateText;
+  const today = (() => { const [y, m, d] = todayKey().split('-').map(Number); return new Date(y, m - 1, d); })();
+  let stampShown = '';
+  function showStamp() {
+    const kind = STAMPS[B.filter] || '', ds = $('#datestamp', root);
+    if (kind === stampShown) return;
+    stampShown = kind; ds.hidden = !kind;
+    if (kind) { ds.textContent = stampText(kind, today); ds.className = 'datestamp datestamp--' + kind; }
+  }
+  makeThumbs().then(t => { if (alive) $$('img[data-thumb]', root).forEach(i => { if (t[i.dataset.thumb]) i.src = t[i.dataset.thumb]; }); });
 
   try {
     const [cfg, custom] = await Promise.all([config.all(), stickerStore.list()]);
@@ -76,7 +104,7 @@ export async function mount(root, params, { go }) {
     $('#panel', root).innerHTML = `
       <div class="panel__group">
         <h2 class="panel__title" id="f-title">Фильтр</h2>
-        <div class="filters" role="radiogroup" aria-labelledby="f-title">${FILTERS.map(f => `<button class="fchip" type="button" role="radio" aria-checked="${B.filter === f.id}" data-filter="${f.id}" ${shooting ? 'disabled' : ''}><b>${f.num}</b>${esc(f.name)}</button>`).join('')}</div>
+        <div class="filters" role="radiogroup" aria-labelledby="f-title">${filterChips(B.filter, 'data-filter', shooting)}</div>
       </div>
       <div class="panel__group">
         <h2 class="panel__title" id="fr-title">Рамка</h2>
@@ -156,7 +184,7 @@ export async function mount(root, params, { go }) {
     const step = () => {
       if (!alive || !B.stream) return;
       if (video.readyState >= 2) engine.render(video, B.filter, { mirror: B.mirror });
-      $('#datestamp', root).hidden = B.filter !== 'digicam';
+      showStamp();
       raf = requestAnimationFrame(step);
     };
     raf = requestAnimationFrame(step);
@@ -225,9 +253,14 @@ export async function mount(root, params, { go }) {
       worker.render(r, B.filter, { time: B.times[i] || 1 });
       const c = document.createElement('canvas'); c.width = FW; c.height = FH;
       const g = c.getContext('2d'); g.drawImage(workCanvas, 0, 0);
-      if (B.filter === 'digicam') {
-        g.font = 'bold 30px "Press Start 2P", "Courier New", monospace'; g.textAlign = 'right';
-        g.shadowColor = 'rgba(255,120,0,.9)'; g.shadowBlur = 10; g.fillStyle = '#FF9A2E'; g.fillText(dateText, FW - 34, FH - 34);
+      const kind = STAMPS[B.filter];
+      if (kind) {
+        g.save();
+        g.font = `bold ${kind === 'side' ? 24 : 30}px "Press Start 2P", "Courier New", monospace`;
+        g.shadowColor = 'rgba(255,120,0,.9)'; g.shadowBlur = 10; g.fillStyle = '#FF9A2E';
+        if (kind === 'side') { g.translate(46, FH * .52); g.rotate(Math.PI / 2); g.textAlign = 'left'; g.fillText(stampText(kind, today), 0, 0); }
+        else { g.textAlign = 'right'; g.fillText(stampText(kind, today), FW - 34, FH - 34); }
+        g.restore();
       }
       return c;
     });
@@ -261,7 +294,7 @@ export async function mount(root, params, { go }) {
         <h2 class="editor__title">Укрась ленту</h2>
         <p class="editor__hint">Двигай стикеры и надписи. Круглые ручки поворачивают и меняют размер. Фильтр и рамку можно сменить в любой момент.</p>
         <div class="panel__group"><h3 class="panel__title">Фильтр</h3>
-          <div class="filters filters--small" role="radiogroup" aria-label="Фильтр">${FILTERS.map(f => `<button class="fchip" type="button" role="radio" aria-checked="${B.filter === f.id}" data-efilter="${f.id}"><b>${f.num}</b>${esc(f.name)}</button>`).join('')}</div></div>
+          <div class="filters filters--small" role="radiogroup" aria-label="Фильтр">${filterChips(B.filter, 'data-efilter')}</div></div>
         <div class="panel__group"><h3 class="panel__title">Рамка</h3>
           <div class="frames" role="radiogroup" aria-label="Рамка">${frames().map(f => `<button class="frchip frchip--${f.id}" type="button" role="radio" aria-checked="${B.frame === f.id}" data-eframe="${f.id}"><i aria-hidden="true"></i>${esc(f.name)}</button>`).join('')}</div></div>
         <div class="field"><label for="caption">${B.frame === 'idcard' ? 'Имя на карточке' : 'Подпись'}</label><input id="caption" maxlength="28" placeholder="${B.frame === 'idcard' ? 'Твоё имя' : 'Что-нибудь коротко'}" value="${esc(B.caption)}"></div>
