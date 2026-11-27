@@ -5,10 +5,18 @@ import { loadImg } from './util.js';
 export const FRAMES = [
   { id: 'film', name: 'Плёнка' },
   { id: 'scan', name: 'Скан плёнки' },
-  { id: 'choco', name: 'Шоколадка' }
+  { id: 'choco', name: 'Шоколадка' },
+  { id: 'polaroid', name: 'Полароид', shots: 1 } // single photo
 ];
 const frameId = id => (FRAMES.some(f => f.id === id) ? id : FRAMES[0].id); // strips made with retired frames fall back to film
 const CHOCO_P = 540; // height of one wrapper on the chocolate strip
+// single photo: a tilted polaroid on dark felt
+const PL = { W: 1080, H: 1080, cx: 540, cy: 552, cw: 840, ch: 960, pad: 52, pw: 736, ph: 552, rot: -2.5 };
+function polaroidSlot() {
+  const t = PL.rot * Math.PI / 180, d = -PL.ch / 2 + PL.pad + PL.ph / 2; // photo centre relative to card centre
+  const x = PL.cx - d * Math.sin(t), y = PL.cy + d * Math.cos(t);
+  return { x: x - PL.pw / 2, y: y - PL.ph / 2, w: PL.pw, h: PL.ph, r: 0, rot: PL.rot };
+}
 
 function rr(ctx, x, y, w, h, r) {
   ctx.beginPath();
@@ -20,6 +28,7 @@ function seeded(seed) { let s = seed >>> 0 || 1; return () => { s = (s * 1664525
 export function geometry(frame) {
   switch (frameId(frame)) {
     case 'scan': { const w = 456, h = 342, g = 40, top = 34; return { W: 600, H: top * 2 + 4 * h + 3 * g, slots: [0, 1, 2, 3].map(i => ({ x: 72, y: top + i * (h + g), w, h, r: 6, rot: 0 })) }; }
+    case 'polaroid': return { W: PL.W, H: PL.H, slots: [polaroidSlot()] };
     case 'choco': return { W: 600, H: 4 * CHOCO_P, slots: [0, 1, 2, 3].map(i => ({ x: 54, y: i * CHOCO_P + 54, w: 368, h: 276, r: 0, rot: 0 })) };
     default: { const w = 440, h = 330, g = 16, top = 24; return { W: 600, H: top * 2 + 4 * h + 3 * g, slots: [0, 1, 2, 3].map(i => ({ x: 80, y: top + i * (h + g), w, h, r: 0, rot: 0 })) }; }
   }
@@ -93,6 +102,17 @@ export async function composeStrip(frames, frame, opts = {}, scale = 1) {
       ctx.fillStyle = lit; rr(ctx, x, y, 28, 24, 6); ctx.fill();
     }
   }
+  if (frame === 'polaroid') {
+    ctx.fillStyle = '#1c1c1e'; ctx.fillRect(0, 0, W, H);
+    for (let i = 0; i < 9000; i++) { ctx.fillStyle = rnd() > .5 ? `rgba(255,255,255,${rnd() * .07})` : `rgba(0,0,0,${rnd() * .3})`; ctx.fillRect(rnd() * W, rnd() * H, 1 + rnd() * 1.6, 1 + rnd() * 1.6); }
+    ctx.save(); ctx.translate(PL.cx, PL.cy); ctx.rotate(PL.rot * Math.PI / 180);
+    ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 44; ctx.shadowOffsetY = 20;
+    ctx.fillStyle = '#F2F1EC'; ctx.fillRect(-PL.cw / 2, -PL.ch / 2, PL.cw, PL.ch);
+    ctx.shadowColor = 'transparent';
+    ctx.fillStyle = 'rgba(120,116,104,.11)'; // embossed paper
+    for (let y = -PL.ch / 2 + 4, row = 0; y < PL.ch / 2 - 2; y += 7, row++) for (let x = -PL.cw / 2 + 3 + (row % 2) * 3.5; x < PL.cw / 2 - 2; x += 7) ctx.fillRect(x, y, 1.6, 1.6);
+    ctx.restore();
+  }
   if (frame === 'choco') {
     ctx.fillStyle = '#F1D98F'; ctx.fillRect(0, 0, W, H);
     for (let i = 0; i < 1600; i++) { ctx.fillStyle = `rgba(${rnd() > .5 ? '140,100,30' : '255,250,230'},${rnd() * .09})`; ctx.fillRect(rnd() * W, rnd() * H, 1 + rnd() * 2, 1 + rnd() * 2); }
@@ -118,6 +138,7 @@ export async function composeStrip(frames, frame, opts = {}, scale = 1) {
     if (frame === 'scan') { ctx.shadowColor = 'rgba(255,92,30,.5)'; ctx.shadowBlur = 16; ctx.fillStyle = '#2a1209'; rr(ctx, 0, 0, s.w, s.h, s.r); ctx.fill(); ctx.shadowColor = 'transparent'; }
     rr(ctx, 0, 0, s.w, s.h, s.r); ctx.clip();
     ctx.drawImage(f, 0, 0, s.w, s.h);
+    if (frame === 'polaroid') { ctx.strokeStyle = 'rgba(0,0,0,.18)'; ctx.lineWidth = 4; ctx.strokeRect(0, 0, s.w, s.h); }
     if (frame === 'scan') {
       const v = ctx.createRadialGradient(s.w / 2, s.h / 2, s.h * .45, s.w / 2, s.h / 2, s.w * .7); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(40,12,0,.35)');
       ctx.fillStyle = v; ctx.fillRect(0, 0, s.w, s.h);
@@ -179,6 +200,62 @@ export async function composeStrip(frames, frame, opts = {}, scale = 1) {
       const small = `Шоколад «${name}» ${subs[k]}. Состав: улыбка, ещё одна улыбка, щепотка дерзости, блеск, четыре кадра. Пищевая ценность на 100 г: радость — 99%, ретушь — 0%. Изготовлено в фотобудке ${site || 'bogomolka'}${date ? ', ' + date : ''}. Хранить на стене дня при комнатном настроении.`;
       wrapLines(ctx, small, CHOCO_P - 76).slice(0, 7).forEach((line, n) => vtext(ctx, line, 576 - n * 18, y0 + 38, Math.PI / 2));
     }
+  }
+  if (frame === 'polaroid') {
+    const [ky, km, kd] = (opts.dayKey || '').split('-');
+    const now = new Date(), dd = kd || String(now.getDate()).padStart(2, '0'), mm = km || String(now.getMonth() + 1).padStart(2, '0');
+    ctx.save(); ctx.translate(PL.cx, PL.cy); ctx.rotate(PL.rot * Math.PI / 180);
+    const top = -PL.ch / 2, left = -PL.cw / 2, photoL = left + PL.pad, photoB = top + PL.pad + PL.ph;
+    // marker doodles by the photo corners
+    ctx.strokeStyle = '#141414'; ctx.lineCap = 'round'; ctx.lineWidth = 7;
+    [[photoL + 70, photoB - 80, Math.PI * 1.05], [photoL + PL.pw - 60, top + PL.pad + 150, -Math.PI * .15]].forEach(([x, y, a0]) => {
+      for (let k = -1; k <= 1; k++) { const a = a0 + k * .5; ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * 22, y + Math.sin(a) * 22); ctx.lineTo(x + Math.cos(a) * 52, y + Math.sin(a) * 52); ctx.stroke(); }
+    });
+    // handwritten caption in black marker; long ones break into two staggered lines
+    const text = caption || 'фото дня', maxW = 560;
+    ctx.fillStyle = '#121212'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    const fontAt = fs => `700 ${fs}px "Caveat", cursive`;
+    ctx.font = fontAt(150);
+    let lines = [text];
+    if (ctx.measureText(text).width > maxW && text.includes(' ')) {
+      const words = text.split(' '); let best = 1, diff = Infinity;
+      for (let k = 1; k < words.length; k++) { const d = Math.abs(ctx.measureText(words.slice(0, k).join(' ')).width - ctx.measureText(words.slice(k).join(' ')).width); if (d < diff) { diff = d; best = k; } }
+      lines = [words.slice(0, best).join(' '), words.slice(best).join(' ')];
+    }
+    lines.forEach((ln, n) => {
+      let fs = lines.length > 1 ? 130 : 150; ctx.font = fontAt(fs);
+      while (ctx.measureText(ln).width > maxW - n * 60 && fs > 54) { fs -= 6; ctx.font = fontAt(fs); }
+      ctx.save(); ctx.translate(left + 64 + n * 110, photoB + (lines.length > 1 ? 104 + n * 128 : 170)); ctx.rotate(-.03 + n * .02); ctx.fillText(ln, 0, 0); ctx.restore();
+    });
+    // green tape-like label at the top-left corner
+    ctx.save(); ctx.translate(left + 150, top + 128); ctx.rotate(-.14);
+    const sw = 410, sh = 212;
+    const gg = ctx.createLinearGradient(-sw / 2, -sh / 2, sw / 2, sh / 2); gg.addColorStop(0, '#8FEC5A'); gg.addColorStop(.55, '#6CD43C'); gg.addColorStop(1, '#88E553');
+    ctx.shadowColor = 'rgba(0,0,0,.38)'; ctx.shadowBlur = 16; ctx.shadowOffsetY = 7;
+    ctx.fillStyle = gg; rr(ctx, -sw / 2, -sh / 2, sw, sh, 12); ctx.fill(); ctx.shadowColor = 'transparent';
+    ctx.strokeStyle = 'rgba(255,255,255,.28)'; ctx.lineWidth = 3;
+    [[-150, -100, -60, 100], [40, -104, 120, 104], [150, -60, 200, 40]].forEach(([a, b, c, d]) => { ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(c, d); ctx.stroke(); });
+    ctx.fillStyle = '#17220F'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const fitFont = (str, font, size, max) => { let fs = size; ctx.font = font(fs); while (ctx.measureText(str).width > max && fs > 18) { fs -= 2; ctx.font = font(fs); } };
+    const dela = fs => `${fs}px "Dela Gothic One", "Arial Black", sans-serif`;
+    fitFont('ВЫБЕРИ МЕНЯ', dela, 46, sw - 50); ctx.fillText('ВЫБЕРИ МЕНЯ', 0, -58);
+    ctx.font = dela(44); const wI = ctx.measureText('И ').width; ctx.font = '700 68px "Caveat", cursive'; const wA = ctx.measureText('всегда').width;
+    ctx.textAlign = 'left'; ctx.font = dela(44); ctx.fillText('И ', -(wI + wA) / 2, 4); ctx.font = '700 68px "Caveat", cursive'; ctx.fillText('всегда', -(wI + wA) / 2 + wI, 0);
+    ctx.textAlign = 'center'; fitFont('БУДЬ СЧАСТЛИВЕЕ!', dela, 40, sw - 44); ctx.fillText('БУДЬ СЧАСТЛИВЕЕ!', 0, 64);
+    ctx.restore();
+    // pink round sticker with the date, a little crumpled
+    ctx.save(); ctx.translate(left + PL.cw - 64, photoB - 6); ctx.rotate(.12);
+    const pg = ctx.createRadialGradient(-34, -44, 10, 0, 0, 132); pg.addColorStop(0, '#FFA6D0'); pg.addColorStop(.7, '#FF62AA'); pg.addColorStop(1, '#EE4699');
+    ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 16; ctx.shadowOffsetY = 7;
+    ctx.fillStyle = pg; ctx.beginPath(); ctx.arc(0, 0, 126, 0, Math.PI * 2); ctx.fill(); ctx.shadowColor = 'transparent';
+    ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(30, 20, 84, -.4, .7); ctx.stroke();
+    ctx.strokeStyle = 'rgba(150,20,80,.18)'; ctx.beginPath(); ctx.arc(-20, 10, 96, 2.2, 3.3); ctx.stroke();
+    ctx.fillStyle = '#111'; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+    ctx.font = '700 80px "Caveat", cursive'; ctx.fillText(`${dd}/${mm}`, 0, -14);
+    ctx.font = '700 60px "Caveat", cursive'; ctx.fillText('~', 0, 26);
+    ctx.font = '700 50px "Caveat", cursive'; ctx.fillText('навсегда', 0, 76);
+    ctx.restore();
+    ctx.restore();
   }
   ctx.textBaseline = 'alphabetic';
 
