@@ -97,6 +97,7 @@ export async function mount(root, params, { go }) {
   function renderIdle(msg = '') {
     const idle = $('#idle', root);
     idle.hidden = !!B.stream;
+    $('#screen', root).classList.toggle('is-idle', !B.stream);
     if (B.stream) return;
     idle.innerHTML = `<div><p class="idle__big">Улыбнись, ты в интернете</p>
       ${msg ? `<p class="idle__err" role="alert">${msg}</p>` : `<p class="idle__small">Нажми <b>Включить камеру</b> и разреши доступ. Картинка остаётся на этом устройстве.</p>`}
