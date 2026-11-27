@@ -1,5 +1,5 @@
 import { CONFIG } from '../config.js';
-import { $, $$, esc, h, ICON, sound, toast, clamp, rand, todayKey, fmtDay, msToNextDay, addDays, openModal, confirmBox, resizeToBlob, lsGet, lsSet, plural } from '../util.js';
+import { $, $$, esc, h, ICON, sound, toast, clamp, rand, todayKey, fmtDay, msToNextDay, addDays, openModal, confirmBox, resizeToBlob, fileToImage, lsGet, lsSet, plural } from '../util.js';
 import { wall, upload, prompts, stickers as stickerStore, state } from '../store.js';
 import { BUILTIN, stickerURL, medalSVG, svgURL } from '../stickers.js';
 import { earned } from '../progress.js';
@@ -99,7 +99,7 @@ export async function mountBoard(root, { day, live, back }) {
       }
       case 'whisper': return `<span class="wi__psst" aria-hidden="true">пссс</span><p class="wi__text">${esc(d.text || '')}</p>`;
       case 'sticker': return `<img src="${esc(d.src || stickerURL(d.sticker))}" alt="${esc(d.name || 'стикер')}" draggable="false">`;
-      case 'image': return `<img src="${esc(d.src)}" alt="Картинка, которую кто-то приколол" draggable="false" loading="lazy">`;
+      case 'image': return `<img src="${esc(d.src)}" alt="${d.gif ? 'Гифка' : 'Картинка'}, которую кто-то приколол" draggable="false" loading="lazy" referrerpolicy="no-referrer">`;
       case 'strip': return `<img src="${esc(d.src)}" alt="Фотолента из фотобудки" draggable="false" loading="lazy">`;
       case 'medal': return `<img src="${esc(svgURL(medalSVG(d)))}" alt="Медаль «Забега дизайнера»: ${esc(d.title || '')}" draggable="false">`;
       case 'drawing': return `<svg viewBox="0 0 ${it.w} ${it.h}" preserveAspectRatio="none" aria-label="Рисунок">${(d.paths || []).map(p => {
@@ -127,9 +127,10 @@ export async function mountBoard(root, { day, live, back }) {
     el.style.transform = `rotate(${it.rot}deg)`; el.style.zIndex = 10 + Math.max(0, Math.min(it.z | 0, 2e9));
     if (it.kind === 'note' || it.kind === 'whisper') el.style.setProperty('--paper', NOTE_COLORS[it.data.color] || (it.kind === 'whisper' ? '#fff' : NOTE_COLORS.yellow));
     if (it.kind === 'note') el.classList.toggle('is-dark', it.data.color === 'cobalt');
-    el.setAttribute('aria-label', `${LABEL[it.kind] || 'Объект'}${it.data && it.data.text ? ': ' + it.data.text : ''}${mine ? '. Твоё: стрелки двигают, Delete удаляет.' : ''}`);
+    const label = it.kind === 'image' && it.data && it.data.gif ? 'Гифка' : LABEL[it.kind];
+    el.setAttribute('aria-label', `${label || 'Объект'}${it.data && it.data.text ? ': ' + it.data.text : ''}${mine ? '. Твоё: стрелки двигают, Delete удаляет.' : ''}`);
     el.innerHTML = contentHTML(it) + (mine ? `<div class="wi__h" aria-hidden="true"><button type="button" class="hd hd--del" data-h="del" tabindex="-1" title="Удалить">${ICON.close}</button><span class="hd hd--rot" data-h="rot" title="Повернуть">${ICON.rotate}</span><span class="hd hd--size" data-h="size" title="Размер">${ICON.resize}</span></div>`
-      : (live ? `<button type="button" class="wi__flag" data-act="report" title="Пожаловаться" aria-label="Пожаловаться: ${(LABEL[it.kind] || 'объект').toLowerCase()}">${ICON.flag}</button>` : ''));
+      : (live ? `<button type="button" class="wi__flag" data-act="report" title="Пожаловаться" aria-label="Пожаловаться: ${(label || 'объект').toLowerCase()}">${ICON.flag}</button>` : ''));
   }
   function upsert(it) {
     if (S.hidden.has(it.id)) return;
@@ -191,21 +192,114 @@ export async function mountBoard(root, { day, live, back }) {
       <button class="tool" type="button" data-act="draw"><span class="tool__ic tool__ic--draw"></span>Рисунок</button>
       <button class="tool" type="button" data-act="sticker"><span class="tool__ic tool__ic--sticker"></span>Стикер</button>
       <label class="tool"><span class="tool__ic tool__ic--image"></span>Картинка<input type="file" accept="image/*" id="pic" hidden></label>
+      <button class="tool" type="button" data-act="gif"><span class="tool__ic tool__ic--gif"></span>GIF</button>
       <a class="tool" href="#/booth"><span class="tool__ic tool__ic--strip"></span>Лента</a>
       ${medal && !medal.used ? `<button class="tool tool--medal" type="button" data-act="medal"><span class="tool__ic tool__ic--medal"></span>Моя медаль</button>` : ''}`;
-    $('#pic', root).addEventListener('change', async e => {
-      const f = e.target.files[0]; e.target.value = '';
-      if (!f) return;
-      if (f.size > 25 * 1024 * 1024) { toast('Файл слишком большой. Выбери картинку меньше 25 МБ.', true); return; }
-      try {
-        toast('Прикалываю картинку…');
-        const { blob, width, height } = await resizeToBlob(f, state.mode === 'cloud' ? 1000 : 520, 'image/jpeg', .82);
-        const url = await upload('wall', blob, 'jpg');
-        const w = 300, hh = Math.round(300 * height / width);
-        await add('image', { src: url }, w, clamp(hh, 60, 900));
-      } catch (er) { toast(er.message && er.code ? er.message : 'Не получилось прочитать картинку. Попробуй JPEG или PNG.', true); }
+    $('#pic', root).addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; addPictureFile(f); });
+  }
+
+  /* ---------- pictures and gifs from outside: file, link, paste, drop ---------- */
+  const isGif = f => f.type === 'image/gif' || /\.gif$/i.test(f.name || '');
+  async function addPictureFile(f) {
+    if (!f) return;
+    if (isGif(f)) return addGifFile(f); // a GIF keeps its animation: no re-encoding
+    if (f.size > 25 * 1024 * 1024) { toast('Файл слишком большой. Выбери картинку меньше 25 МБ.', true); return; }
+    try {
+      toast('Прикалываю картинку…');
+      const { blob, width, height } = await resizeToBlob(f, state.mode === 'cloud' ? 1000 : 520, 'image/jpeg', .82);
+      const url = await upload('wall', blob, 'jpg');
+      const w = 300, hh = Math.round(300 * height / width);
+      await add('image', { src: url }, w, clamp(hh, 60, 900));
+    } catch (er) { toast(er.message && er.code ? er.message : 'Не получилось прочитать картинку. Попробуй JPEG или PNG.', true); }
+  }
+  function placeGif(src, nw, nh) { const w = 280; return add('image', { src, gif: true }, w, clamp(Math.round(w * (nh || 1) / (nw || 1)), 60, 900)); }
+  async function addGifFile(f) {
+    // without the database the wall lives in this browser's small storage, so local GIFs must stay light
+    const maxMB = state.mode === 'cloud' ? 5 : 2;
+    if (f.size > maxMB * 1024 * 1024) { toast(`Гифка тяжеловата: можно до ${maxMB} МБ. Возьми поменьше или прикрепи её ссылкой.`, true); return false; }
+    try {
+      toast('Прикалываю гифку…');
+      const img = await fileToImage(f);
+      const url = await upload('wall', f.type === 'image/gif' ? f : new Blob([f], { type: 'image/gif' }), 'gif');
+      return !!(await placeGif(url, img.naturalWidth, img.naturalHeight));
+    } catch (er) { toast(er.message && er.code ? er.message : 'Не получилось прочитать гифку. Попробуй другой файл.', true); return false; }
+  }
+  // Turns what people copy from Giphy or Tenor (a page link) into the address of the GIF itself.
+  function gifLink(raw) {
+    const m = String(raw || '').match(/https?:\/\/[^\s<>"']+/i);
+    if (!m) return null;
+    let u; try { u = new URL(m[0].replace(/^http:/i, 'https:')); } catch (e) { return null; }
+    const host = u.hostname.replace(/^www\./, ''), path = u.pathname.replace(/\/+$/, '');
+    if (host === 'giphy.com') {
+      const g = path.match(/^\/(?:gifs|stickers|embed|clips)\/(?:[\w-]*-)?([A-Za-z0-9]+)(?:\/.*)?$/);
+      if (g) return `https://i.giphy.com/${g[1]}.gif`;
+    }
+    if (host === 'tenor.com' && !/\.gif$/i.test(path)) {
+      const t = path.match(/^(?:\/[a-z]{2,3}(?:-[A-Za-z]{2,4})?)?\/view\/([\w-]+)$/);
+      if (t) return `https://tenor.com/view/${t[1]}.gif`; // Tenor serves the GIF when «.gif» is added to the page address
+      if (/^\/[A-Za-z0-9]+$/.test(path)) return `https://tenor.com${path}.gif`;
+    }
+    return u.href;
+  }
+  const probeImg = src => new Promise((res, rej) => {
+    const i = new Image(); i.referrerPolicy = 'no-referrer';
+    const t = setTimeout(() => rej(new Error('timeout')), 15000);
+    i.onload = () => { clearTimeout(t); res(i); }; i.onerror = () => { clearTimeout(t); rej(new Error('load')); };
+    i.src = src;
+  });
+  async function addGifLink(raw) {
+    const src = gifLink(raw);
+    if (!src) { toast('Это не похоже на ссылку. Скопируй адрес гифки целиком, вместе с https://', true); return false; }
+    toast('Ищу гифку…');
+    let img;
+    try { img = await probeImg(src); }
+    catch (e) { toast('По этой ссылке не нашлась сама гифка. Сохрани её на устройство и выбери файлом — или скопируй саму картинку и вставь сюда.', true); return false; }
+    return !!(await placeGif(src, img.naturalWidth, img.naturalHeight));
+  }
+  function gifDialog() {
+    const m = openModal(`<h2>Прикрепить гифку</h2>
+      <p>Вставь ссылку на гифку с Giphy, Tenor или любого сайта. Ещё можно выбрать файл с устройства или вставить скопированную картинку.</p>
+      <div class="field"><label for="gl">Ссылка на гифку</label><input id="gl" type="url" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://giphy.com/gifs/…"></div>
+      <div class="modal__actions"><label class="btn btn--ghost">${ICON.upload}Файл с устройства<input type="file" accept="image/gif,image/*" id="gf" hidden></label><button class="btn btn--primary" type="button" id="gl-go">Приколоть</button></div>`, { label: 'Прикрепить гифку' });
+    const inp = $('#gl', m.el), btn = $('#gl-go', m.el);
+    const go = async () => {
+      if (!inp.value.trim()) { inp.focus(); return; }
+      btn.disabled = true;
+      if (await addGifLink(inp.value)) m.close(); else { btn.disabled = false; inp.focus(); }
+    };
+    btn.addEventListener('click', go);
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); go(); } });
+    $('#gf', m.el).addEventListener('change', e => { const f = e.target.files[0]; e.target.value = ''; if (f) { m.close(); addPictureFile(f); } });
+    m.el.addEventListener('paste', e => {
+      const f = [...((e.clipboardData && e.clipboardData.files) || [])].find(x => x.type.startsWith('image/'));
+      if (f) { e.preventDefault(); m.close(); addPictureFile(f); }
     });
   }
+  const canAdd = () => S.alive && S.live && S.day === todayKey() && S.mode !== 'draw' && !!$('#dock', root);
+  const firstImage = list => [...(list || [])].find(x => x.type && x.type.startsWith('image/'));
+  // paste anywhere on the wall page: a copied picture or GIF, or a link to one
+  const onPaste = e => {
+    if (!canAdd() || (e.target.closest && e.target.closest('input, textarea, [contenteditable], .modal'))) return;
+    const cd = e.clipboardData; if (!cd) return;
+    const f = firstImage(cd.files);
+    if (f) { e.preventDefault(); addPictureFile(f); return; }
+    const t = cd.getData('text/plain') || '';
+    if (/^\s*https?:\/\/\S+\s*$/i.test(t)) { e.preventDefault(); addGifLink(t); }
+  };
+  document.addEventListener('paste', onPaste);
+  // drag a GIF from another tab, a folder or the desktop straight onto the wall
+  const dropKinds = e => [...((e.dataTransfer && e.dataTransfer.types) || [])].some(t => t === 'Files' || t === 'text/uri-list');
+  vp.addEventListener('dragover', e => { if (canAdd() && dropKinds(e)) { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; vp.classList.add('is-drop'); } });
+  vp.addEventListener('dragleave', e => { if (!vp.contains(e.relatedTarget)) vp.classList.remove('is-drop'); });
+  vp.addEventListener('drop', e => {
+    vp.classList.remove('is-drop');
+    if (!canAdd() || !dropKinds(e)) return;
+    e.preventDefault();
+    const f = firstImage(e.dataTransfer.files);
+    if (f) { addPictureFile(f); return; }
+    const u = (e.dataTransfer.getData('text/uri-list') || '').split(/\r?\n/).find(l => l && !l.startsWith('#')) || e.dataTransfer.getData('text/plain');
+    if (u) addGifLink(u);
+  });
   function noteDialog(kind) {
     const isNote = kind === 'note';
     let color = isNote ? 'yellow' : 'white';
@@ -400,6 +494,7 @@ export async function mountBoard(root, { day, live, back }) {
       case 'note': noteDialog('note'); break;
       case 'whisper': noteDialog('whisper'); break;
       case 'sticker': stickerDialog(); break;
+      case 'gif': gifDialog(); break;
       case 'draw': S.mode === 'draw' ? exitDraw() : enterDraw(); break;
       case 'draw-undo': S.drawPaths.pop(); drawDraft(); break;
       case 'draw-cancel': exitDraw(); break;
@@ -471,5 +566,6 @@ export async function mountBoard(root, { day, live, back }) {
     window.removeEventListener('pointerup', onUp);
     window.removeEventListener('pointercancel', onUp);
     window.removeEventListener('resize', onResize);
+    document.removeEventListener('paste', onPaste);
   };
 }
