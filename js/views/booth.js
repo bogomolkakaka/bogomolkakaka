@@ -86,12 +86,12 @@ export async function mount(root, params, { go }) {
         <label class="switch"><input type="checkbox" id="mirror" ${B.mirror ? 'checked' : ''} ${shooting ? 'disabled' : ''}><span aria-hidden="true"></span>Зеркально</label>
         ${B.cams > 1 && B.stream ? `<button class="btn btn--ghost btn--small" type="button" data-act="flip" ${shooting ? 'disabled' : ''}>${ICON.redo}Другая камера</button>` : ''}
       </div>
-      <div class="panel__go">
-        ${B.stream ? `<button class="arcade arcade--red" type="button" data-act="shoot" ${shooting ? 'disabled' : ''}><span>${shooting ? 'Улыбку!' : 'Снимать'}</span></button>`
-          : `<button class="arcade arcade--yellow" type="button" data-act="camera"><span>Включить камеру</span></button>`}
+      ${B.stream ? `<div class="panel__go">
+        <button class="arcade arcade--red" type="button" data-act="shoot" ${shooting ? 'disabled' : ''}><span>${shooting ? 'Улыбку!' : 'Снимать'}</span></button>
         <label class="btn btn--text upload-link">${ICON.upload}Или загрузить 1–4 фото<input type="file" id="upload" accept="image/*" multiple hidden></label>
-      </div>`;
-    $('#upload', root).addEventListener('change', e => { const files = [...e.target.files]; e.target.value = ''; if (files.length) fromFiles(files); });
+      </div>` : ''}`;
+    // with the camera off, «Включить камеру» and «Загрузить фото» live only on the screen
+    $('#upload', root)?.addEventListener('change', e => { const files = [...e.target.files]; e.target.value = ''; if (files.length) fromFiles(files); });
     $('#mirror', root).addEventListener('change', e => { B.mirror = e.target.checked; sound.play('click'); });
   }
   function renderIdle(msg = '') {
