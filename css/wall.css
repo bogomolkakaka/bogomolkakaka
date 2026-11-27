@@ -68,6 +68,8 @@
 .tool__ic--draw { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 30'><path d='M3 22c6-12 10 8 16-4s8 6 12-2' fill='none' stroke='%23244EE7' stroke-width='4' stroke-linecap='round'/></svg>"); }
 .tool__ic--sticker { background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 30'><path d='M17 2l4 9 10 1-7 7 2 10-9-5-9 5 2-10-7-7 10-1z' fill='%23FFD84A' stroke='black' stroke-width='2' stroke-linejoin='round'/></svg>"); }
 .tool__ic--image { background: var(--sky); border: 3px solid #fff; box-shadow: 0 0 0 1.5px #000; background-image: linear-gradient(135deg, transparent 55%, #244EE7 55%); }
+.tool__ic--gif { background: #FFB8D9; box-shadow: 0 0 0 1.5px #000, 2px 3px 0 rgba(0, 0, 0, .2); transform: rotate(4deg); background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 30'><text x='17' y='20' text-anchor='middle' font-family='Arial Black, Arial, sans-serif' font-weight='900' font-size='12' fill='black'>GIF</text></svg>"); }
+.viewport.is-drop { outline: 4px dashed var(--cobalt); outline-offset: -10px; }
 .tool__ic--strip { width: 16px; background: #fff; box-shadow: 0 0 0 1.5px #000; background-image: linear-gradient(#FFB8D9 0 20%, #fff 20% 26%, #FFB8D9 26% 46%, #fff 46% 52%, #FFB8D9 52% 72%, #fff 72% 78%, #FFB8D9 78%); }
 .tool__ic--medal { border-radius: 50%; width: 28px; height: 28px; background: var(--yellow); box-shadow: 0 0 0 2px #000; }
 .tool--medal { background: #FFF3C4; }
