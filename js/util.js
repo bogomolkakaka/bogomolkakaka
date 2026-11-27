@@ -190,7 +190,6 @@ export const ICON = {
   stuff: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 7a2 2 0 012-2h5l2 2h9a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2z" fill="#244EE7"/><path d="M2 10h20v8a2 2 0 01-2 2H4a2 2 0 01-2-2z" fill="#5577F2"/><rect x="6" y="3" width="10" height="7" fill="#FFD84A" transform="rotate(-6 11 6)"/></svg>',
   capsule: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="3" fill="#fff" stroke="#000" stroke-width="1.6"/><rect x="3" y="4" width="18" height="5" rx="2" fill="#E8291F"/><path d="M8 2v4M16 2v4" stroke="#000" stroke-width="2" stroke-linecap="round"/><text x="12" y="18.5" font-size="8" text-anchor="middle" font-family="Arial Black, sans-serif" fill="#000">12</text></svg>',
   films: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2" fill="#111"/><rect x="4" y="7" width="16" height="5" rx="1" fill="#FFD84A"/><circle cx="8" cy="15.5" r="2" fill="#fff"/><circle cx="16" cy="15.5" r="2" fill="#fff"/><rect x="10" y="14.5" width="4" height="2" fill="#E8291F"/></svg>',
-  blog: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2h-8l-5 4v-4H5a2 2 0 01-2-2z" fill="#5B1FD8"/><path d="M7 8h10M7 12h6" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="17" cy="12" r="1.6" fill="#C9A6F7"/></svg>',
   admin: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" fill="#000"/><path d="M8 11V8a4 4 0 018 0v3" stroke="#000" stroke-width="2" fill="none"/><circle cx="12" cy="16" r="1.6" fill="#FFD84A"/></svg>',
   logo: '<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3c2 4 6 6 10 5-2 4-1 9 2 12-4 0-8 3-9 7-2-3-6-5-10-4 1-4-1-9-5-11 4-1 8-4 9-8z" fill="#FFD84A" stroke="#fff" stroke-width="1.5"/><circle cx="13" cy="15" r="1.6"/><circle cx="19" cy="15" r="1.6"/><path d="M13.5 19.5c1.5 1.2 3.5 1.2 5 0" stroke="#000" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>'
 };
@@ -201,7 +200,6 @@ const ALL_SECTIONS = [
   { id: 'booth', name: 'Фотобудка', short: 'Фотобудка', hint: 'Четыре кадра, восемь фильтров, одна полоска', icon: 'booth' },
   { id: 'wall', name: 'Стена дня', short: 'Стена', hint: 'Общий коллаж, каждый день с чистого листа', icon: 'wall' },
   { id: 'run', name: 'Игры', short: 'Игры', hint: 'Забег дизайнера, мемори, змейка и тренажёр', icon: 'run' },
-  { id: 'blog', name: 'Из спора в блог', short: 'Блог', hint: 'Бродилка в пяти кадрах про спор о дейликах', icon: 'blog' },
   { id: 'objects', name: 'Маленькие объекты', short: 'Объекты', hint: 'Фигурки ручной работы с моей полки', icon: 'objects' },
   { id: 'films', name: 'Видеопрокат', short: 'Прокат', hint: 'Фильмы и сериалы, которые стоит посмотреть', icon: 'films' },
   { id: 'stuff', name: 'Мои работы', short: 'Работы', hint: 'Постеры, 3D и всякие эксперименты', icon: 'stuff' },
