@@ -10,7 +10,6 @@ const VIEWS = {
   wall: () => import('./views/wall.js'),
   capsule: () => import('./views/capsule.js'),
   run: () => import('./views/run.js'),
-  blog: () => import('./views/blog.js'),
   objects: () => import('./views/objects.js'),
   stuff: () => import('./views/stuff.js'),
   films: () => import('./views/films.js'),
@@ -35,6 +34,8 @@ function parseRoute() {
 export function go(path) { location.hash = path.startsWith('#') ? path : '#/' + path.replace(/^\//, ''); }
 
 async function route() {
+  // the blog game lives only at its own address now; old #/blog links go there
+  if (/^#\/?blog(\/.*)?$/.test(location.hash)) { location.replace('blog/'); return; }
   const { id, params } = parseRoute();
   closeMenu();
   if (current.id === id && current.mod && current.mod.update) { current.mod.update(params); renderTaskbar(); return; }
