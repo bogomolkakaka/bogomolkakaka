@@ -112,7 +112,8 @@ export async function mount(root) {
   desk.addEventListener('dragstart', e => e.preventDefault());
   $('#desk-cd').addEventListener('click', () => { sound.play('click'); openPlayer(); });
   // the stack shows the visitor's own discs (cases stay generic while there are none)
-  myDiscs().then(discs => {
+  myDiscs().then(all => {
+    const discs = all.filter(d => d.tracks.length);
     if (!discs.length || !root.isConnected) return;
     // the front case (the last one in the markup) shows the first disc, the ones behind show the rest
     const cases = $$('.dcd__case', root).reverse();
