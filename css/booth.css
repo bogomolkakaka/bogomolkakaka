@@ -82,7 +82,6 @@
 .editor__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 460px); gap: clamp(20px, 4vw, 56px); align-items: start; }
 .editor__preview { display: grid; justify-items: center; position: sticky; top: 16px; }
 .strip-stage { position: relative; height: min(80vh, 900px); max-width: 100%; box-shadow: 10px 14px 0 rgba(16, 30, 90, .14); background: repeating-conic-gradient(#e3e6ee 0 25%, #f4f5f8 0 50%) 0 0 / 18px 18px; }
-.strip-stage.is-wide { height: auto; width: 100%; }
 .strip-stage canvas { display: block; width: 100%; height: 100%; }
 .overlay { position: absolute; inset: 0; overflow: hidden; }
 .ov { position: absolute; touch-action: none; user-select: none; outline: none; }
