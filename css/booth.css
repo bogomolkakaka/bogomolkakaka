@@ -19,6 +19,9 @@
 .screen.is-shooting { box-shadow: inset 0 0 0 2px #2b3150, 0 0 0 4px var(--red); }
 .datestamp { position: absolute; right: 4.5%; bottom: 5%; font-family: var(--font-pixel); font-size: clamp(10px, 1.6vw, 18px); color: #FF9A2E; text-shadow: 0 0 8px rgba(255, 120, 0, .9); pointer-events: none; }
 .screen__idle { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 20px; color: #fff; background: radial-gradient(circle at 50% 40%, #1d2a6b, #0b0d18 70%); }
+/* without the camera the screen holds text and buttons: it keeps at least 4:3 but grows on narrow phones instead of cutting them off */
+.screen.is-idle { aspect-ratio: auto; }
+.screen.is-idle .screen__idle { position: relative; inset: auto; aspect-ratio: 4 / 3; }
 .idle__big { font-family: var(--font-display); font-size: clamp(24px, 3.4vw, 44px); line-height: 1; margin: 0 0 12px; }
 .idle__small { margin: 0 auto 18px; max-width: 40ch; color: rgba(255, 255, 255, .78); font-size: 15px; }
 .idle__err { margin: 0 auto 18px; max-width: 44ch; background: var(--yellow); color: var(--ink); border-radius: 12px; padding: 10px 14px; font-size: 15px; }
@@ -155,6 +158,10 @@
   .screen { border-width: 6px; border-radius: 14px; }
   .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .slots { gap: 6px; }
+  .screen__idle { padding: 18px 14px; }
+  .idle__small, .idle__err { margin-bottom: 14px; }
+  .idle__btns { flex-direction: column; align-items: center; gap: 8px; }
+  .idle__btns .btn { width: min(100%, 250px); justify-content: center; }
   .panel { padding: 14px; }
 }
 @media (prefers-reduced-motion: reduce) { .marquee, .lens.is-shooting { animation: none; } .lens { transition: none; } }
