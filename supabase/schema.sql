@@ -169,8 +169,8 @@ exception when duplicate_object then null; when undefined_object then null; end 
 
 -- ============ file storage ============
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-values ('wall', 'wall', true, 2097152, array['image/png', 'image/jpeg', 'image/webp'])
-on conflict (id) do update set public = true, file_size_limit = 2097152, allowed_mime_types = array['image/png', 'image/jpeg', 'image/webp'];
+values ('wall', 'wall', true, 5242880, array['image/png', 'image/jpeg', 'image/webp', 'image/gif'])
+on conflict (id) do update set public = true, file_size_limit = 5242880, allowed_mime_types = array['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('media', 'media', true, 15728640, array['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/svg+xml'])
 on conflict (id) do update set public = true, file_size_limit = 15728640;
