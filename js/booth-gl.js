@@ -4,7 +4,9 @@ export const FILTERS = [
   { id: 'digicam', name: 'Цифро\u00ADмыльница' }, // soft hyphen: breaks only when the chip is narrow
   { id: 'bw', name: 'Ч/б будка' },
   { id: 'retro', name: 'Ретро-плёнка' },
-  { id: 'flash', name: 'Вспышка' }
+  { id: 'flash', name: 'Вспышка' },
+  { id: 'golden', name: 'Золотой час' },
+  { id: 'cine', name: 'Кино' }
 ];
 // Date imprint drawn on top of some filters, like an old film camera
 export const STAMPS = { digicam: 'corner', flash: 'side' };
@@ -85,7 +87,40 @@ const BODY = {
     c = c * .95 + vec3(.01, .03, .02);
     float g = hash(uv * u_res + fract(u_time) * 71.) - .5, g2 = hash(uv * u_res * 1.7 + fract(u_time) * 13.) - .5;
     c += vec3(g) * .14 + vec3(g2, -g2, g2) * .03;
-    c *= 1. - smoothstep(.3, .85, length(uv - .5)) * .6;`
+    c *= 1. - smoothstep(.3, .85, length(uv - .5)) * .6;`,
+  // 90s street film at golden hour: warm, matte, creamy whites, pale cyan skies, olive shadows, fine grain
+  golden: `vec2 px = 1.5 / u_res;
+    vec3 s = src(uv);
+    vec3 bl = (src(uv + px) + src(uv - px) + src(uv + vec2(px.x, -px.y)) + src(uv + vec2(-px.x, px.y))) * .25;
+    vec3 c = mix(s, bl, .25);
+    vec3 wide = vec3(0.);
+    for (int i = 0; i < 8; i++) { float a = float(i) * .785; wide += src(uv + vec2(cos(a), sin(a)) * vec2(u_res.y / u_res.x, 1.) * .018); }
+    wide /= 8.;
+    c = pow(c, vec3(1.12));
+    c *= vec3(1.08, 1.01, .87);
+    c = (c - .5) * 1.06 + .5;
+    float L = luma(c);
+    c = mix(vec3(L), c, .9);
+    c += vec3(-.02, .02, .015) * (1. - L) * (1. - L);
+    c += vec3(.035, .018, -.025) * L * L;
+    c -= max(c - .8, 0.) * .45;
+    c = c * .93 + vec3(.045, .042, .03);
+    c += max(wide - .72, 0.) * vec3(1., .62, .3) * .4;
+    c += (hash(uv * u_res + fract(u_time) * 29.) - .5) * .07;
+    c *= 1. - smoothstep(.35, .9, length(uv - .5)) * .32;`,
+  // cinematic backlight: deep cool shadows, warm highlights, red halation and bloom, strong vignette
+  cine: `vec3 base = src(uv);
+    vec3 blur = vec3(0.);
+    for (int i = 0; i < 12; i++) { float a = float(i) * .5236; blur += src(uv + vec2(cos(a), sin(a)) * vec2(u_res.y / u_res.x, 1.) * .022); }
+    blur /= 12.;
+    vec3 c = pow(base, vec3(1.35)) * .97;
+    c = (c - .45) * 1.25 + .45;
+    float L = luma(c);
+    c = mix(c, c * vec3(.8, .97, 1.16), pow(1. - L, 1.2) * .8);
+    c += vec3(.06, .025, -.04) * smoothstep(.55, 1., L);
+    c += max(blur - .78, 0.) * vec3(1.1, .6, .3) * .9;
+    c += (hash(uv * u_res + fract(u_time) * 47.) - .5) * .08;
+    c *= 1. - smoothstep(.28, .85, length(uv - .5)) * .58;`
 };
 
 export class FilterEngine {
@@ -131,7 +166,7 @@ export class FilterEngine {
     if (!this.ok) {
       const ctx = this.ctx2d || (this.ctx2d = this.cv.getContext('2d'));
       ctx.save();
-      ctx.filter = { bw: 'grayscale(1) contrast(1.2) blur(.4px)', digicam: 'contrast(1.25) saturate(1.2)', retro: 'brightness(.88) contrast(1.25) saturate(.85) sepia(.25)', flash: 'brightness(1.08) contrast(1.15) sepia(.12) hue-rotate(-10deg)' }[filterId] || 'none';
+      ctx.filter = { bw: 'grayscale(1) contrast(1.2) blur(.4px)', digicam: 'contrast(1.25) saturate(1.2)', retro: 'brightness(.88) contrast(1.25) saturate(.85) sepia(.25)', flash: 'brightness(1.08) contrast(1.15) sepia(.12) hue-rotate(-10deg)', golden: 'sepia(.3) contrast(.92) brightness(1.04) saturate(.9)', cine: 'contrast(1.35) brightness(.9) saturate(1.1)' }[filterId] || 'none';
       if (mirror) { ctx.translate(W, 0); ctx.scale(-1, 1); }
       ctx.drawImage(source, cx * sw, cy * sh, cw * sw, ch * sh, 0, 0, W, H);
       ctx.restore();
