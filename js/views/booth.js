@@ -41,6 +41,7 @@ function makeFrameThumbs(opts) {
         const cv = document.createElement('canvas'); cv.width = cv.height = T;
         const c = cv.getContext('2d');
         c.fillStyle = '#E9EBF2'; c.fillRect(0, 0, T, T);
+        if (Math.abs(strip.width / strip.height - 1) < .05) { c.drawImage(strip, 0, 0, T, T); FRAME_THUMBS[f.id] = cv.toDataURL('image/jpeg', .86); continue; }
         const wide = strip.width > strip.height;
         const w = wide ? T * .84 : T * .56, h = w * strip.height / strip.width;
         c.save();
@@ -61,7 +62,7 @@ const filterChips = (current, attr, disabled = false) => FILTERS.map(f => `<butt
 const TEXT_COLORS = ['#000000', '#ffffff', '#244EE7', '#E8291F', '#FFD84A', '#FF7AB6'];
 
 export async function mount(root, params, { go }) {
-  const B = { stage: 'idle', stream: null, facing: 'user', mirror: true, filter: 'digicam', frame: FRAMES[0].id, raw: [], times: [], overlay: [], caption: '', seed: Math.floor(Math.random() * 1e6), sel: -1, cams: 0, busy: false, custom: [], framesOff: [] };
+  const B = { stage: 'idle', stream: null, facing: 'user', mirror: true, filter: 'digicam', frame: FRAMES[0].id, mode: 'strip', lastFrame: {}, raw: [], times: [], overlay: [], caption: '', seed: Math.floor(Math.random() * 1e6), sel: -1, cams: 0, busy: false, custom: [], framesOff: [] };
   let raf = 0, alive = true, composeToken = 0;
 
   root.innerHTML = `<div class="page booth-page">
@@ -107,17 +108,22 @@ export async function mount(root, params, { go }) {
     if (kind) { ds.textContent = stampText(kind, today); ds.className = 'datestamp datestamp--' + kind; }
   }
   makeThumbs().then(t => { if (alive) $$('img[data-thumb]', root).forEach(i => { if (t[i.dataset.thumb]) i.src = t[i.dataset.thumb]; }); });
-  makeFrameThumbs({ caption: '', date: fmtDay(todayKey(), { day: 'numeric', month: 'long', year: 'numeric' }), site: CONFIG.SITE_NAME, seed: 7 })
+  makeFrameThumbs({ caption: '', dayKey: todayKey(), date: fmtDay(todayKey(), { day: 'numeric', month: 'long', year: 'numeric' }), site: CONFIG.SITE_NAME, seed: 7 })
     .then(t => { if (alive) $$('img[data-fthumb]', root).forEach(i => { if (t[i.dataset.fthumb]) i.src = t[i.dataset.fthumb]; }); });
 
   try {
     const [cfg, custom] = await Promise.all([config.all(), stickerStore.list()]);
     B.framesOff = Array.isArray(cfg.frames_off) ? cfg.frames_off : [];
     B.custom = custom;
-    if (B.framesOff.includes(B.frame)) B.frame = (FRAMES.find(f => !B.framesOff.includes(f.id)) || FRAMES[0]).id;
   } catch (e) { /* defaults */ }
-  const frames = () => FRAMES.filter(f => !B.framesOff.includes(f.id));
-  const captionLabel = () => B.frame === 'choco' ? 'Название шоколадки' : B.frame === 'film' ? 'Надпись на краю плёнки' : 'Подпись';
+  // two formats: a strip of four shots, or one photo; each has its own frames
+  const isSingle = () => B.mode === 'single';
+  const framesFor = mode => FRAMES.filter(f => !B.framesOff.includes(f.id) && (f.shots === 1) === (mode === 'single'));
+  const frames = () => framesFor(B.mode);
+  if (!frames().some(f => f.id === B.frame)) B.frame = (frames()[0] || FRAMES[0]).id;
+  const captionLabel = () => ({ choco: 'Название шоколадки', film: 'Надпись на краю плёнки', polaroid: 'Надпись маркером' })[B.frame] || 'Подпись';
+  const captionHint = () => ({ choco: 'Например, Настёнка', polaroid: 'фото дня' })[B.frame] || 'Что-нибудь коротко';
+  const word = () => isSingle() ? { it: 'фото', acc: 'фото', gen: 'фото', made: 'Фото сохранено', hangs: 'Твоё фото висит' } : { it: 'лента', acc: 'ленту', gen: 'ленты', made: 'Лента сохранена', hangs: 'Твоя лента висит' };
 
   /* ---------- panel ---------- */
   // On phones the shutter sits in the booth sign, right where a camera lens would be:
@@ -133,7 +139,12 @@ export async function mount(root, params, { go }) {
   function renderPanel() {
     renderLens();
     const shooting = B.stage === 'shooting';
+    const both = framesFor('strip').length && framesFor('single').length;
     $('#panel', root).innerHTML = `
+      ${both ? `<div class="panel__group">
+        <h2 class="panel__title" id="m-title">Формат</h2>
+        <div class="seg seg--mode" role="radiogroup" aria-labelledby="m-title"><button type="button" class="chip" role="radio" aria-checked="${!isSingle()}" data-mode="strip" ${shooting ? 'disabled' : ''}>Лента · 4 кадра</button><button type="button" class="chip" role="radio" aria-checked="${isSingle()}" data-mode="single" ${shooting ? 'disabled' : ''}>Одно фото</button></div>
+      </div>` : ''}
       <div class="panel__group">
         <h2 class="panel__title" id="f-title">Фильтр</h2>
         <div class="filters" role="radiogroup" aria-labelledby="f-title">${filterChips(B.filter, 'data-filter', shooting)}</div>
@@ -148,7 +159,7 @@ export async function mount(root, params, { go }) {
       </div>
       ${B.stream ? `<div class="panel__go">
         <button class="arcade arcade--red" type="button" data-act="shoot" ${shooting ? 'disabled' : ''}><span>${shooting ? 'Улыбку!' : 'Снимать'}</span></button>
-        <label class="btn btn--text upload-link">${ICON.upload}Или загрузить 1–4 фото<input type="file" id="upload" accept="image/*" multiple hidden></label>
+        <label class="btn btn--text upload-link">${ICON.upload}${isSingle() ? 'Или загрузить фото' : 'Или загрузить 1–4 фото'}<input type="file" id="upload" accept="image/*" ${isSingle() ? '' : 'multiple'} hidden></label>
       </div>` : ''}`;
     // with the camera off, «Включить камеру» and «Загрузить фото» live only on the screen
     $('#upload', root)?.addEventListener('change', e => { const files = [...e.target.files]; e.target.value = ''; if (files.length) fromFiles(files); });
@@ -166,6 +177,7 @@ export async function mount(root, params, { go }) {
     $('.idle-upload', idle).addEventListener('change', e => { const files = [...e.target.files]; e.target.value = ''; if (files.length) fromFiles(files); });
   }
   function renderSlots() {
+    $('#slots', root).hidden = isSingle();
     $$('.slot', root).forEach((li, i) => {
       li.innerHTML = '';
       const f = B.raw[i];
@@ -253,8 +265,9 @@ export async function mount(root, params, { go }) {
     B.stage = 'shooting'; B.raw = []; B.times = []; renderSlots(); renderPanel();
     $('#screen', root).classList.add('is-shooting');
     await countdown(3);
-    for (let i = 0; i < 4 && alive; i++) {
-      if (i > 0) { $('#countdown', root).innerHTML = `<span class="cd cd--small">${i + 1} / 4</span>`; await sleep(reducedMotion() ? 500 : 1100); $('#countdown', root).innerHTML = ''; }
+    const n = isSingle() ? 1 : 4;
+    for (let i = 0; i < n && alive; i++) {
+      if (i > 0) { $('#countdown', root).innerHTML = `<span class="cd cd--small">${i + 1} / ${n}</span>`; await sleep(reducedMotion() ? 500 : 1100); $('#countdown', root).innerHTML = ''; }
       flash();
       B.raw.push(grabRaw(video, B.mirror)); B.times.push(performance.now() / 1000);
       renderSlots();
@@ -271,11 +284,11 @@ export async function mount(root, params, { go }) {
       try { imgs.push(await fileToImage(f)); } catch (e) { /* skip */ }
     }
     if (!imgs.length) { toast('Браузер не может прочитать эти файлы как картинки. Попробуй JPEG или PNG.', true); return; }
-    B.raw = [0, 1, 2, 3].map(i => grabRaw(imgs[i % imgs.length], false));
-    B.times = [1, 2, 3, 4];
+    B.raw = (isSingle() ? [0] : [0, 1, 2, 3]).map(i => grabRaw(imgs[i % imgs.length], false));
+    B.times = B.raw.map((_, i) => i + 1);
     B.stage = 'edit';
     renderSlots();
-    if (imgs.length < 4) toast(`${imgs.length} ${plural(imgs.length, ['фото', 'фото', 'фото'])}: повторю, чтобы заполнить четыре кадра.`);
+    if (!isSingle() && imgs.length < 4) toast(`${imgs.length} ${plural(imgs.length, ['фото', 'фото', 'фото'])}: повторю, чтобы заполнить четыре кадра.`);
     openEditor();
   }
 
@@ -297,7 +310,7 @@ export async function mount(root, params, { go }) {
       return c;
     });
   }
-  const stripOpts = () => ({ caption: B.caption, date: fmtDay(todayKey(), { day: 'numeric', month: 'long', year: 'numeric' }), site: CONFIG.SITE_NAME, seed: B.seed, overlay: B.overlay });
+  const stripOpts = () => ({ caption: B.caption, dayKey: todayKey(), date: fmtDay(todayKey(), { day: 'numeric', month: 'long', year: 'numeric' }), site: CONFIG.SITE_NAME, seed: B.seed, overlay: B.overlay });
   async function recompose() {
     const tok = ++composeToken;
     await ensureFonts();
@@ -309,6 +322,7 @@ export async function mount(root, params, { go }) {
     holder.getContext('2d').drawImage(cv, 0, 0);
     const stage = $('#strip-stage', root);
     stage.style.aspectRatio = `${cv.width} / ${cv.height}`;
+    stage.classList.toggle('is-wide', cv.width >= cv.height * .9);
     sizeOverlay();
   }
   function openEditor() {
@@ -319,16 +333,16 @@ export async function mount(root, params, { go }) {
     const stickerBtns = [...earned().reverse(), ...BUILTIN].map(s => ({ id: s.id, src: stickerURL(s.id), name: s.name })).concat( B.custom.map(s => ({ id: '', src: s.url, name: s.name || 'Стикер' })));
     ed.innerHTML = `<div class="editor__grid">
       <div class="editor__preview">
-        <div class="strip-stage" id="strip-stage"><canvas id="strip-canvas" aria-label="Твоя фотолента"></canvas><div class="overlay" id="overlay" aria-label="Стикеры на ленте"></div></div>
+        <div class="strip-stage" id="strip-stage"><canvas id="strip-canvas" aria-label="${isSingle() ? 'Твоё фото' : 'Твоя фотолента'}"></canvas><div class="overlay" id="overlay" aria-label="Стикеры на ${isSingle() ? 'фото' : 'ленте'}"></div></div>
       </div>
       <div class="editor__tools">
-        <h2 class="editor__title">Укрась ленту</h2>
+        <h2 class="editor__title">Укрась ${word().acc}</h2>
         <p class="editor__hint">Двигай стикеры и надписи. Круглые ручки поворачивают и меняют размер. Фильтр и рамку можно сменить в любой момент.</p>
         <div class="panel__group"><h3 class="panel__title">Фильтр</h3>
           <div class="filters filters--small" role="radiogroup" aria-label="Фильтр">${filterChips(B.filter, 'data-efilter')}</div></div>
         <div class="panel__group"><h3 class="panel__title">Рамка</h3>
           <div class="frames" role="radiogroup" aria-label="Рамка">${frameChips(frames(), B.frame, 'data-eframe')}</div></div>
-        <div class="field"><label for="caption">${captionLabel()}</label><input id="caption" maxlength="28" placeholder="${B.frame === 'choco' ? 'Например, Настёнка' : 'Что-нибудь коротко'}" value="${esc(B.caption)}"></div>
+        <div class="field"><label for="caption">${captionLabel()}</label><input id="caption" maxlength="28" placeholder="${captionHint()}" value="${esc(B.caption)}"></div>
         <div class="panel__group"><h3 class="panel__title">Стикеры</h3>
           <div class="tray" role="list">${stickerBtns.map(s => `<button class="tray__s" type="button" role="listitem" data-sticker="${esc(s.id)}" data-src="${esc(s.id ? '' : s.src)}" aria-label="Добавить стикер: ${esc(s.name)}" title="${esc(s.name)}"><img src="${esc(s.src)}" alt="" ${/^https?:/.test(s.src) ? 'crossorigin="anonymous"' : ''}></button>`).join('')}</div></div>
         <div class="panel__group"><h3 class="panel__title">Надписи</h3>
@@ -342,7 +356,7 @@ export async function mount(root, params, { go }) {
           <button class="btn btn--yellow" type="button" data-act="publish">${ICON.plus}Повесить на стену дня</button>
           <button class="btn btn--ghost" type="button" data-act="retake">${ICON.redo}Переснять</button>
         </div>
-        <p class="editor__note">Кнопка «Повесить на стену дня» загружает уменьшенную копию ленты, чтобы её увидели другие гости — сегодня и потом в архиве.</p>
+        <p class="editor__note">Кнопка «Повесить на стену дня» загружает уменьшенную копию ${word().gen}, чтобы её увидели другие гости — сегодня и потом в архиве.</p>
       </div></div>`;
     $('#caption', ed).addEventListener('input', e => { B.caption = e.target.value; clearTimeout(B.capT); B.capT = setTimeout(recompose, 250); });
     $('#t-text', ed).addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addText(); } });
@@ -433,16 +447,16 @@ export async function mount(root, params, { go }) {
     try {
       const { blob } = await finalStrip(1.5, 'image/png');
       if (!blob) throw new Error('png');
-      download(blob, `${CONFIG.SITE_NAME}-strip-${todayKey()}.png`);
-      sound.play('win'); toast('Лента сохранена в PNG');
-    } catch (e) { toast('Не получилось сохранить ленту. Попробуй ещё раз или убери свои стикеры.', true); }
+      download(blob, `${CONFIG.SITE_NAME}-${isSingle() ? 'photo' : 'strip'}-${todayKey()}.png`);
+      sound.play('win'); toast(`${word().made} в PNG`);
+    } catch (e) { toast(`Не получилось сохранить ${word().acc}. Попробуй ещё раз или убери свои стикеры.`, true); }
     B.busy = false;
   }
   async function doShare() {
     try {
       const { blob } = await finalStrip(1.5, 'image/png');
-      const file = new File([blob], `${CONFIG.SITE_NAME}-strip.png`, { type: 'image/png' });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ files: [file], title: 'Моя фотолента' });
+      const file = new File([blob], `${CONFIG.SITE_NAME}-${isSingle() ? 'photo' : 'strip'}.png`, { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ files: [file], title: isSingle() ? 'Моё фото' : 'Моя фотолента' });
       else doDownload();
     } catch (e) { if (e && e.name !== 'AbortError') toast('Поделиться отсюда не вышло. Нажми «Скачать PNG».', true); }
   }
@@ -451,11 +465,11 @@ export async function mount(root, params, { go }) {
     try {
       const { blob, w, h: hh } = await finalStrip(.6, 'image/jpeg', .84);
       const url = await upload('wall', blob, 'jpg');
-      const ww = 230, wh = Math.round(ww * hh / w);
+      const ww = isSingle() ? 300 : 230, wh = Math.round(ww * hh / w);
       await wall.add({ day: todayKey(), kind: 'strip', x: rand(300, WORLD.w - ww - 300), y: rand(120, Math.max(130, WORLD.h - wh - 80)), w: ww, h: wh, rot: rand(-7, 7), z: Math.floor(Date.now() / 1000) % 1e9, data: { src: url } });
       sound.play('win');
       btn.textContent = 'На стене ✓';
-      toast('Твоя лента висит на стене дня');
+      toast(`${word().hangs} на стене дня`);
       const a = h(`<a class="btn btn--ink" href="#/wall">Посмотреть на стене</a>`); btn.after(a);
       B.busy = false; return;
     } catch (e) { toast(e.message || 'Повесить не получилось. Попробуй ещё раз.', true); btn.innerHTML = label; btn.disabled = false; }
@@ -465,11 +479,17 @@ export async function mount(root, params, { go }) {
   root.addEventListener('click', e => {
     const t = e.target;
     const f = t.closest('[data-filter]'); if (f) { B.filter = f.dataset.filter; sound.play('click'); renderPanel(); if (B.raw.length) renderSlots(); return; }
+    const md = t.closest('[data-mode]'); if (md) {
+      if (B.stage === 'shooting' || md.dataset.mode === B.mode) return;
+      B.lastFrame[B.mode] = B.frame; B.mode = md.dataset.mode;
+      const list = frames(); B.frame = list.some(f => f.id === B.lastFrame[B.mode]) ? B.lastFrame[B.mode] : (list[0] || FRAMES[0]).id;
+      B.raw = []; B.times = []; sound.play('click'); renderPanel(); renderSlots(); return;
+    }
     const fr = t.closest('[data-frame]'); if (fr) { B.frame = fr.dataset.frame; sound.play('click'); renderPanel(); return; }
     const ef = t.closest('[data-efilter]'); if (ef) { B.filter = ef.dataset.efilter; $$('[data-efilter]', root).forEach(b => b.setAttribute('aria-checked', String(b === ef))); sound.play('click'); recompose(); renderSlots(); return; }
     const efr = t.closest('[data-eframe]'); if (efr) {
       B.frame = efr.dataset.eframe; $$('[data-eframe]', root).forEach(b => b.setAttribute('aria-checked', String(b === efr)));
-      const lab = $('label[for="caption"]', root); if (lab) lab.textContent = captionLabel(); const inp = $('#caption', root); if (inp) inp.placeholder = B.frame === 'choco' ? 'Например, Настёнка' : 'Что-нибудь коротко';
+      const lab = $('label[for="caption"]', root); if (lab) lab.textContent = captionLabel(); const inp = $('#caption', root); if (inp) inp.placeholder = captionHint();
       sound.play('click'); recompose(); return;
     }
     const st = t.closest('[data-sticker]'); if (st) { addSticker(st.dataset.sticker, st.dataset.src || ''); return; }
