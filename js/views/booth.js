@@ -10,24 +10,54 @@ import { WORLD } from '../wallmini.js';
 const FW = 800, FH = 600;
 // filter previews: the studio owner's photo run through each real filter, made once per visit
 const SAMPLE = 'assets/booth/sample.jpg';
-const THUMBS = {};
-let thumbsPending = null;
+const THUMBS = {}, FRAME_THUMBS = {};
+let samplePending = null, thumbsPending = null, frameThumbsPending = null;
+const loadSample = () => samplePending || (samplePending = new Promise(resolve => { const img = new Image(); img.onload = () => resolve(img); img.onerror = () => resolve(null); img.src = SAMPLE; }));
 function makeThumbs() {
   if (thumbsPending) return thumbsPending;
-  thumbsPending = new Promise(resolve => {
-    const img = new Image();
-    img.onload = () => {
-      const cv = document.createElement('canvas'); cv.width = cv.height = 192;
-      const eng = new FilterEngine(cv);
-      for (const f of FILTERS) { try { if (eng.render(img, f.id, { time: 1 })) THUMBS[f.id] = cv.toDataURL('image/jpeg', .86); } catch (e) { /* keep the plain photo */ } }
-      const lose = eng.gl && eng.gl.getExtension('WEBGL_lose_context'); if (lose) lose.loseContext();
-      resolve(THUMBS);
-    };
-    img.onerror = () => resolve(THUMBS);
-    img.src = SAMPLE;
+  thumbsPending = loadSample().then(img => {
+    if (!img) return THUMBS;
+    const cv = document.createElement('canvas'); cv.width = cv.height = 192;
+    const eng = new FilterEngine(cv);
+    for (const f of FILTERS) { try { if (eng.render(img, f.id, { time: 1 })) THUMBS[f.id] = cv.toDataURL('image/jpeg', .86); } catch (e) { /* keep the plain photo */ } }
+    const lose = eng.gl && eng.gl.getExtension('WEBGL_lose_context'); if (lose) lose.loseContext();
+    return THUMBS;
   });
   return thumbsPending;
 }
+// frame previews: a strip of four sample shots in each frame, lying at a slight angle in a square
+function makeFrameThumbs(opts) {
+  if (frameThumbsPending) return frameThumbsPending;
+  frameThumbsPending = loadSample().then(async img => {
+    if (!img) return FRAME_THUMBS;
+    const shot = document.createElement('canvas'); shot.width = 400; shot.height = 300;
+    const side = Math.min(img.naturalWidth, img.naturalHeight), ch = side * .75;
+    shot.getContext('2d').drawImage(img, 0, (img.naturalHeight - ch) * .45, side, ch, 0, 0, 400, 300);
+    await ensureFonts();
+    const T = 264;
+    for (const f of FRAMES) {
+      try {
+        const strip = await composeStrip([shot, shot, shot, shot], f.id, { ...opts, overlay: [] }, .35);
+        const cv = document.createElement('canvas'); cv.width = cv.height = T;
+        const c = cv.getContext('2d');
+        c.fillStyle = '#E9EBF2'; c.fillRect(0, 0, T, T);
+        if (f.id === 'clear') { c.fillStyle = '#D5D8E2'; for (let y = 0; y < T; y += 16) for (let x = (y / 16) % 2 ? 16 : 0; x < T; x += 32) c.fillRect(x, y, 16, 16); }
+        const wide = strip.width > strip.height;
+        const w = wide ? T * .84 : T * .56, h = w * strip.height / strip.width;
+        c.save();
+        c.translate(T / 2, wide ? T / 2 : T * .1 + h / 2);
+        c.rotate(wide ? -.06 : -.12);
+        c.shadowColor = 'rgba(20, 24, 40, .28)'; c.shadowBlur = 14; c.shadowOffsetY = 5;
+        c.drawImage(strip, -w / 2, -h / 2, w, h);
+        c.restore();
+        FRAME_THUMBS[f.id] = cv.toDataURL('image/jpeg', .86);
+      } catch (e) { /* the chip keeps its plain square */ }
+    }
+    return FRAME_THUMBS;
+  });
+  return frameThumbsPending;
+}
+const frameChips = (list, current, attr, disabled = false) => list.map(f => `<button class="fchip" type="button" role="radio" aria-checked="${current === f.id}" ${attr}="${f.id}" ${disabled ? 'disabled' : ''}><span class="fchip__img">${FRAME_THUMBS[f.id] ? `<img src="${FRAME_THUMBS[f.id]}"` : '<img'} data-fthumb="${f.id}" alt="" draggable="false"></span><span class="fchip__name">${esc(f.name)}</span></button>`).join('');
 const filterChips = (current, attr, disabled = false) => FILTERS.map(f => `<button class="fchip" type="button" role="radio" aria-checked="${current === f.id}" ${attr}="${f.id}" ${disabled ? 'disabled' : ''}><span class="fchip__img"><img src="${THUMBS[f.id] || SAMPLE}" data-thumb="${f.id}" alt="" draggable="false"></span><span class="fchip__name">${esc(f.name)}</span></button>`).join('');
 const TEXT_COLORS = ['#000000', '#ffffff', '#244EE7', '#E8291F', '#FFD84A', '#FF7AB6'];
 
@@ -78,6 +108,8 @@ export async function mount(root, params, { go }) {
     if (kind) { ds.textContent = stampText(kind, today); ds.className = 'datestamp datestamp--' + kind; }
   }
   makeThumbs().then(t => { if (alive) $$('img[data-thumb]', root).forEach(i => { if (t[i.dataset.thumb]) i.src = t[i.dataset.thumb]; }); });
+  makeFrameThumbs({ caption: '', date: fmtDay(todayKey(), { day: 'numeric', month: 'long', year: 'numeric' }), site: CONFIG.SITE_NAME, seed: 7 })
+    .then(t => { if (alive) $$('img[data-fthumb]', root).forEach(i => { if (t[i.dataset.fthumb]) i.src = t[i.dataset.fthumb]; }); });
 
   try {
     const [cfg, custom] = await Promise.all([config.all(), stickerStore.list()]);
@@ -108,7 +140,7 @@ export async function mount(root, params, { go }) {
       </div>
       <div class="panel__group">
         <h2 class="panel__title" id="fr-title">Рамка</h2>
-        <div class="frames" role="radiogroup" aria-labelledby="fr-title">${frames().map(f => `<button class="frchip frchip--${f.id}" type="button" role="radio" aria-checked="${B.frame === f.id}" data-frame="${f.id}" ${shooting ? 'disabled' : ''}><i aria-hidden="true"></i>${esc(f.name)}</button>`).join('')}</div>
+        <div class="frames" role="radiogroup" aria-labelledby="fr-title">${frameChips(frames(), B.frame, 'data-frame', shooting)}</div>
       </div>
       <div class="panel__row">
         <label class="switch"><input type="checkbox" id="mirror" ${B.mirror ? 'checked' : ''} ${shooting ? 'disabled' : ''}><span aria-hidden="true"></span>Зеркально</label>
@@ -296,7 +328,7 @@ export async function mount(root, params, { go }) {
         <div class="panel__group"><h3 class="panel__title">Фильтр</h3>
           <div class="filters filters--small" role="radiogroup" aria-label="Фильтр">${filterChips(B.filter, 'data-efilter')}</div></div>
         <div class="panel__group"><h3 class="panel__title">Рамка</h3>
-          <div class="frames" role="radiogroup" aria-label="Рамка">${frames().map(f => `<button class="frchip frchip--${f.id}" type="button" role="radio" aria-checked="${B.frame === f.id}" data-eframe="${f.id}"><i aria-hidden="true"></i>${esc(f.name)}</button>`).join('')}</div></div>
+          <div class="frames" role="radiogroup" aria-label="Рамка">${frameChips(frames(), B.frame, 'data-eframe')}</div></div>
         <div class="field"><label for="caption">${B.frame === 'idcard' ? 'Имя на карточке' : 'Подпись'}</label><input id="caption" maxlength="28" placeholder="${B.frame === 'idcard' ? 'Твоё имя' : 'Что-нибудь коротко'}" value="${esc(B.caption)}"></div>
         <div class="panel__group"><h3 class="panel__title">Стикеры</h3>
           <div class="tray" role="list">${stickerBtns.map(s => `<button class="tray__s" type="button" role="listitem" data-sticker="${esc(s.id)}" data-src="${esc(s.id ? '' : s.src)}" aria-label="Добавить стикер: ${esc(s.name)}" title="${esc(s.name)}"><img src="${esc(s.src)}" alt="" ${/^https?:/.test(s.src) ? 'crossorigin="anonymous"' : ''}></button>`).join('')}</div></div>
