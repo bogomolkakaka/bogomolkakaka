@@ -45,7 +45,7 @@
 .panel__group { display: grid; gap: 8px; }
 .panel__title { margin: 0; font-size: 14px; font-weight: 600; color: var(--muted); }
 /* filters: a rounded square preview of each look, made from a real photo */
-.filters { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.filters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px 10px; }
 .fchip { display: grid; gap: 7px; justify-items: center; align-content: start; min-width: 0; padding: 0; border: 0; background: none; color: var(--ink); text-align: center; font-size: 12px; font-weight: 600; line-height: 1.15; }
 .fchip__img { display: block; width: 100%; aspect-ratio: 1; border-radius: 16px; overflow: hidden; background: var(--soft); box-shadow: 0 0 0 1.5px var(--line); transition: transform .15s, box-shadow .15s; }
 .fchip__img img { display: block; width: 100%; height: 100%; object-fit: cover; }
