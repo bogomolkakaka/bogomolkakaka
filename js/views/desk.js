@@ -1,7 +1,7 @@
 import { CONFIG } from '../config.js';
 import { $, $$, esc, h, ICON, sound, lsGet, lsSet, zoned, todayKey, reducedMotion, pick, plural, MONTHS } from '../util.js';
 import { openPlayer, myDiscs } from '../player.js';
-import { wall } from '../store.js';
+import { wall, state } from '../store.js';
 import { drawMini } from '../wallmini.js';
 
 const PHRASES = [
@@ -15,6 +15,13 @@ const PHRASES = [
 export async function mount(root) {
   const z = zoned();
   const wd = new Intl.DateTimeFormat('ru-RU', { weekday: 'long', timeZone: CONFIG.TIMEZONE }).format(new Date());
+  // the same little objects are drawn on the wide desk and on the phone sheet
+  const discHTML = `<span class="dcd" aria-hidden="true">
+      <span class="dcd__case dcd__case--1" style="--bg:#244EE7"><b>mp3</b></span><span class="dcd__case dcd__case--2" style="--bg:#000"><b>моё</b></span>
+      <span class="dcd__disc"></span><span class="dcd__case dcd__case--3" style="--bg:#FFB8D9"><b>+</b></span></span>`;
+  const calHTML = `<div class="cal"><div class="cal__top">${MONTHS[z.m - 1].toUpperCase()}</div><div class="cal__day">${z.d}</div><div class="cal__wd">${esc(wd)}</div></div>`;
+  const vhsHTML = `<span class="dvhs-stack" aria-hidden="true"><span class="dvhs dvhs--1"><b>СЕРИАЛЫ</b></span><span class="dvhs dvhs--2"><b>ЛЮБИМОЕ</b></span><span class="dvhs dvhs--3"><b>КИНО</b></span></span>`;
+  const soundIcon = () => sound.muted ? ICON.mute : ICON.sound;
   root.innerHTML = `<section class="desk" aria-label="Рабочий стол">
     <div class="mat" aria-hidden="true">
       <div class="mat__ruler">${Array.from({ length: 10 }, (_, i) => `<span>${i * 10}</span>`).join('')}</div>
@@ -28,13 +35,11 @@ export async function mount(root) {
     <a class="thing thing--booth" href="#/booth" data-thing="booth"><img src="assets/desk/camera.png" alt="Фотобудка: синий фотоаппарат" width="441" height="391"><span class="thing__label">Фотобудка</span></a>
     <a class="thing thing--wall" href="#/wall" data-thing="wall"><div class="deskboard"><span class="tape" aria-hidden="true"></span><canvas width="640" height="400" aria-hidden="true"></canvas>
       <div class="board__cap"><b>Стена дня</b><span id="desk-count">…</span></div></div><span class="thing__label">Сделаем что-то вместе</span></a>
-    <a class="thing thing--capsule" href="#/capsule" data-thing="capsule"><div class="cal"><div class="cal__top">${MONTHS[z.m - 1].toUpperCase()}</div><div class="cal__day">${z.d}</div><div class="cal__wd">${esc(wd)}</div></div><span class="thing__label">Капсула времени</span></a>
+    <a class="thing thing--capsule" href="#/capsule" data-thing="capsule">${calHTML}<span class="thing__label">Капсула времени</span></a>
     <a class="thing thing--run" href="#/run" data-thing="run"><span class="console"><img src="assets/desk/console.png" alt="Игры: жёлтая игровая консоль" width="489" height="523"><canvas class="console-screen" width="96" height="76" aria-hidden="true"></canvas></span><span class="thing__label">Игры</span></a>
     <a class="thing thing--objects" href="#/objects" data-thing="objects"><img src="assets/desk/toys.png" alt="Маленькие объекты: три фигурки" width="639" height="351"><span class="thing__label">Маленькие объекты</span></a>
-    <a class="thing thing--films" href="#/films" data-thing="films"><span class="dvhs-stack" aria-hidden="true"><span class="dvhs dvhs--1"><b>СЕРИАЛЫ</b></span><span class="dvhs dvhs--2"><b>ЛЮБИМОЕ</b></span><span class="dvhs dvhs--3"><b>КИНО</b></span></span><span class="thing__label">Видеопрокат</span></a>
-    <button class="thing thing--cd" type="button" data-thing="cd" id="desk-cd" aria-label="Диски: CD-плеер с твоей музыкой"><span class="dcd" aria-hidden="true">
-      <span class="dcd__case dcd__case--1" style="--bg:#244EE7"><b>mp3</b></span><span class="dcd__case dcd__case--2" style="--bg:#000"><b>моё</b></span>
-      <span class="dcd__disc"></span><span class="dcd__case dcd__case--3" style="--bg:#FFB8D9"><b>+</b></span></span><span class="thing__label">Диски</span></button>
+    <a class="thing thing--films" href="#/films" data-thing="films">${vhsHTML}<span class="thing__label">Видеопрокат</span></a>
+    <button class="thing thing--cd" type="button" data-thing="cd" id="desk-cd" aria-label="Диски: CD-плеер с твоей музыкой">${discHTML}<span class="thing__label">Диски</span></button>
     <button class="note-phrase" type="button" id="phrase" aria-live="polite"><span>${esc(pick(PHRASES))}</span><small>нажми, чтобы сменить</small></button>
     <span class="decor pencil" aria-hidden="true"></span>
     <span class="decor ring" aria-hidden="true"></span>
@@ -42,12 +47,42 @@ export async function mount(root) {
     <span class="decor clip" aria-hidden="true"></span>
     <p class="hint-move">пссс: вещи на столе можно двигать</p>
     <button class="btn btn--ghost btn--small desk-reset" type="button" id="desk-reset" hidden>Прибрать стол</button>
+  </section>
+  <section class="mhome" aria-label="Рабочий стол">
+    <div class="mhome__stage">
+      <div class="mmat">
+        <div class="mmat__ruler" aria-hidden="true">${[0, 1, 2, 3, 4, 5, 6, 7].map(i => `<span style="--i:${i}">${i * 10}</span>`).join('')}</div>
+        <div class="mmat__side" aria-hidden="true">${[1, 2, 3].map(i => `<span style="--i:${i}">${i * 10}</span>`).join('')}</div>
+        <h1 class="mmat__title">${esc(CONFIG.SITE_NAME)}</h1>
+        <p class="mmat__sub">маленькая студия в интернете.<br>трогай вещи, оставляй след.</p>
+      </div>
+      <nav class="msheet" aria-label="Комнаты студии">
+        <ul class="mitems">
+          <li><a class="mitem mitem--booth" href="#/booth" draggable="false"><span class="mitem__pic" aria-hidden="true"><img src="assets/desk/camera.png" alt="" width="441" height="391" draggable="false"></span><span class="mitem__cap">Фотобудка</span></a></li>
+          <li><a class="mitem mitem--wall" href="#/wall" draggable="false"><span class="mitem__pic" aria-hidden="true"><span class="mpola"><span class="mpola__tape" aria-hidden="true"></span><canvas width="240" height="240" aria-hidden="true"></canvas></span></span><span class="mitem__cap">Стена</span></a></li>
+          <li><a class="mitem mitem--run" href="#/run" draggable="false"><span class="mitem__pic" aria-hidden="true"><span class="console"><img src="assets/desk/console.png" alt="" width="489" height="523" draggable="false"><canvas class="console-screen" width="96" height="76" aria-hidden="true"></canvas></span></span><span class="mitem__cap">Игры</span></a></li>
+          <li><button class="mitem mitem--cd" type="button" id="m-cd" aria-haspopup="dialog"><span class="mitem__pic" aria-hidden="true">${discHTML}</span><span class="mitem__cap">Диски</span></button></li>
+          <li><a class="mitem mitem--objects" href="#/objects" draggable="false"><span class="mitem__pic" aria-hidden="true"><img src="assets/desk/toys.png" alt="" width="639" height="351" draggable="false"></span><span class="mitem__cap">Объекты</span></a></li>
+          <li><a class="mitem mitem--films" href="#/films" draggable="false"><span class="mitem__pic" aria-hidden="true">${vhsHTML}</span><span class="mitem__cap">Прокат</span></a></li>
+          <li><a class="mitem mitem--capsule" href="#/capsule" draggable="false"><span class="mitem__pic" aria-hidden="true">${calHTML}</span><span class="mitem__cap">Капсула</span></a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="mhome__menu">
+      <div class="mmenu" id="m-menu-panel" role="region" aria-label="Меню студии" hidden>
+        <p class="mmenu__head"><b>${esc(CONFIG.SITE_NAME)}</b><span>маленькая студия в интернете</span></p>
+        <button class="mmenu__row" type="button" id="m-sound" aria-pressed="${!sound.muted}"><span class="mmenu__ic" id="m-sound-ic">${soundIcon()}</span><span><b>Звук</b><small id="m-sound-state">${sound.muted ? 'выключен' : 'включён'}</small></span></button>
+        <a class="mmenu__row" href="#/admin">${ICON.admin}<span><b>Админка</b><small>${state.admin ? 'Ты вошла' : 'Для хозяйки студии'}</small></span></a>
+        <p class="mmenu__clock">Время студии <b id="m-clock"></b></p>
+      </div>
+      <button class="mmenu-btn" type="button" id="m-menu" aria-expanded="false" aria-controls="m-menu-panel">${ICON.logo}<span>Меню студии</span></button>
+    </div>
   </section>`;
 
   const desk = $('.desk', root);
   const unit = () => parseFloat(getComputedStyle(desk).getPropertyValue('--u')) || 0;
   const pxPerU = () => { const probe = document.createElement('div'); probe.style.width = 'calc(100 * var(--u))'; probe.style.position = 'absolute'; desk.appendChild(probe); const w = probe.getBoundingClientRect().width / 100; probe.remove(); return w || 1; };
-  const isPhone = () => matchMedia('(max-width: 819px)').matches;
+  const isPhone = () => matchMedia('(max-width: 819px), (pointer: coarse) and (max-height: 500px)').matches; // same switch as css/desk.css
   let saved = lsGet('bg.desk', {});
   const applyPos = () => {
     const k = pxPerU();
@@ -62,16 +97,50 @@ export async function mount(root) {
   void unit;
 
   // keep the site name inside the mat whatever the font and screen width
-  const title = $('.desk-title', root), hero = $('.desk-hero', root);
-  const fitTitle = () => {
+  const fitOne = (title, box) => {
     title.style.fontSize = '';
-    const cs = getComputedStyle(hero);
-    const room = hero.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    if (!box.offsetParent) return; // this layout is hidden at the current width
+    const cs = getComputedStyle(box);
+    const room = box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
     const w = title.scrollWidth;
     if (room > 0 && w > room) title.style.fontSize = (parseFloat(getComputedStyle(title).fontSize) * room / w * .98) + 'px';
   };
+  // the two yellow lines keep one line each while a small shrink is enough; otherwise (big zoom) they wrap
+  const fitSub = () => {
+    const sub = $('.mmat__sub', root);
+    sub.style.fontSize = ''; sub.style.whiteSpace = 'nowrap';
+    if (!sub.offsetParent) return;
+    const room = sub.clientWidth, w = sub.scrollWidth;
+    if (w <= room) return;
+    const k = room / w;
+    if (k > .86) sub.style.fontSize = parseFloat(getComputedStyle(sub).fontSize) * k * .99 + 'px';
+    else sub.style.whiteSpace = '';
+  };
+  const fitTitle = () => { fitOne($('.desk-title', root), $('.desk-hero', root)); fitOne($('.mmat__title', root), $('.mmat', root)); fitSub(); };
+  const title = $('.desk-title', root);
   fitTitle();
   if (document.fonts) document.fonts.ready.then(() => { if (title.isConnected) fitTitle(); });
+
+  // phone sheet: «Диски» opens the player on top; closing it brings focus back here
+  const mcd = $('#m-cd', root);
+  mcd.addEventListener('click', () => { mcd.focus({ preventScroll: true }); sound.play('click'); openPlayer(); });
+  // studio menu under the sheet: sound and studio commands
+  const mbtn = $('#m-menu', root), mpanel = $('#m-menu-panel', root);
+  const clock = () => { const t = zoned(); $('#m-clock', root).textContent = `${String(t.hh).padStart(2, '0')}:${String(t.mm).padStart(2, '0')}`; };
+  const setMenu = open => {
+    mpanel.hidden = !open; mbtn.setAttribute('aria-expanded', String(open));
+    if (open) { clock(); sound.play('open'); $('.mmenu__row', mpanel).focus(); }
+  };
+  mbtn.addEventListener('click', () => setMenu(mpanel.hidden));
+  $('#m-sound', root).addEventListener('click', () => {
+    sound.toggle();
+    const b = $('#m-sound', root); b.setAttribute('aria-pressed', String(!sound.muted));
+    $('#m-sound-ic', root).innerHTML = soundIcon(); $('#m-sound-state', root).textContent = sound.muted ? 'выключен' : 'включён';
+  });
+  const onDocClick = e => { if (!mpanel.hidden && !e.target.closest('.mhome__menu')) setMenu(false); };
+  const onKey = e => { if (e.key === 'Escape' && !mpanel.hidden) { setMenu(false); mbtn.focus(); } };
+  document.addEventListener('click', onDocClick);
+  document.addEventListener('keydown', onKey);
 
   // drag things around (desktop); a short press without moving still opens the room
   let drag = null, suppressClick = false;
@@ -116,12 +185,14 @@ export async function mount(root) {
     const discs = all.filter(d => d.tracks.length);
     if (!discs.length || !root.isConnected) return;
     // the front case (the last one in the markup) shows the first disc, the ones behind show the rest
-    const cases = $$('.dcd__case', root).reverse();
-    discs.slice(0, cases.length).forEach((d, k) => {
-      const c = cases[k];
-      c.style.setProperty('--bg', d.bg); c.style.color = d.ink;
-      c.style.backgroundImage = d.cover ? `url('${d.cover}')` : ''; c.style.backgroundSize = 'cover'; c.style.backgroundPosition = 'center';
-      $('b', c).textContent = d.cover ? '' : (d.title.length > 9 ? d.title.slice(0, 8) + '…' : d.title);
+    $$('.dcd', root).forEach(stack => {
+      const cases = $$('.dcd__case', stack).reverse();
+      discs.slice(0, cases.length).forEach((d, k) => {
+        const c = cases[k];
+        c.style.setProperty('--bg', d.bg); c.style.color = d.ink;
+        c.style.backgroundImage = d.cover ? `url('${d.cover}')` : ''; c.style.backgroundSize = 'cover'; c.style.backgroundPosition = 'center';
+        $('b', c).textContent = d.cover ? '' : (d.title.length > 9 ? d.title.slice(0, 8) + '…' : d.title);
+      });
     });
   }).catch(() => {});
   $('#desk-reset').addEventListener('click', () => { saved = {}; lsSet('bg.desk', saved); applyPos(); sound.play('paper'); });
@@ -143,12 +214,14 @@ export async function mount(root) {
       const items = await wall.list(todayKey());
       if (!alive) return;
       drawMini(cv, items, { bg: '#fafbfd', redraw: true, fit: 'content' });
+      drawMini($('.mpola canvas', root), items, { bg: '#eef1f7', redraw: true, fit: 'content' });
       $('#desk-count').textContent = items.length ? `${items.length} ${plural(items.length, ['штука', 'штуки', 'штук'])} сегодня` : 'пока пусто';
     } catch (e) { $('#desk-count').textContent = 'открыть'; }
   })();
 
   // tiny game on the console screen
-  const sc = $('.console-screen', root), g = sc.getContext('2d');
+  const sc = $('.thing--run .console-screen', root), g = sc.getContext('2d');
+  const g2 = $('.mitem--run .console-screen', root).getContext('2d');
   let frame = 0, raf = 0, last = 0;
   const words = ['ЯРЧЕ', 'СРОЧНО', 'КРУПНЕЕ', 'v7'];
   const drawScreen = t => {
@@ -168,6 +241,7 @@ export async function mount(root) {
     g.fillStyle = '#000'; g.fillRect(px + 7, py + 4, 1, 1);
     g.fillRect(px + 2 + (frame % 2) * 2, py + 14, 2, 3); g.fillRect(px + 7 - (frame % 2) * 2, py + 14, 2, 3);
     g.fillStyle = '#FFD84A'; const cx = (60 - frame * 3 % 96 + 96) % 96; g.fillRect(cx, 30, 4, 4);
+    g2.drawImage(sc, 0, 0);
   };
   if (reducedMotion()) { last = -1e9; drawScreen(0); cancelAnimationFrame(raf); } else raf = requestAnimationFrame(drawScreen);
 
@@ -178,5 +252,7 @@ export async function mount(root) {
     window.removeEventListener('pointerup', onUp);
     window.removeEventListener('pointercancel', onUp);
     window.removeEventListener('resize', onResize);
+    document.removeEventListener('click', onDocClick);
+    document.removeEventListener('keydown', onKey);
   };
 }

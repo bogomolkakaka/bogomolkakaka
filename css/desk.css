@@ -116,46 +116,109 @@
 .hint-move { left: calc(50% - 68 * var(--u)); bottom: calc(2 * var(--u)); font-family: var(--font-hand); font-size: max(18px, calc(2.2 * var(--u))); color: var(--muted); transform: rotate(-2deg); margin: 0; z-index: 2; }
 .desk-reset { right: calc(1.6 * var(--u)); bottom: calc(1.6 * var(--u)); z-index: 7; }
 
-/* phones: the desk becomes a tidy drawer of things, two per row, labels underneath */
-@media (max-width: 819px) {
-  .desk { height: auto; min-height: 0; overflow: visible; overflow-x: clip; display: grid; grid-template-columns: 1fr 1fr; gap: 30px 12px; padding: 14px 14px 40px; --u: 1px; align-items: end; }
-  .desk > * { position: relative; }
-  .mat, .desk-hero { grid-row: 1; grid-column: 1 / -1; align-self: stretch; }
-  .mat { left: auto; top: auto; width: auto; height: auto; transform: rotate(-1deg); border-radius: 16px; --u: 3.4px; margin-bottom: 4px; }
-  .desk-hero { left: auto; top: auto; width: auto; transform: rotate(-1deg); padding: 40px 20px 24px; }
-  .desk-title { font-size: clamp(40px, 14vw, 64px); }
-  .desk-sub { font-size: 21px; margin-top: 10px; line-height: 1.1; transform: rotate(-1.5deg); text-wrap: balance; }
-  .mat__angle, .mat__ruler--side { display: none; }
-  .mat__ruler { font-size: 9px; left: 14px; right: 12px; top: 8px; }
+/* ---------- phones: «вариант В» — the blue mat with the name, one sheet with seven things, a studio menu below ---------- */
+.mhome { display: none; }
+/* phones in portrait, and phones turned sideways (low and touch-driven) */
+@media (max-width: 819px), (pointer: coarse) and (max-height: 500px) {
+  .desk { display: none; }
+  html.on-desk .taskbar { display: none; }
+  html.on-desk body { padding-bottom: 0; }
+  html.on-desk #main { min-height: 0; }
+  .mhome {
+    /* sizes follow the spec: 51 / 28 / 22 px at 390 px wide, 42 / 24 / 18 px at 320 px */
+    --vw: min(100vw, 560px); /* a turned phone keeps a phone-sized sheet in the middle */
+    --t-title: clamp(42px, calc(42px + (var(--vw) - 320px) * .1286), 58px);
+    --t-sub: clamp(24px, calc(24px + (var(--vw) - 320px) * .0571), 30px);
+    --t-cap: clamp(18px, calc(18px + (var(--vw) - 320px) * .0571), 24px);
+    --pic: clamp(52px, min(calc(var(--vw) * .19), 10.5vh), 104px);
+    /* side margin of the mat box: ~16 px of visible desk (a bit less on 320 px) plus what the 2° turn adds */
+    --mm: calc(clamp(12px, calc(var(--vw) * .041), 16px) + 4px);
+    --g: calc((var(--vw) - 2 * var(--mm) - 28px) / 7);
+    display: flex; flex-direction: column; min-height: 100vh;
+    padding: max(14px, env(safe-area-inset-top)) 0 calc(12px + env(safe-area-inset-bottom));
+  }
+  @supports (height: 100svh) { .mhome { min-height: 100svh; --pic: clamp(52px, min(calc(var(--vw) * .19), 10.5svh), 104px); } }
+  .mhome__stage { width: var(--vw); margin: auto; }
 
-  .thing { left: auto; top: auto; width: auto; --dx: 0px; --dy: 0px; --u: 4.2px; touch-action: auto; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 10px; transform: rotate(var(--r)); min-width: 0; }
-  .thing:hover, .thing:focus-visible { transform: rotate(0deg) translateY(-3px); filter: none; }
-  .thing > img, .thing .console img { width: auto; max-width: 100%; height: 132px; object-fit: contain; }
-  .thing__label { position: static; transform: rotate(-2deg); opacity: 1; font-size: 18px; padding: 1px 10px 2px; box-shadow: 2px 2px 0 var(--ink); white-space: normal; text-align: center; text-wrap: balance; max-width: 100%; }
-  .thing:hover .thing__label, .thing:focus-visible .thing__label { transform: rotate(-1deg); }
+  /* the mat: tilted 2° counter-clockwise, ~16 px of desk visible on each side of its turned edge */
+  .mmat {
+    position: relative; margin: 0 var(--mm); padding: clamp(40px, 9vh, 80px) 5px 58px; border-radius: 18px; transform: rotate(-2deg);
+    color: #fff; text-align: center; overflow: hidden;
+    background-color: #2350E8;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, .24) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .24) 1px, transparent 1px),
+      linear-gradient(rgba(255, 255, 255, .09) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .09) 1px, transparent 1px);
+    background-size: var(--g) var(--g), var(--g) var(--g), calc(var(--g) / 5) calc(var(--g) / 5), calc(var(--g) / 5) calc(var(--g) / 5);
+    background-position: 14px 14px;
+    box-shadow: 0 2px 0 #1638b8, 8px 16px 30px -14px rgba(16, 30, 90, .55);
+  }
+  .mmat__ruler span, .mmat__side span { position: absolute; font-family: var(--font-body); font-size: 9.5px; line-height: 1; color: rgba(255, 255, 255, .78); font-variant-numeric: tabular-nums; }
+  .mmat__ruler span { top: 5px; left: calc(14px + var(--i) * var(--g)); transform: translateX(-50%); }
+  .mmat__ruler span::after { content: ""; position: absolute; left: 50%; top: 12px; width: 1px; height: 5px; background: rgba(255, 255, 255, .6); }
+  .mmat__side span { left: 0; top: calc(14px + var(--i) * var(--g)); width: 6px; height: 1px; font-size: 0; background: rgba(255, 255, 255, .6); }
+  .mmat__title { position: relative; margin: 0; font-family: var(--font-display); font-weight: 400; font-size: var(--t-title); line-height: .95; letter-spacing: -.01em; white-space: nowrap; }
+  .mmat__sub { position: relative; margin: 10px 0 0; font-family: var(--font-hand); font-weight: 700; font-size: var(--t-sub); line-height: 1.05; color: var(--yellow); }
 
-  .thing--booth { order: 1; --r: -2deg; }
-  .thing--capsule { order: 2; --r: 2deg; }
-  .thing--capsule .cal { width: 128px; --u: 4.1px; }
-  .thing--wall { order: 3; grid-column: 1 / -1; --r: .6deg; --u: 3.4px; }
-  .thing--wall .deskboard { width: 100%; padding: 8px 8px 10px; }
-  .deskboard canvas { aspect-ratio: 16 / 9; }
-  .deskboard__cap, .board__cap { flex-wrap: nowrap; }
-  .board__cap b { font-size: 17px; white-space: nowrap; }
-  .board__cap span { font-size: 21px; }
-  .tape { width: 64px; height: 18px; top: -9px; left: calc(50% - 32px); }
-  .thing--wall .thing__label { display: none; }
-  .thing--run { order: 4; --r: 3deg; }
-  .thing--run .console { height: 132px; }
-  .thing--run .console img { height: 100%; }
-  .thing--cd { order: 5; --r: -3deg; --u: 5px; }
-  .thing--cd .dcd { margin-top: 14px; }
-  .thing--objects { order: 6; grid-column: 1 / -1; --r: -1deg; }
-  .thing--objects > img { height: auto; width: 92%; }
-  .thing--films { order: 7; --r: -3deg; --u: 6.4px; }
-  .thing--films .dvhs-stack { width: 150px; margin-top: 10px; }
-  .note-phrase { order: 8; justify-self: center; left: auto; top: auto; width: 100%; min-height: 0; transform: rotate(-2deg); font-size: 20px; padding: 20px 14px 12px; }
-  .note-phrase small { font-size: 12px; margin-top: 10px; }
-  .note-phrase:hover { transform: rotate(-1deg); }
-  .decor, .hint-move, .desk-reset { display: none; }
+  /* the sheet: warm white, overlapping only the mat's background by about 40 px */
+  .msheet {
+    position: relative; z-index: 1; margin: -40px 12px 0; padding: clamp(14px, 4vh, 36px) 6px clamp(12px, 3vh, 28px); border-radius: 22px;
+    background: #FBF8F1;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .9) inset, 0 16px 34px -16px rgba(16, 30, 90, .38), 0 3px 10px rgba(16, 30, 90, .08);
+  }
+  .mitems { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); row-gap: clamp(10px, 4.5vh, 40px); }
+  .mitems > li { grid-column: span 3; display: flex; min-width: 0; }
+  .mitems > li:nth-child(n + 5) { grid-column: span 4; }
+  .mitem {
+    flex: 1; min-width: 44px; min-height: 44px; display: flex; flex-direction: column; align-items: center; gap: 5px;
+    padding: 4px 2px 3px; border: 0; border-radius: 14px; background: none; color: var(--ink); font: inherit; text-decoration: none; cursor: pointer;
+    -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; -webkit-user-drag: none; touch-action: manipulation;
+    transition: background .15s;
+  }
+  .mitem__pic { position: relative; width: 100%; height: var(--pic); display: flex; align-items: flex-end; justify-content: center; transition: transform .15s cubic-bezier(.3, 1.4, .5, 1); }
+  .mitem__pic img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center bottom; pointer-events: none; -webkit-user-drag: none; }
+  .mitem__cap { font-family: var(--font-hand); font-weight: 700; font-size: var(--t-cap); line-height: 1.05; color: #1c1c22; white-space: nowrap; }
+  .mitem:active { background: rgba(36, 78, 231, .08); }
+  .mitem:active .mitem__pic { transform: scale(.93); }
+  .mitem:focus-visible { outline: 3px solid var(--cobalt); outline-offset: 1px; }
+  .mitem:focus-visible .mitem__cap { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+
+  /* the objects, sized from --pic */
+  .mitem--booth .mitem__pic img { width: 104%; height: 104%; }
+  .mpola { position: relative; display: block; width: calc(var(--pic) * .86); padding: calc(var(--pic) * .06) calc(var(--pic) * .06) calc(var(--pic) * .17); background: #fff; border-radius: 3px; transform: rotate(-3deg); box-shadow: 0 2px 0 #e2e4ea, 3px 7px 12px -5px rgba(16, 30, 90, .35); }
+  .mpola canvas { display: block; width: 100%; aspect-ratio: 1; background: #eef1f7; }
+  .mpola__tape { position: absolute; left: 26%; top: -9%; width: 48%; height: 16%; background: rgba(255, 216, 74, .85); transform: rotate(-4deg); box-shadow: 0 1px 2px rgba(0, 0, 0, .12); }
+  .mitem .console { position: relative; display: block; height: 100%; aspect-ratio: 489 / 523; max-width: 100%; }
+  .mitem .console img { position: absolute; inset: 0; }
+  .mitem .dcd { --u: calc(var(--pic) / 24.5); }
+  .mitem .cal { --u: calc(var(--pic) / 23); width: calc(var(--pic) * .9); transform: rotate(3deg); }
+  .mitem .cal__top { font-size: calc(var(--pic) * .13); }
+  .mitem .dvhs-stack { --u: calc(var(--pic) / 17); width: calc(var(--pic) * 1.2); }
+  .mitem .dvhs b { font-size: calc(var(--pic) * .085); }
+
+  /* studio menu: a compact button in the free space under the sheet */
+  .mhome__menu { position: relative; display: flex; justify-content: center; margin-top: 16px; }
+  .mmenu-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px 0 10px; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--paper); color: var(--ink); font-family: var(--font-body); font-weight: 600; font-size: 15px; box-shadow: 2px 2px 0 var(--ink); cursor: pointer; }
+  .mmenu-btn svg { width: 26px; height: 26px; flex: none; }
+  .mmenu-btn:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--ink); }
+  .mmenu-btn[aria-expanded="true"] { background: var(--ink); color: #fff; }
+  .mmenu-btn:focus-visible { outline: 3px solid var(--cobalt); outline-offset: 3px; }
+  .mmenu { position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); z-index: 30; width: min(300px, calc(var(--vw) - 24px)); background: var(--paper); border: 1.5px solid var(--ink); border-radius: 16px; box-shadow: 4px 4px 0 var(--ink); overflow: hidden; text-align: left; }
+  .mmenu__head { margin: 0; padding: 12px 16px 10px; background: var(--cobalt); color: #fff; }
+  .mmenu__head b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 22px; line-height: 1; }
+  .mmenu__head span { font-family: var(--font-hand); font-weight: 700; font-size: 20px; }
+  .mmenu__row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 8px 14px; border: 0; background: none; color: var(--ink); font: inherit; text-align: left; text-decoration: none; cursor: pointer; }
+  .mmenu__row + .mmenu__row { border-top: 1px solid var(--line); }
+  .mmenu__row:active, .mmenu__row:focus-visible { background: var(--soft); outline: none; }
+  .mmenu__row svg { width: 26px; height: 26px; flex: none; }
+  .mmenu__ic { display: grid; place-items: center; }
+  .mmenu__row b { display: block; font-size: 15px; }
+  .mmenu__row small { display: block; color: var(--muted); font-size: 13px; line-height: 1.3; }
+  .mmenu__row[aria-pressed="false"] small { color: var(--red); }
+  .mmenu__clock { margin: 0; padding: 10px 14px 12px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+  .mmenu__clock b { font-family: var(--font-pixel); font-weight: 400; font-size: 11px; color: var(--ink); margin-left: 6px; }
+}
+/* very narrow screens or big zoom: let the things wrap, two by two */
+@media (max-width: 300px) {
+  .mitems > li, .mitems > li:nth-child(n + 5) { grid-column: span 6; }
+  .mitem__cap { white-space: normal; text-align: center; }
 }
