@@ -52,6 +52,7 @@ async function route() {
   const root = h(`<div class="view view--${id}"></div>`);
   main.appendChild(root);
   current = { id, mod, cleanup: null, token };
+  document.documentElement.classList.toggle('on-desk', id === 'desk'); // the phone home has its own menu instead of the taskbar
   document.title = TITLES[id] ? `${TITLES[id]} · ${CONFIG.SITE_NAME}` : CONFIG.SITE_NAME;
   renderTaskbar();
   window.scrollTo(0, 0);
